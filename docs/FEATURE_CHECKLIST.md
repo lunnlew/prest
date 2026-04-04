@@ -461,7 +461,7 @@ export type ToolbarItem = ToolbarButtonItem | ToolbarGroupItem
 
 | ID | 功能 | 优先级 | 状态 | 备注 |
 |----|------|--------|------|------|
-| EX-001 | 数学公式 (KaTeX) | P0 | ❌ | 已记录在 TODO，待实现 |
+| EX-001 | 数学公式 (KaTeX) | P0 | ✅ | 支持 `$..$` 行内和 `$$..$$` 块级公式 | `MarkdownPreview.tsx`, `remark-math`, `rehype-katex` | 已记录在 TODO，待实现 |
 | EX-002 | Mermaid 图表语法 | P1 | ❌ | \`\`\`mermaid 代码块渲染 |
 | EX-003 | 脚注支持 | P2 | ❌ | remark-gfm 已支持，待验证 |
 | EX-004 | Admonition/Callout 块 | P2 | ❌ | 警告/提示/注意等特殊块 |
@@ -529,7 +529,7 @@ export type ToolbarItem = ToolbarButtonItem | ToolbarGroupItem
 | 1.4 | ARC-002 自动保存逻辑完整实现 | 2h | \`settingsSlice.ts\`, \`MonacoEditor.tsx\` |
 | 1.5 | FIX-004 未保存状态指示器 | 0.5h | \`EditorStatusBar.tsx\` |
 | 1.6 | ARC-001 真实文件系统对接 (IndexedDB) | 4h | \`FileExplorer.tsx\`, 新建 \`storage/\` |
-| 1.7 | EX-001 数学公式 (KaTeX) | 3h | \`package.json\`, \`MarkdownPreview.tsx\` |
+| 1.7 | EX-001 数学公式 (KaTeX) | ✅ 已完成 | 3h | \`package.json\`, \`MarkdownPreview.tsx\` |
 
 ### Phase 2: 核心体验提升（P1）
 
