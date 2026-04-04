@@ -40,6 +40,7 @@ export interface LocaleMessages {
     words: string
     characters: string
     lines: string
+    unsaved: string
   }
   // Toolbar
   toolbar: {

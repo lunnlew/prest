@@ -23,7 +23,7 @@ export function EditorStatusBar() {
 
       {/* Center */}
       <div className="flex items-center gap-4">
-        {isDirty && <span className="text-yellow-500">● {isLoading ? 'Unsaved' : ''}</span>}
+        {isDirty && <span title={isLoading ? 'Unsaved changes' : t.editor.unsaved} className="flex items-center gap-1 text-yellow-500"><span className="w-2 h-2 rounded-full bg-yellow-500 inline-block" />{isLoading ? 'Unsaved' : t.editor.unsaved}</span>}
       </div>
 
       {/* Right */}
