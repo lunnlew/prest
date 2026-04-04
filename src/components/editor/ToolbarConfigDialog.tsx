@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
+import { defaultToolbarGroups, defaultToolbarItems } from '../../stores/settingsSlice'
 import type { ToolbarButtonId, ToolbarGroupId, ToolbarGroupConfig, ToolbarItem } from '../../types'
 import { buttonConfigs, allButtonIds } from './buttons'
 
@@ -147,6 +148,17 @@ export function ToolbarConfigDialog({ isOpen, onClose }: ToolbarConfigDialogProp
 
   // Toggle group visibility (real-time)
   const toggleGroupVisibility = (groupId: ToolbarGroupId) => {
+    // If the group is currently visible, we're hiding it → remove from items
+    const group = currentGroups.find(g => g.id === groupId)
+    if (group?.visible) {
+      setToolbarItems(currentItems.filter(item => !(item.type === 'group' && item.id === groupId)))
+    } else {
+      // Group is hidden → we're showing it → add to items if not there
+      const groupInItems = currentItems.some(item => item.type === 'group' && item.id === groupId)
+      if (!groupInItems) {
+        setToolbarItems([...currentItems, { type: 'group', id: groupId }])
+      }
+    }
     const newGroups = currentGroups.map(g =>
       g.id === groupId ? { ...g, visible: !g.visible } : g
     )
@@ -308,29 +320,8 @@ export function ToolbarConfigDialog({ isOpen, onClose }: ToolbarConfigDialogProp
 
   // Reset to defaults
   const handleReset = () => {
-    const defaultGroups: ToolbarGroupConfig[] = [
-      { id: 'headings', label: 'Headings', expanded: true, visible: true, buttons: ['heading1', 'heading2', 'heading3'] },
-      { id: 'textFormatting', label: 'Text', expanded: true, visible: true, buttons: ['bold', 'italic', 'strikethrough', 'highlight'] },
-      { id: 'codeLinks', label: 'Code & Links', expanded: false, visible: true, buttons: ['code', 'link', 'image'] },
-      { id: 'lists', label: 'Lists', expanded: false, visible: true, buttons: ['bulletList', 'orderedList', 'taskList'] },
-      { id: 'blocks', label: 'Blocks', expanded: false, visible: true, buttons: ['quote', 'table', 'hr'] },
-      { id: 'alignment', label: 'Alignment', expanded: false, visible: true, buttons: ['alignLeft', 'alignCenter', 'alignRight'] },
-    ]
-    const defaultItems: ToolbarItem[] = [
-      { type: 'button', id: 'bold' },
-      { type: 'button', id: 'italic' },
-      { type: 'button', id: 'bulletList' },
-      { type: 'button', id: 'orderedList' },
-      { type: 'button', id: 'link' },
-      { type: 'group', id: 'headings' },
-      { type: 'group', id: 'textFormatting' },
-      { type: 'group', id: 'codeLinks' },
-      { type: 'group', id: 'lists' },
-      { type: 'group', id: 'blocks' },
-      { type: 'group', id: 'alignment' },
-    ]
-    setToolbarGroups(defaultGroups)
-    setToolbarItems(defaultItems)
+    setToolbarGroups(defaultToolbarGroups)
+    setToolbarItems(defaultToolbarItems)
   }
 
   if (!isOpen || !t) return null

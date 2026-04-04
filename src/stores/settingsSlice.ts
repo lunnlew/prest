@@ -27,14 +27,14 @@ export const defaultToolbarGroups: ToolbarGroupConfig[] = [
     label: 'Headings',
     buttons: ['heading1', 'heading2', 'heading3'],
     visible: true,
-    expanded: true,
+    expanded: false,
   },
   {
     id: 'textFormatting',
     label: 'Text',
     buttons: ['bold', 'italic', 'strikethrough', 'highlight'],
     visible: true,
-    expanded: true,
+    expanded: false,
   },
   {
     id: 'codeLinks',
@@ -64,6 +64,13 @@ export const defaultToolbarGroups: ToolbarGroupConfig[] = [
     visible: true,
     expanded: false,
   },
+  {
+    id: 'tools',
+    label: 'Tools',
+    buttons: ['clearFormat'],
+    visible: true,
+    expanded: false,
+  }
 ]
 
 // Default pinned buttons (most commonly used)
@@ -71,17 +78,47 @@ export const defaultPinnedButtons: ToolbarButtonId[] = ['bold', 'italic', 'bulle
 
 // Default toolbar items order
 export const defaultToolbarItems: ToolbarItem[] = [
+  // Text formatting
   { type: 'button', id: 'bold' },
   { type: 'button', id: 'italic' },
+  { type: 'button', id: 'underline' },
+  { type: 'button', id: 'strikethrough' },
+  { type: 'button', id: 'highlight' },
+  { type: 'button', id: 'subscript' },
+  { type: 'button', id: 'superscript' },
+  // Headings
+  { type: 'button', id: 'heading1' },
+  { type: 'button', id: 'heading2' },
+  { type: 'button', id: 'heading3' },
+  { type: 'button', id: 'heading4' },
+  { type: 'button', id: 'heading5' },
+  { type: 'button', id: 'heading6' },
+  // Code & Links
+  { type: 'button', id: 'code' },
+  { type: 'button', id: 'link' },
+  { type: 'button', id: 'image' },
+  // Lists
   { type: 'button', id: 'bulletList' },
   { type: 'button', id: 'orderedList' },
-  { type: 'button', id: 'link' },
-  { type: 'group', id: 'headings' },
-  { type: 'group', id: 'textFormatting' },
-  { type: 'group', id: 'codeLinks' },
-  { type: 'group', id: 'lists' },
-  { type: 'group', id: 'blocks' },
-  { type: 'group', id: 'alignment' },
+  { type: 'button', id: 'taskList' },
+  // Blocks
+  { type: 'button', id: 'quote' },
+  { type: 'button', id: 'table' },
+  { type: 'button', id: 'hr' },
+  // Alignment
+  { type: 'button', id: 'alignLeft' },
+  { type: 'button', id: 'alignCenter' },
+  { type: 'button', id: 'alignRight' },
+  // Tools
+  { type: 'button', id: 'clearFormat' },
+  // Groups
+  // { type: 'group', id: 'headings' },
+  // { type: 'group', id: 'textFormatting' },
+  // { type: 'group', id: 'codeLinks' },
+  // { type: 'group', id: 'lists' },
+  // { type: 'group', id: 'blocks' },
+  // { type: 'group', id: 'alignment' },
+  // { type: 'group', id: 'tools' },
 ]
 
 const defaultSettings: Settings = {
