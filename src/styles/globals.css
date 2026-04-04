@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default to dark theme to prevent white flash */
+html,
+body {
+  background-color: #1e1e1e;
+  color: #cccccc;
+}
+
+:root {
+  /* Light theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e8e8e8;
+  --text-primary: #1e1e1e;
+  --text-secondary: #6e6e6e;
+  --text-muted: #858585;
+  --border-color: #e0e0e0;
+  --accent-color: #0078d4;
+  --accent-hover: #106ebe;
+  --resize-handle-bg: transparent;
+  --resize-handle-hover-bg: #0078d420;
+  --resize-handle-active-bg: #0078d440;
+}
+
+.dark {
+  /* Dark theme - VSCode-like */
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #252526;
+  --bg-tertiary: #2d2d2d;
+  --text-primary: #cccccc;
+  --text-secondary: #9d9d9d;
+  --text-muted: #858585;
+  --border-color: #3c3c3c;
+  --accent-color: #0078d4;
+  --accent-hover: #1a8cdb;
+  --resize-handle-bg: transparent;
+  --resize-handle-hover-bg: #ffffff15;
+  --resize-handle-active-bg: #0078d440;
+}
+
+/* Light theme overrides */
+html.light,
+.light body {
+  background-color: #ffffff;
+  color: #1e1e1e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Focus outline */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Code/Mono font */
+code,
+pre {
+  font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+}
+
+/* Search highlight in editor */
+.search-highlight {
+  background-color: rgba(255, 215, 0, 0.3);
+}
+
+.search-highlight-inline {
+  background-color: rgba(255, 215, 0, 0.4);
+  border-radius: 2px;
+}
+
+.dark .search-highlight {
+  background-color: rgba(255, 200, 50, 0.25);
+}
+
+.dark .search-highlight-inline {
+  background-color: rgba(255, 200, 50, 0.35);
+}
