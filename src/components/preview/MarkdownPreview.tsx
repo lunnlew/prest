@@ -2,6 +2,10 @@ import { useRef, useEffect, useMemo } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import { remarkHighlightMark } from 'remark-highlight-mark'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
@@ -57,8 +61,26 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
       style={{ minHeight: layoutInfo.totalHeight }}
     >
       <Markdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
+        remarkPlugins={[
+          remarkGfm,
+          remarkMath,
+          remarkHighlightMark,
+        ]}
+        rehypePlugins={[
+          rehypeRaw,
+          rehypeKatex,
+          [rehypeSanitize, {
+            ...defaultSchema,
+            tagNames: [
+              ...(defaultSchema.tagNames || []),
+              'div', 'mark', 'sub', 'sup',
+            ],
+            attributes: {
+              ...defaultSchema.attributes,
+              div: [['align']],
+            },
+          }],
+        ]}
         components={{
           // Custom code block with syntax highlighting
           code({ className, children, ...props }) {
