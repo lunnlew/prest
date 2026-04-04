@@ -112,13 +112,13 @@ export const defaultToolbarItems: ToolbarItem[] = [
   // Tools
   { type: 'button', id: 'clearFormat' },
   // Groups
-  // { type: 'group', id: 'headings' },
-  // { type: 'group', id: 'textFormatting' },
-  // { type: 'group', id: 'codeLinks' },
-  // { type: 'group', id: 'lists' },
-  // { type: 'group', id: 'blocks' },
-  // { type: 'group', id: 'alignment' },
-  // { type: 'group', id: 'tools' },
+  { type: 'group', id: 'headings' },
+  { type: 'group', id: 'textFormatting' },
+  { type: 'group', id: 'codeLinks' },
+  { type: 'group', id: 'lists' },
+  { type: 'group', id: 'blocks' },
+  { type: 'group', id: 'alignment' },
+  { type: 'group', id: 'tools' },
 ]
 
 const defaultSettings: Settings = {
