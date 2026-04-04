@@ -159,6 +159,18 @@
   background: var(--border-color);
 }
 
+/* Text highlight (==text==) */
+.markdown-preview-container mark {
+  background: var(--highlight-bg, #fef08a);
+  color: inherit;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.dark .markdown-preview-container mark {
+  background: #854d0e;
+}
+
 /* Task list */
 .markdown-preview-container input[type='checkbox'] {
   margin-right: 8px;
