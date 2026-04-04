@@ -21,4 +21,11 @@ export const buttons: ButtonConfig[] = [
     format: 'clearFormat',
     group: groupId,
   },
+  {
+    id: 'downloadMd',
+    icon: <span className="text-sm">↓</span>,
+    getDisplayName: (t) => t.editor.downloadMd || 'Download MD',
+    getTitle: (t) => t.editor.downloadMd || 'Download Markdown File',
+    group: groupId,
+  },
 ]

@@ -76,6 +76,7 @@ export type ToolbarButtonId =
   | 'alignRight'
   // Tools
   | 'clearFormat'
+  | 'downloadMd'
 
 export type ToolbarGroupId = 'headings' | 'textFormatting' | 'codeLinks' | 'lists' | 'blocks' | 'alignment' | 'tools' | (string & {})
 

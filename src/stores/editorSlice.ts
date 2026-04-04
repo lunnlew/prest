@@ -40,6 +40,7 @@ export type FormatType =
   | 'alignCenter'
   | 'alignRight'
   | 'clearFormat'
+  | 'downloadMd'
 
 export interface EditorSlice {
   // State
@@ -63,6 +64,7 @@ export interface EditorSlice {
   setCurrentFile: (fileId: string | null) => void
   insertText: (text: string) => void
   formatMarkdown: (type: FormatType) => void
+  downloadMd: (filename?: string) => void
 }
 
 export const createEditorSlice: StateCreator<EditorSlice, [], [], EditorSlice> = (set, get) => ({
@@ -180,8 +182,15 @@ console.log(greeting)
     const position = editor.getPosition()
     if (!position) return
 
-    // Define format actions
-    const formats: Record<FormatType, { prefix: string; suffix: string; placeholder?: string }> = {
+    // Handle downloadMd separately - not a text format
+    if (type === 'downloadMd') {
+      get().downloadMd()
+      return
+    }
+
+    // Define format actions (all types except downloadMd)
+    const formatEntry: Exclude<FormatType, 'downloadMd'> = type as Exclude<FormatType, 'downloadMd'>
+    const formats: Record<Exclude<FormatType, 'downloadMd'>, { prefix: string; suffix: string; placeholder?: string }> = {
       bold: { prefix: '**', suffix: '**', placeholder: 'bold text' },
       italic: { prefix: '*', suffix: '*', placeholder: 'italic text' },
       strikethrough: { prefix: '~~', suffix: '~~', placeholder: 'strikethrough' },
@@ -210,7 +219,7 @@ console.log(greeting)
       clearFormat: { prefix: '', suffix: '', placeholder: '' },
     }
 
-    const format = formats[type]
+    const format = formats[formatEntry]
 
     // Handle clearFormat separately
     if (type === 'clearFormat') {
@@ -265,5 +274,19 @@ console.log(greeting)
     }
 
     editor.focus()
+  },
+
+  downloadMd: (filename?: string) => {
+    const state = get()
+    const content = state.content
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename || 'document.md'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   },
 })

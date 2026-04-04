@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useBoundStore } from '../../stores'
+import { useBoundStore, type AppStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import type { FormatType } from '../../stores'
 import type { ToolbarGroupId } from '../../types'
@@ -123,6 +123,11 @@ const groupLabels: Record<ToolbarGroupId, string> = {
   tools: '工具',
 }
 
+// Custom action handlers for buttons without format property
+const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
+  downloadMd: (store) => store.downloadMd(),
+}
+
 export function EditorToolbar() {
   const {
     toggleSidebar,
@@ -161,6 +166,11 @@ export function EditorToolbar() {
     setOpenDropdown(null)
   }
 
+  const handleCustomAction = (buttonId: string) => {
+    const store = useBoundStore.getState()
+    buttonActionHandlers[buttonId]?.(store)
+  }
+
   // Fallback to defaults if toolbar settings not available
   const toolbarGroups = settings?.toolbar?.groups ?? defaultToolbarGroups
   const toolbarItems = settings?.toolbar?.items ?? defaultToolbarItems
@@ -179,16 +189,35 @@ export function EditorToolbar() {
 
         // Render button directly
         const config = buttonConfigs[item.id]
-        if (!config || !config.format) return null
-        return (
-          <ToolbarButton
-            key={`button-${item.id}`}
-            onClick={() => handleFormat(config.format!)}
-            title={isLoading ? item.id : config.getTitle(t)}
-          >
-            {config.icon}
-          </ToolbarButton>
-        )
+        if (!config) return null
+
+        // Button with format action
+        if (config.format) {
+          return (
+            <ToolbarButton
+              key={`button-${item.id}`}
+              onClick={() => handleFormat(config.format!)}
+              title={isLoading ? item.id : config.getTitle(t)}
+            >
+              {config.icon}
+            </ToolbarButton>
+          )
+        }
+
+        // Button with custom action
+        if (buttonActionHandlers[item.id]) {
+          return (
+            <ToolbarButton
+              key={`button-${item.id}`}
+              onClick={() => handleCustomAction(item.id)}
+              title={isLoading ? item.id : config.getTitle(t)}
+            >
+              {config.icon}
+            </ToolbarButton>
+          )
+        }
+
+        return null
       } else if (item.type === 'group') {
         // Find the group config
         const group = toolbarGroups.find((g) => g.id === item.id)
@@ -206,15 +235,33 @@ export function EditorToolbar() {
           >
             {group.buttons.map((buttonId) => {
               const config = buttonConfigs[buttonId]
-              if (!config || !config.format) return null
-              return (
-                <DropdownItem
-                  key={buttonId}
-                  onClick={() => handleFormat(config.format!)}
-                  icon={config.icon}
-                  displayName={isLoading ? buttonId : config.getDisplayName(t)}
-                />
-              )
+              if (!config) return null
+
+              // Format buttons
+              if (config.format) {
+                return (
+                  <DropdownItem
+                    key={buttonId}
+                    onClick={() => handleFormat(config.format!)}
+                    icon={config.icon}
+                    displayName={isLoading ? buttonId : config.getDisplayName(t)}
+                  />
+                )
+              }
+
+              // Custom action buttons in dropdown
+              if (buttonActionHandlers[buttonId]) {
+                return (
+                  <DropdownItem
+                    key={buttonId}
+                    onClick={() => handleCustomAction(buttonId)}
+                    icon={config.icon}
+                    displayName={isLoading ? buttonId : config.getDisplayName(t)}
+                  />
+                )
+              }
+
+              return null
             })}
           </DropdownMenu>
         )

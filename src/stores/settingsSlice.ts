@@ -67,7 +67,7 @@ export const defaultToolbarGroups: ToolbarGroupConfig[] = [
   {
     id: 'tools',
     label: 'Tools',
-    buttons: ['clearFormat'],
+    buttons: ['clearFormat', 'downloadMd'],
     visible: true,
     expanded: false,
   }
@@ -111,6 +111,7 @@ export const defaultToolbarItems: ToolbarItem[] = [
   { type: 'button', id: 'alignRight' },
   // Tools
   { type: 'button', id: 'clearFormat' },
+  { type: 'button', id: 'downloadMd' },
   // Groups
   { type: 'group', id: 'headings' },
   { type: 'group', id: 'textFormatting' },

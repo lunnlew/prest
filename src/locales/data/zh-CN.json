@@ -34,6 +34,7 @@
     "alignCenter": "居中对齐",
     "alignRight": "右对齐",
     "clearFormat": "清除格式",
+    "downloadMd": "下载 Markdown 文件",
     "undo": "撤销",
     "redo": "重做",
     "toggleSidebar": "切换侧边栏",
