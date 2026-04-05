@@ -44,9 +44,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   const measureRef = useRef<HTMLDivElement>(null)
   const [tags, setTags] = useState(settings.xhsExport.tags.join(' '))
   const [exporting, setExporting] = useState(false)
-  const [currentPageNum, setCurrentPageNum] = useState(1)
   const [pages, setPages] = useState<PageInfo[]>([])
-  const [totalPages, setTotalPages] = useState(0)
 
   const handleClose = useCallback(() => onClose(), [onClose])
 
@@ -70,8 +68,6 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
       const result = paginate(preview, xhs.aspectRatio, frameW)
       setPages(result.pages)
-      setTotalPages(result.totalPages)
-      setCurrentPageNum(1)
     }
 
     const timer1 = setTimeout(measure, 150)
@@ -82,14 +78,14 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   const handleAspectChange = useCallback(
     (ratio: XHSAspectRatio) => {
       setXHSExportSettings({ aspectRatio: ratio, exportWidth: Math.min(xhs.exportWidth, MAX_WIDTHS[ratio as XHSAspectRatio]) })
-      setPages([]); setTotalPages(0)
+      setPages([])
     }, [setXHSExportSettings]
   )
 
   const handleTemplateChange = useCallback(
     (tpl: XHSTemplate) => {
       setXHSExportSettings({ template: tpl })
-      setPages([]); setTotalPages(0)
+      setPages([])
     }, [setXHSExportSettings]
   )
 
@@ -97,7 +93,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
     (val: string) => {
       setTags(val)
       setXHSExportSettings({ tags: val.split(/\s+/).filter(Boolean) })
-      setPages([]); setTotalPages(0)
+      setPages([])
     }, [setXHSExportSettings]
   )
 
@@ -177,7 +173,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                   max={MAX_WIDTHS[xhs.aspectRatio]}
                   step={20}
                   value={xhs.exportWidth}
-                  onChange={(e) => { setPages([]); setTotalPages(0); setXHSExportSettings({ exportWidth: Number(e.target.value) }) }}
+                  onChange={(e) => { setPages([]); setXHSExportSettings({ exportWidth: Number(e.target.value) }) }}
                   className="flex-1 accent-[var(--accent-color)]"
                 />
                 <span className="text-sm text-[var(--text-primary)] min-w-[4rem] text-right">{frameW}px</span>
@@ -208,21 +204,9 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                 }`}>显示页码</button>
             </div>
 
-            {totalPages > 0 && (
+            {pages.length > 0 && (
               <div className="text-xs text-[var(--text-muted)] bg-[var(--bg-tertiary)] rounded p-3">
-                共 {totalPages} 页
-              </div>
-            )}
-
-            {totalPages > 1 && (
-              <div className="flex items-center gap-2">
-                <button onClick={() => setCurrentPageNum(Math.max(1, currentPageNum - 1))}
-                  disabled={currentPageNum <= 1}
-                  className="flex-1 px-3 py-2 text-sm rounded bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">上一页</button>
-                <span className="text-sm text-[var(--text-primary)] min-w-[3rem] text-center">{currentPageNum} / {totalPages}</span>
-                <button onClick={() => setCurrentPageNum(Math.min(totalPages, currentPageNum + 1))}
-                  disabled={currentPageNum >= totalPages}
-                  className="flex-1 px-3 py-2 text-sm rounded bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">下一页</button>
+                共 {pages.length} 页
               </div>
             )}
 
