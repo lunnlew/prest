@@ -217,7 +217,7 @@ export function FileExplorer() {
       {
         label: 'New Folder',
         action: async () => {
-          await createFile('New Folder', 'folder', parentId)
+          await createFile('新文件夹', 'folder', parentId)
         },
       },
       ...(node ? [
