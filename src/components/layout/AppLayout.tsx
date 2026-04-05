@@ -16,6 +16,7 @@ export function AppLayout() {
     <div className="h-full w-full bg-[var(--bg-primary)]">
       <PanelGroup
         direction="horizontal"
+        autoSaveId="main-layout"
         onLayout={handleLayoutChange}
         className="h-full"
       >
@@ -41,7 +42,7 @@ export function AppLayout() {
 
         {/* Center Editor + Right Preview */}
         <Panel id="main" defaultSize={sidebarVisible ? panelLayout[1] : 100} minSize={30}>
-          <PanelGroup direction="horizontal" className="h-full">
+          <PanelGroup direction="horizontal" autoSaveId="editor-preview-layout" className="h-full">
             {/* Editor Panel */}
             <Panel
               id="editor"
