@@ -8,20 +8,19 @@ import { clsx } from 'clsx'
 
 export function SidebarPanel() {
   const { activeSidebarTab, setActiveSidebarTab } = useBoundStore()
-  const { t, loading } = useTranslation()
+  const { t } = useTranslation()
 
-  const isLoading = loading || !t
+  if (!t) return null
 
   const tabs = [
-    { id: 'files' as const, icon: '📁', label: isLoading ? 'Files' : t.sidebar.files },
-    { id: 'search' as const, icon: '🔍', label: isLoading ? 'Search' : t.sidebar.search },
-    { id: 'outline' as const, icon: '📋', label: isLoading ? 'Outline' : t.sidebar.outline },
-    { id: 'settings' as const, icon: '⚙️', label: isLoading ? 'Settings' : t.sidebar.settings },
+    { id: 'files' as const, icon: '📁', label: t.sidebar.files },
+    { id: 'search' as const, icon: '🔍', label: t.sidebar.search },
+    { id: 'outline' as const, icon: '📋', label: t.sidebar.outline },
+    { id: 'settings' as const, icon: '⚙️', label: t.sidebar.settings },
   ]
 
   return (
     <div className="flex h-full">
-      {/* Activity Bar */}
       <div className="w-12 flex flex-col items-center py-2 bg-[var(--bg-tertiary)] border-r border-[var(--border-color)]">
         {tabs.map((tab) => (
           <button
@@ -40,16 +39,13 @@ export function SidebarPanel() {
         ))}
       </div>
 
-      {/* Sidebar Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
         <div className="h-9 px-4 flex items-center border-b border-[var(--border-color)]">
           <span className="text-sm font-medium text-[var(--text-primary)]">
             {tabs.find((tab) => tab.id === activeSidebarTab)?.label}
           </span>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-auto">
           {activeSidebarTab === 'files' && <FileExplorer />}
           {activeSidebarTab === 'search' && <SearchPanel />}

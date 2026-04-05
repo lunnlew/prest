@@ -59,7 +59,7 @@ function FileTreeItem(props: FileTreeItemProps) {
       const rect = e.currentTarget.getBoundingClientRect()
       const y = e.clientY - rect.top
       const h = rect.height
-      if (h < 10) return // too small
+      if (h < 10) return
       if (y < h * 0.25) {
         setDragOver('above')
       } else if (y > h * 0.75) {
@@ -81,10 +81,8 @@ function FileTreeItem(props: FileTreeItemProps) {
     if (!draggedId || draggedId === node.id) return
 
     if (dragOver === 'on' && isFolder) {
-      // Drop into folder
       moveFile(draggedId, node.id)
     } else {
-      // Drop before/after a node — same parent as the target node
       moveFile(draggedId, null)
     }
   }
@@ -192,12 +190,12 @@ function FileTreeItem(props: FileTreeItemProps) {
 
 export function FileExplorer() {
   const { files, createFile, renameFile, deleteFile, setCurrentFile, setContent, moveFile } = useBoundStore()
-  const { t, loading } = useTranslation()
+  const { t } = useTranslation()
+
+  if (!t) return null
   const { menu, menuRef, showContextMenu } = useContextMenu()
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
-
-  const isLoading = loading || !t
 
   const closeMenu = useCallback(() => showContextMenu(-999, -999, []), [showContextMenu])
 
@@ -207,25 +205,25 @@ export function FileExplorer() {
 
     return [
       {
-        label: 'New File',
+        label: t.fileExplorer.newFile,
         action: async () => {
-          const newId = await createFile('未命名.md', 'file', parentId)
+          const newId = await createFile(t.fileExplorer.untitledFile, 'file', parentId)
           setCurrentFile(newId)
           setContent('')
         },
       },
       {
-        label: 'New Folder',
+        label: t.fileExplorer.newFolder,
         action: async () => {
-          await createFile('新文件夹', 'folder', parentId)
+          await createFile(t.fileExplorer.newFolderDefault, 'folder', parentId)
         },
       },
       ...(node ? [
-        { dividerBefore: true, label: 'Rename', action: () => { setRenamingId(node.id); setRenameValue(node.name) } },
-        { dividerBefore: false, label: 'Delete', action: () => { deleteFile(node.id) }, danger: true },
+        { dividerBefore: true, label: t.fileExplorer.rename, action: () => { setRenamingId(node.id); setRenameValue(node.name) } },
+        { dividerBefore: false, label: t.fileExplorer.delete, action: () => { deleteFile(node.id) }, danger: true },
       ] : []),
     ]
-  }, [createFile, deleteFile, setCurrentFile, setContent])
+  }, [createFile, deleteFile, setCurrentFile, setContent, t])
 
   const openContextMenu = useCallback((e: React.MouseEvent, node: FileNode | null) => {
     e.preventDefault()
@@ -261,10 +259,9 @@ export function FileExplorer() {
 
   return (
     <div className="py-2 relative min-h-full" onContextMenu={(e) => { e.preventDefault(); openContextMenu(e, null) }}>
-      {/* Header bar */}
       <div className="px-4 py-2 flex items-center justify-between">
         <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">
-          {isLoading ? 'Explorer' : t.sidebar.files}
+          {t.fileExplorer.title}
         </span>
         <button
           onClick={(e) => {
@@ -272,13 +269,12 @@ export function FileExplorer() {
             openContextMenu(e, null)
           }}
           className="text-xs px-2 py-0.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)]"
-          title="New File/Folder"
+          title={t.fileExplorer.newFileFolderHint}
         >
           +
         </button>
       </div>
 
-      {/* File tree container — allow dropping here */}
       <div onDragOver={handleTreeDragOver} onDrop={handleTreeDrop}>
         {files.map((fileNode) => (
           <FileTreeItem
@@ -296,7 +292,6 @@ export function FileExplorer() {
         ))}
       </div>
 
-      {/* Context menu popover */}
       <ContextMenuPopover menu={menu} menuRef={menuRef} onClose={closeMenu} />
     </div>
   )

@@ -12,11 +12,10 @@ interface SearchResult {
 export function SearchPanel() {
   const [query, setQuery] = useState('')
   const { content, editorInstance } = useBoundStore()
-  const { t, loading } = useTranslation()
+  const { t } = useTranslation()
 
-  const isLoading = loading || !t
+  if (!t) return null
 
-  // Find all matching results
   const results: SearchResult[] = query.trim()
     ? content
         .split('\n')
@@ -42,7 +41,6 @@ export function SearchPanel() {
         }, [])
     : []
 
-  // Jump to line in editor
   const handleResultClick = (lineNumber: number) => {
     if (editorInstance) {
       editorInstance.revealLineInCenter(lineNumber)
@@ -54,14 +52,12 @@ export function SearchPanel() {
     }
   }
 
-  // Highlight search results in editor
   useEffect(() => {
     if (!editorInstance) return
 
     const model = editorInstance.getModel()
     if (!model) return
 
-    // Clear existing decorations
     const decorations = editorInstance.deltaDecorations(
       [],
       query.trim()
@@ -85,7 +81,6 @@ export function SearchPanel() {
     }
   }, [query, results, editorInstance])
 
-  // Highlight matching text in result
   const highlightMatch = (text: string, start: number, end: number) => {
     return (
       <>
@@ -100,27 +95,25 @@ export function SearchPanel() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Search Input */}
       <div className="p-2 border-b border-[var(--border-color)]">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={isLoading ? 'Search in document...' : t.common.search}
+          placeholder={t.common.search}
           className="w-full px-3 py-1.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]"
         />
         {query.trim() && (
-          <div className="mt-1 text-xs text-[var(--text-muted)]">
-            {results.length} {isLoading ? 'result(s) found' : t.sidebar.resultsFound}
+          <div className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+            {results.length} {t.sidebar.resultsFound}
           </div>
         )}
       </div>
 
-      {/* Results */}
       <div className="flex-1 overflow-auto">
         {query.trim() && results.length === 0 && (
-          <div className="px-4 py-8 text-center text-[var(--text-muted)] text-sm">
-            {isLoading ? 'No results found' : t.sidebar.noResults}
+          <div className="px-4 py-8 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+            {t.sidebar.noResults}
           </div>
         )}
         {results.map((result, index) => (
@@ -129,10 +122,10 @@ export function SearchPanel() {
             onClick={() => handleResultClick(result.line)}
             className="px-4 py-1 hover:bg-[var(--bg-tertiary)] cursor-pointer border-b border-[var(--border-color)] last:border-b-0"
           >
-            <div className="text-xs text-[var(--text-muted)]">
-              {isLoading ? 'Line' : t.editor.lineNumber} {result.line}
+            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              {t.editor.lineNumber} {result.line}
             </div>
-            <div className="text-sm text-[var(--text-primary)] truncate">
+            <div className="text-sm truncate" style={{ color: 'var(--text-primary)' }}>
               {highlightMatch(result.content, result.matchStart, result.matchEnd)}
             </div>
           </div>

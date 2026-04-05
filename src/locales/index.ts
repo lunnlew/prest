@@ -41,6 +41,7 @@ export interface LocaleMessages {
     characters: string
     lines: string
     unsaved: string
+    loadingEditor: string
   }
   // Toolbar
   toolbar: {
@@ -50,6 +51,7 @@ export interface LocaleMessages {
     lists: string
     blocks: string
     alignment: string
+    tools: string
     expand: string
     collapse: string
     customize: string
@@ -80,6 +82,22 @@ export interface LocaleMessages {
     noResults: string
     resultsFound: string
   }
+  // File Explorer
+  fileExplorer: {
+    newFile: string
+    newFolder: string
+    rename: string
+    delete: string
+    title: string
+    newFileFolderHint: string
+    untitledFile: string
+    newFolderDefault: string
+  }
+  // Preview
+  preview: {
+    title: string
+    toggleSyncScroll: string
+  }
   // Settings
   settings: {
     title: string
@@ -93,6 +111,10 @@ export interface LocaleMessages {
     syncScroll: string
     autoSave: string
     minimap: string
+    on: string
+    off: string
+    saved: string
+    unsaved: string
     language: string
     toolbarSettings: string
     pinnedButtons: string
@@ -107,7 +129,7 @@ export const defaultLocale: Locale = 'zh-CN'
 // 已加载的语言包缓存
 const loadedLocales: Partial<Record<Locale, LocaleMessages>> = {}
 
-// 动态加载语言包
+// 动态加载语言包（Vite code-splitting：每个 JSON 是独立 chunk）
 export async function loadLocale(locale: Locale): Promise<LocaleMessages> {
   // 如果已缓存，直接返回
   if (loadedLocales[locale]) {

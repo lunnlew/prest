@@ -10,18 +10,9 @@ export function SettingsPanel() {
     setSyncScroll,
     setAutoSave,
   } = useBoundStore()
-  const { t, loading, locale, setLocale: changeLocale } = useTranslation()
+  const { t, locale, setLocale: changeLocale } = useTranslation()
 
-  // 加载中状态
-  if (loading || !t) {
-    return (
-      <div className="py-4 overflow-y-auto h-full">
-        <div className="px-4 py-8 text-center text-[var(--text-muted)] text-sm">
-          Loading...
-        </div>
-      </div>
-    )
-  }
+  if (!t) return null
 
   return (
     <div className="py-4 overflow-y-auto h-full">
@@ -106,7 +97,7 @@ export function SettingsPanel() {
                 : 'bg-[var(--bg-tertiary)] hover:bg-[var(--border-color)]'
             }`}
           >
-            {settings.editor.wordWrap ? 'On' : 'Off'}
+            {settings.editor.wordWrap ? t.settings.on : t.settings.off}
           </button>
         </div>
       </div>
@@ -123,7 +114,7 @@ export function SettingsPanel() {
                 : 'bg-[var(--bg-tertiary)] hover:bg-[var(--border-color)]'
             }`}
           >
-            {settings.syncScroll ? 'On' : 'Off'}
+            {settings.syncScroll ? t.settings.on : t.settings.off}
           </button>
         </div>
       </div>
@@ -140,7 +131,7 @@ export function SettingsPanel() {
                 : 'bg-[var(--bg-tertiary)] hover:bg-[var(--border-color)]'
             }`}
           >
-            {settings.autoSave ? 'On' : 'Off'}
+            {settings.autoSave ? t.settings.on : t.settings.off}
           </button>
         </div>
       </div>

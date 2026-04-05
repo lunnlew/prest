@@ -4,8 +4,13 @@ import { loader } from '@monaco-editor/react'
 import * as monaco from 'monaco-editor'
 import App from './App'
 import './styles/globals.css'
+import { loadLocale, availableLocales } from './locales'
 
 loader.config({ monaco })
+
+// 预加载所有语言包，确保切换时不需要异步加载
+// 默认语言优先加载，确保首次渲染时即有对应语言文案
+Promise.all(availableLocales.map(({ code }) => loadLocale(code))).catch(() => {})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

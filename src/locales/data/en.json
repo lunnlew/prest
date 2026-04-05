@@ -6,6 +6,20 @@
     "search": "Search",
     "loading": "Loading..."
   },
+  "fileExplorer": {
+    "newFile": "New File",
+    "newFolder": "New Folder",
+    "rename": "Rename",
+    "delete": "Delete",
+    "title": "Explorer",
+    "newFileFolderHint": "New File/Folder",
+    "untitledFile": "Untitled.md",
+    "newFolderDefault": "New"
+  },
+  "preview": {
+    "title": "Preview",
+    "toggleSyncScroll": "Toggle sync scroll"
+  },
   "editor": {
     "title": "Editor",
     "bold": "Bold",
@@ -43,7 +57,8 @@
     "columnNumber": "Col",
     "words": "words",
     "characters": "characters",
-    "lines": "lines"
+    "lines": "lines",
+    "loadingEditor": "Loading editor..."
   },
   "toolbar": {
     "headings": "Headings",
@@ -94,6 +109,9 @@
     "syncScroll": "Sync Scroll",
     "autoSave": "Auto Save",
     "minimap": "Minimap",
+    "on": "On",
+    "off": "Off",
+    "saved": "Saved",
     "unsaved": "Unsaved",
     "language": "Language",
     "toolbarSettings": "Toolbar Settings",

@@ -6,6 +6,20 @@
     "search": "搜索",
     "loading": "加载中..."
   },
+  "fileExplorer": {
+    "newFile": "新建文件",
+    "newFolder": "新建文件夹",
+    "rename": "重命名",
+    "delete": "删除",
+    "title": "管理器",
+    "newFileFolderHint": "新建文件/文件夹",
+    "untitledFile": "未命名.md",
+    "newFolderDefault": "新文件夹"
+  },
+  "preview": {
+    "title": "预览",
+    "toggleSyncScroll": "切换同步滚动"
+  },
   "editor": {
     "title": "编辑器",
     "bold": "粗体",
@@ -100,6 +114,10 @@
     "pinnedButtons": "快捷按钮",
     "toolbarGroups": "工具栏分组",
     "toolbarOrder": "工具栏顺序",
-    "visible": "显示"
+    "visible": "显示",
+    "on": "开",
+    "off": "关",
+    "saved": "已保存",
+    "loadingEditor": "编辑器加载中..."
   }
 }

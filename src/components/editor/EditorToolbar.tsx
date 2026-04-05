@@ -112,17 +112,6 @@ function DropdownItem({ onClick, icon, displayName, shortcut }: DropdownItemProp
   )
 }
 
-// Group ID to label mapping for fallback
-const groupLabels: Record<ToolbarGroupId, string> = {
-  headings: '标题',
-  textFormatting: '文本',
-  codeLinks: '代码/链接',
-  lists: '列表',
-  blocks: '区块',
-  alignment: '对齐',
-  tools: '工具',
-}
-
 // Custom action handlers for buttons without format property
 const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
   downloadMd: (store) => store.downloadMd(),
@@ -138,18 +127,15 @@ export function EditorToolbar() {
     redo,
     settings,
   } = useBoundStore()
-  const { t, loading } = useTranslation()
+  const { t } = useTranslation()
 
   const [openDropdown, setOpenDropdown] = useState<ToolbarGroupId | null>(null)
   const [showConfigPanel, setShowConfigPanel] = useState(false)
 
-  const isLoading = loading || !t
+  if (!t) return null
 
   // Get group label
   const getGroupLabel = (groupId: ToolbarGroupId, groupLabel?: string): string => {
-    if (isLoading) {
-      return groupLabels[groupId] || groupId
-    }
     return t.toolbar[groupId as keyof typeof t.toolbar] || groupLabel || groupId
   }
 
@@ -197,7 +183,7 @@ export function EditorToolbar() {
             <ToolbarButton
               key={`button-${item.id}`}
               onClick={() => handleFormat(config.format!)}
-              title={isLoading ? item.id : config.getTitle(t)}
+              title={config.getTitle(t)}
             >
               {config.icon}
             </ToolbarButton>
@@ -210,7 +196,7 @@ export function EditorToolbar() {
             <ToolbarButton
               key={`button-${item.id}`}
               onClick={() => handleCustomAction(item.id)}
-              title={isLoading ? item.id : config.getTitle(t)}
+              title={config.getTitle(t)}
             >
               {config.icon}
             </ToolbarButton>
@@ -244,7 +230,7 @@ export function EditorToolbar() {
                     key={buttonId}
                     onClick={() => handleFormat(config.format!)}
                     icon={config.icon}
-                    displayName={isLoading ? buttonId : config.getDisplayName(t)}
+                    displayName={config.getDisplayName(t)}
                   />
                 )
               }
@@ -256,7 +242,7 @@ export function EditorToolbar() {
                     key={buttonId}
                     onClick={() => handleCustomAction(buttonId)}
                     icon={config.icon}
-                    displayName={isLoading ? buttonId : config.getDisplayName(t)}
+                    displayName={config.getDisplayName(t)}
                   />
                 )
               }
@@ -272,25 +258,24 @@ export function EditorToolbar() {
 
   return (
     <div className="h-auto min-h-10 px-2 flex flex-col border-b border-[var(--border-color)] bg-[var(--bg-secondary)] gap-1 py-1">
-      {/* Row 1: Fixed left + right */}
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1 shrink-0">
           <ToolbarButton
             onClick={toggleSidebar}
-            title={isLoading ? 'Toggle Sidebar' : t.editor.toggleSidebar}
+            title={t.editor.toggleSidebar}
           >
             <span className="text-base">☰</span>
           </ToolbarButton>
           <div className="w-px h-4 bg-[var(--border-color)] mx-1" />
           <ToolbarButton
             onClick={undo}
-            title={isLoading ? 'Undo' : t.editor.undo}
+            title={t.editor.undo}
           >
             <span className="text-base">↶</span>
           </ToolbarButton>
           <ToolbarButton
             onClick={redo}
-            title={isLoading ? 'Redo' : t.editor.redo}
+            title={t.editor.redo}
           >
             <span className="text-base">↷</span>
           </ToolbarButton>
@@ -298,25 +283,23 @@ export function EditorToolbar() {
         <div className="flex items-center gap-1 shrink-0">
           <ToolbarButton
             onClick={() => setShowConfigPanel(!showConfigPanel)}
-            title={isLoading ? '配置工具栏' : t.toolbar.customize}
+            title={t.toolbar.customize}
           >
             <span className={showConfigPanel ? 'text-[var(--accent-color)]' : ''}>⚙</span>
           </ToolbarButton>
           <ToolbarButton
             onClick={togglePreview}
-            title={isLoading ? 'Toggle Preview' : t.editor.togglePreview}
+            title={t.editor.togglePreview}
           >
             <span className={previewVisible ? 'text-[var(--accent-color)]' : ''}>👁</span>
           </ToolbarButton>
         </div>
       </div>
 
-      {/* Row 2: Formatting buttons with wrap */}
       <div className="flex items-center gap-1 flex-wrap">
         {renderToolbarItems()}
       </div>
 
-      {/* Config Dialog */}
       <ToolbarConfigDialog
         isOpen={showConfigPanel}
         onClose={() => setShowConfigPanel(false)}

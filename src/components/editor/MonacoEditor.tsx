@@ -1,4 +1,5 @@
 import Editor, { OnMount } from '@monaco-editor/react'
+import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
 import type * as Monaco from 'monaco-editor'
 
@@ -10,6 +11,9 @@ export function MonacoEditor() {
     setEditorInstance,
     settings,
   } = useBoundStore()
+  const { t } = useTranslation()
+
+  if (!t) return null
 
   // Register Markdown completion provider
   const registerCompletionProvider = (monaco: typeof Monaco) => {
@@ -500,7 +504,7 @@ export function MonacoEditor() {
       }}
       loading={
         <div className="flex items-center justify-center h-full text-[var(--text-muted)]">
-          Loading editor...
+          {t.editor.loadingEditor}
         </div>
       }
     />
