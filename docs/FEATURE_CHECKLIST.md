@@ -473,7 +473,7 @@ export type ToolbarItem = ToolbarButtonItem | ToolbarGroupItem
 | ID | 功能 | 优先级 | 状态 | 备注 |
 |----|------|--------|------|------|
 | SEC-001 | XSS sanitize | P0 | ✅ | rehype-sanitize 配置自定义 safe schema | `MarkdownPreview.tsx` | rehypeRaw 允许原始 HTML，需配置 sanitize |
-| SEC-002 | CSP 安全策略 | P1 | ❌ | Content Security Policy 配置 |
+| SEC-002 | CSP 安全策略 | P1 | ✅ | index.html CSP meta 标签配置 | `index.html` | Content Security Policy 配置 |
 | PERF-001 | 大文档虚拟渲染 | P1 | ❌ | 长文档预览性能优化 |
 | PERF-002 | 预览区域防抖渲染 | P2 | ❌ | 编辑时减少过于频繁的预览刷新 |
 | PERF-003 | Monaco 懒加载 | P2 | ❌ | 按需加载 Monaco 编辑器 |

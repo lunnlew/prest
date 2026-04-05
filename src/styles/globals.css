@@ -125,3 +125,10 @@ pre {
 .dark .search-highlight-inline {
   background-color: rgba(255, 200, 50, 0.35);
 }
+
+/* Monaco Editor textarea - prevent white flash on load */
+.monaco-editor .inputarea,
+.monaco-editor textarea {
+  background-color: transparent !important;
+  color: transparent !important;
+}

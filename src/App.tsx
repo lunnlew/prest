@@ -9,6 +9,12 @@ function App() {
   const content = useBoundStore((state) => state.content)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Load files from IndexedDB on mount
+  const loadFilesIntoDB = useBoundStore((state) => state.loadFilesIntoDB)
+  useEffect(() => {
+    loadFilesIntoDB()
+  }, [loadFilesIntoDB])
+
   useEffect(() => {
     // Apply theme class to html element
     const html = document.documentElement
