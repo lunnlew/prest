@@ -3,25 +3,31 @@ import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { FileNode } from '../../types'
 import { clsx } from 'clsx'
+import { useContextMenu, ContextMenuPopover, type ContextMenuItem } from '../common/ContextMenu'
+
+// ─── FileTreeItem ────────────────────────────────────────────────────
 
 interface FileTreeItemProps {
   node: FileNode
   depth: number
   onContextMenu: (e: React.MouseEvent, node: FileNode) => void
-  isRenaming: boolean
-  onRenameConfirm: (id: string, name: string) => void
-  onRenameCancel: () => void
+  onRename: (id: string, name: string) => void
+  renamingId: string | null
   renameValue: string
   onRenameChange: (value: string) => void
+  onRenameConfirm: (id: string, name: string) => void
+  onRenameCancel: () => void
 }
 
-function FileTreeItem({ node, depth, onContextMenu, isRenaming, onRenameConfirm, onRenameCancel, renameValue, onRenameChange }: FileTreeItemProps) {
-  const { expandedFolders, toggleFolder, currentFile, setCurrentFile, setContent } = useBoundStore()
+function FileTreeItem(props: FileTreeItemProps) {
+  const { node, depth, onContextMenu, onRename, renamingId, renameValue, onRenameChange, onRenameConfirm, onRenameCancel } = props
   const inputRef = useRef<HTMLInputElement>(null)
+  const { expandedFolders, toggleFolder, currentFile, setCurrentFile, setContent, content, saveFileContent } = useBoundStore()
 
   const isExpanded = expandedFolders.has(node.id)
   const isCurrentFile = currentFile === node.id
   const isFolder = node.type === 'folder'
+  const isRenaming = renamingId === node.id
 
   useEffect(() => {
     if (isRenaming && inputRef.current) {
@@ -35,15 +41,17 @@ function FileTreeItem({ node, depth, onContextMenu, isRenaming, onRenameConfirm,
     if (isFolder) {
       toggleFolder(node.id)
     } else {
-      setCurrentFile(node.id)
-      if (node.content) {
-        setContent(node.content)
+      if (currentFile) {
+        saveFileContent(currentFile, content)
       }
+      setCurrentFile(node.id)
+      setContent(node.content ?? '')
     }
   }
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     onContextMenu(e, node)
   }
 
@@ -73,14 +81,12 @@ function FileTreeItem({ node, depth, onContextMenu, isRenaming, onRenameConfirm,
         onContextMenu={handleContextMenu}
         className={clsx(
           'flex items-center gap-1 px-2 py-1 cursor-pointer hover:bg-[var(--bg-tertiary)]',
-          isCurrentFile && 'bg-[var(--accent-color)]20 text-[var(--accent-color)]'
+          isCurrentFile && 'bg-[var(--file-active-bg)] text-[#ffffff] border-l-2 border-[#0078d4]'
         )}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
         {isFolder && (
-          <span className={clsx('text-xs transition-transform', isExpanded && 'rotate-90')}>
-            ▶
-          </span>
+          <span className={clsx('text-xs transition-transform', isExpanded && 'rotate-90')}>▶</span>
         )}
         <span className="text-sm">
           {isFolder ? (isExpanded ? '📂' : '📁') : '📄'}
@@ -88,7 +94,7 @@ function FileTreeItem({ node, depth, onContextMenu, isRenaming, onRenameConfirm,
         <span className="text-sm text-[var(--text-primary)] truncate">{node.name}</span>
       </div>
 
-      {isFolder && isExpanded && node.children && (
+      {isFolder && isExpanded && node.children && node.children.length > 0 && (
         <div>
           {node.children.map((child) => (
             <FileTreeItem
@@ -96,11 +102,12 @@ function FileTreeItem({ node, depth, onContextMenu, isRenaming, onRenameConfirm,
               node={child}
               depth={depth + 1}
               onContextMenu={onContextMenu}
-              isRenaming={false}
+              onRename={onRename}
+              renamingId={renamingId}
+              renameValue={renameValue}
+              onRenameChange={onRenameChange}
               onRenameConfirm={onRenameConfirm}
               onRenameCancel={onRenameCancel}
-              renameValue=""
-              onRenameChange={() => {}}
             />
           ))}
         </div>
@@ -109,39 +116,49 @@ function FileTreeItem({ node, depth, onContextMenu, isRenaming, onRenameConfirm,
   )
 }
 
+// ─── FileExplorer ────────────────────────────────────────────────────
+
 export function FileExplorer() {
-  const { files, createFile, renameFile, deleteFile } = useBoundStore()
+  const { files, createFile, renameFile, deleteFile, setCurrentFile, setContent } = useBoundStore()
   const { t, loading } = useTranslation()
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node: FileNode | null } | null>(null)
+  const { menu, menuRef, showContextMenu } = useContextMenu()
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
 
   const isLoading = loading || !t
 
+  const closeMenu = useCallback(() => showContextMenu(-999, -999, []), [showContextMenu])
+
+  // Build context menu items based on what was right-clicked
+  const buildMenuItems = useCallback((node: FileNode | null): ContextMenuItem[] => {
+    const parentId = node?.type === 'folder' ? node.id : null
+
+    return [
+      {
+        label: 'New File',
+        action: async () => {
+          const newId = await createFile('Untitled.md', 'file', parentId)
+          setCurrentFile(newId)
+          setContent('')
+        },
+      },
+      {
+        label: 'New Folder',
+        action: async () => {
+          await createFile('New Folder', 'folder', parentId)
+        },
+      },
+      ...(node ? [
+        { dividerBefore: true, label: 'Rename', action: () => { setRenamingId(node.id); setRenameValue(node.name) } },
+        { dividerBefore: false, label: 'Delete', action: () => { deleteFile(node.id) }, danger: true },
+      ] : []),
+    ]
+  }, [createFile, deleteFile, setCurrentFile, setContent])
+
   const openContextMenu = useCallback((e: React.MouseEvent, node: FileNode | null) => {
-    setContextMenu({ x: e.clientX, y: e.clientY, node })
-  }, [])
-
-  const closeContextMenu = () => setContextMenu(null)
-
-  useEffect(() => {
-    const handler = () => closeContextMenu()
-    document.addEventListener('click', handler)
-    return () => document.removeEventListener('click', handler)
-  }, [])
-
-  const handleNewFile = async (parentId: string | null, isFolder: boolean) => {
-    const name = isFolder ? 'New Folder' : 'Untitled.md'
-    await createFile(name, isFolder ? 'folder' : 'file', parentId)
-    closeContextMenu()
-  }
-
-  const handleDelete = async () => {
-    if (contextMenu?.node) {
-      deleteFile(contextMenu.node.id)
-      closeContextMenu()
-    }
-  }
+    e.preventDefault()
+    showContextMenu(e.clientX, e.clientY, buildMenuItems(node))
+  }, [showContextMenu, buildMenuItems])
 
   const handleRenameConfirm = (id: string, name: string) => {
     if (name.trim()) {
@@ -156,80 +173,43 @@ export function FileExplorer() {
     setRenameValue('')
   }
 
-  const node = contextMenu?.node
-
   return (
-    <div className="py-2 relative">
+    <div className="py-2 relative min-h-full" onContextMenu={(e) => { e.preventDefault(); openContextMenu(e, null) }}>
+      {/* Header bar */}
       <div className="px-4 py-2 flex items-center justify-between">
         <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">
           {isLoading ? 'Explorer' : t.sidebar.files}
         </span>
         <button
-          onClick={(e) => openContextMenu(e, null)}
+          onClick={(e) => {
+            e.stopPropagation()
+            openContextMenu(e, null)
+          }}
           className="text-xs px-2 py-0.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)]"
           title="New File/Folder"
         >
           +
         </button>
       </div>
+
+      {/* File tree */}
       {files.map((fileNode) => (
         <FileTreeItem
           key={fileNode.id}
           node={fileNode}
           depth={0}
           onContextMenu={openContextMenu}
-          isRenaming={renamingId === fileNode.id}
+          onRename={(id, name) => { setRenamingId(id); setRenameValue(name) }}
+          renamingId={renamingId}
+          renameValue={renameValue}
+          onRenameChange={setRenameValue}
           onRenameConfirm={handleRenameConfirm}
           onRenameCancel={handleRenameCancel}
-          renameValue={renamingId === fileNode.id ? renameValue : ''}
-          onRenameChange={setRenameValue}
         />
       ))}
 
-      {/* Context Menu */}
-      {contextMenu && (
-        <div
-          className="fixed z-50 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded shadow-lg py-1 min-w-[140px]"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={() => handleNewFile(node?.type === 'folder' ? node.id : null, false)}
-            className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
-          >
-            New File
-          </button>
-          {(node?.type === 'folder' || !node) && (
-            <button
-              onClick={() => handleNewFile(node?.type === 'folder' ? node.id : null, true)}
-              className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
-            >
-              New Folder
-            </button>
-          )}
-          {node && (
-            <>
-              <hr className="border-[var(--border-color)] my-1" />
-              <button
-                onClick={() => {
-                  setRenamingId(node.id)
-                  setRenameValue(node.name)
-                  closeContextMenu()
-                }}
-                className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
-              >
-                Rename
-              </button>
-              <button
-                onClick={handleDelete}
-                className="w-full px-3 py-1.5 text-sm text-left hover:bg-red-500/20 text-red-500"
-              >
-                Delete
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      {/* Context menu popover */}
+      <ContextMenuPopover menu={menu} menuRef={menuRef} onClose={closeMenu} />
     </div>
   )
 }

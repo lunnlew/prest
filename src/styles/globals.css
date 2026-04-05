@@ -20,6 +20,7 @@ body {
   --border-color: #e0e0e0;
   --accent-color: #0078d4;
   --accent-hover: #106ebe;
+  --file-active-bg: #d6ebfc;
   --resize-handle-bg: transparent;
   --resize-handle-hover-bg: #0078d420;
   --resize-handle-active-bg: #0078d440;
@@ -36,6 +37,7 @@ body {
   --border-color: #3c3c3c;
   --accent-color: #0078d4;
   --accent-hover: #1a8cdb;
+  --file-active-bg: #094771;
   --resize-handle-bg: transparent;
   --resize-handle-hover-bg: #ffffff15;
   --resize-handle-active-bg: #0078d440;

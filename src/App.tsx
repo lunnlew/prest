@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { AppLayout } from './components/layout/AppLayout'
 import { useBoundStore } from './stores/useBoundStore'
 
@@ -7,16 +7,17 @@ function App() {
   const save = useBoundStore((state) => state.save)
   const autoSave = useBoundStore((state) => state.settings.autoSave)
   const content = useBoundStore((state) => state.content)
+  const currentFile = useBoundStore((state) => state.currentFile)
+  const saveFileContent = useBoundStore((state) => state.saveFileContent)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Load files from IndexedDB on mount
-  const loadFilesIntoDB = useBoundStore((state) => state.loadFilesIntoDB)
+  const loadFilesFromDB = useBoundStore((state) => state.loadFilesFromDB)
   useEffect(() => {
-    loadFilesIntoDB()
-  }, [loadFilesIntoDB])
+    loadFilesFromDB()
+  }, [loadFilesFromDB])
 
   useEffect(() => {
-    // Apply theme class to html element
     const html = document.documentElement
     html.classList.remove('light', 'dark')
     html.classList.add(theme)
@@ -26,13 +27,14 @@ function App() {
   useEffect(() => {
     if (!autoSave) return
 
-    // Clear existing timer
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current)
     }
 
-    // Debounce 1s before marking as saved
     saveTimerRef.current = setTimeout(() => {
+      if (currentFile) {
+        saveFileContent(currentFile, content)
+      }
       save()
       saveTimerRef.current = null
     }, 1000)
@@ -42,7 +44,26 @@ function App() {
         clearTimeout(saveTimerRef.current)
       }
     }
-  }, [content, autoSave, save])
+  }, [content, autoSave, save, currentFile, saveFileContent])
+
+  // Ctrl+S / Cmd+S — save current file content
+  const handleSave = useCallback(() => {
+    if (currentFile) {
+      saveFileContent(currentFile, content)
+    }
+    save()
+  }, [currentFile, content, saveFileContent, save])
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        handleSave()
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [handleSave])
 
   return (
     <div className="h-screen w-screen overflow-hidden">

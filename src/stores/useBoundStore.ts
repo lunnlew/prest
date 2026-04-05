@@ -21,6 +21,7 @@ export const useBoundStore = create<AppStore>()(
       name: 'prest-storage',
       partialize: (state) => ({
         content: state.content,
+        currentFile: state.currentFile,
         panelLayout: state.panelLayout,
         settings: state.settings,
         sidebarVisible: state.sidebarVisible,
