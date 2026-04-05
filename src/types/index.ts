@@ -154,4 +154,6 @@ export interface XHSExportSettings {
   watermark: string
   tags: string[]
   showPageNumber: boolean
+  /** Export frame width in CSS pixels (default 440, range 320-1920) */
+  exportWidth: number
 }

@@ -25,6 +25,13 @@ const ASPECT_LABELS: Record<XHSAspectRatio, string> = {
   '16:9': '横版 16:9',
 }
 
+const MAX_WIDTHS: Record<XHSAspectRatio, number> = {
+  '3:4': ASPECT_DIMENSIONS['3:4'].w,
+  '3:5': ASPECT_DIMENSIONS['3:5'].w,
+  '1:1': ASPECT_DIMENSIONS['1:1'].w,
+  '16:9': ASPECT_DIMENSIONS['16:9'].w,
+}
+
 interface XHSExportDialogProps {
   isOpen: boolean
   onClose: () => void
@@ -50,7 +57,8 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   }, [onClose])
 
   const xhs = settings.xhsExport
-  const measureKey = `${xhs.aspectRatio}-${xhs.template}-${xhs.watermark}-${xhs.showPageNumber}-${content}-${tags}`
+  const frameW = xhs.exportWidth ?? 440
+  const measureKey = `${xhs.aspectRatio}-${xhs.template}-${xhs.watermark}-${xhs.showPageNumber}-${xhs.exportWidth}-${content}-${tags}`
 
   useEffect(() => {
     if (!isOpen) return
@@ -60,7 +68,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
       const preview = el?.querySelector('.xhs-preview') as HTMLElement | null
       if (!preview) return
 
-      const result = paginate(preview, xhs.aspectRatio)
+      const result = paginate(preview, xhs.aspectRatio, frameW)
       setPages(result.pages)
       setTotalPages(result.totalPages)
       setCurrentPageNum(1)
@@ -73,7 +81,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
   const handleAspectChange = useCallback(
     (ratio: XHSAspectRatio) => {
-      setXHSExportSettings({ aspectRatio: ratio })
+      setXHSExportSettings({ aspectRatio: ratio, exportWidth: Math.min(xhs.exportWidth, MAX_WIDTHS[ratio as XHSAspectRatio]) })
       setPages([]); setTotalPages(0)
     }, [setXHSExportSettings]
   )
@@ -96,8 +104,6 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   if (loading || !t) return null
   if (!isOpen) return null
 
-  // Page display: fixed width 440px
-  const frameW = 440
   const ratioH = ASPECT_DIMENSIONS[xhs.aspectRatio].h / ASPECT_DIMENSIONS[xhs.aspectRatio].w
   const frameH = Math.round(frameW * ratioH)
 
@@ -159,6 +165,22 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                         : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
                     }`}>{label}</button>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[var(--text-muted)] uppercase block mb-2">导出宽度</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="range"
+                  min={320}
+                  max={MAX_WIDTHS[xhs.aspectRatio]}
+                  step={20}
+                  value={xhs.exportWidth}
+                  onChange={(e) => { setPages([]); setTotalPages(0); setXHSExportSettings({ exportWidth: Number(e.target.value) }) }}
+                  className="flex-1 accent-[var(--accent-color)]"
+                />
+                <span className="text-sm text-[var(--text-primary)] min-w-[4rem] text-right">{frameW}px</span>
               </div>
             </div>
 

@@ -75,7 +75,7 @@
 | v0.5.3 | 2026-04-05 | 文件树：创建/重命名自动去重编号（区分后缀），同类型 sibling 不重名，文件与目录名可重叠 |
 | v0.6.0 | 2026-04-05 | 小红书排版出图：预览组件/导出对话框/分页引擎/三种模板；移除 PretextService 改用浏览器 DOM 渲染 |
 | v0.7.0 | 2026-04-05 | 大纲视图：滚动自动高亮/点击跳转定位/编辑器光标联动 |
-| v0.7.1 | 2026-04-06 | XHS 分页优化：隐藏页码时自动释放 footer 空间/面板布局自动保存持久化 |
+| v0.7.1 | 2026-04-06 | XHS 导出宽度可调/隐藏页码时自动释放 footer 空间/面板布局自动保存持久化 |
 
 ---
 
@@ -136,6 +136,7 @@
 | 3.5.7 | 平台预览切换（文档/小红书） | ✅ | 0.5h | `PreviewPanel.tsx`, `previewSlice.ts` — selector + platformPreview state |
 | 3.5.8 | 文字测量工具（最小化） | ✅ | 1h | `lib/pretext.ts` — prepare/layoutWithLines，仅 canvas 宽度测量 |
 | 3.5.9 | 隐藏页码时自动释放分页空间 | ✅ | 1h | `XHSPaginator.ts`, `XiaohongshuPreview.tsx`, `xiaohongshu.css` — footer 高度自适应分页计算 |
+| 3.5.10 | 导出宽度可调滑块 | ✅ | 1h | `XHSExportDialog.tsx`, `XHSPaginator.ts`, `xiaohongshu.css` — 宽度滑块 320-1920px，自动重排分页 |
 
 ### Phase 4: 高级功能（P3）
 

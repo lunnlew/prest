@@ -34,13 +34,15 @@ export interface PaginationResult {
 export function paginate(
   previewEl: HTMLElement,
   aspectRatio: XHSAspectRatio,
+  frameWidth?: number,
 ): PaginationResult {
   const dims = ASPECT_DIMENSIONS[aspectRatio]
   const blockEls = Array.from(previewEl.querySelectorAll('[data-xhs-block]')) as HTMLElement[]
 
   if (blockEls.length === 0) return { pages: [], totalPages: 0 }
 
-  const frameH = (dims.h / dims.w) * 440
+  const frameW = frameWidth ?? 440
+  const frameH = (dims.h / dims.w) * frameW
   const footerEl = previewEl.querySelector('[data-xhs-footer]') as HTMLElement | null
   const footerH = footerEl ? footerEl.getBoundingClientRect().height : 0
 

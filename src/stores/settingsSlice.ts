@@ -129,6 +129,7 @@ export const defaultXHSExport: XHSExportSettings = {
   watermark: '',
   tags: [],
   showPageNumber: false,
+  exportWidth: 440,
 }
 
 const defaultSettings: Settings = {

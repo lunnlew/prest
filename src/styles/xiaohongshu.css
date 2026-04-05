@@ -35,6 +35,7 @@
 
 .xhs-page-frame .xhs-preview {
   width: 100%;
+  max-width: none;
   margin: 0;
   box-sizing: border-box;
   height: 100%;
