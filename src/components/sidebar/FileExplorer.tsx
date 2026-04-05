@@ -5,6 +5,9 @@ import { FileNode } from '../../types'
 import { clsx } from 'clsx'
 import { useContextMenu, ContextMenuPopover, type ContextMenuItem } from '../common/ContextMenu'
 
+// Drag state shared across components so drop target access dragged node id
+const DRAG_DATA_KEY = 'application/x-file-node-id'
+
 // ─── FileTreeItem ────────────────────────────────────────────────────
 
 interface FileTreeItemProps {
@@ -19,15 +22,18 @@ interface FileTreeItemProps {
   onRenameCancel: () => void
 }
 
+type DropTarget = 'above' | 'on' | 'below' | null
+
 function FileTreeItem(props: FileTreeItemProps) {
   const { node, depth, onContextMenu, onRename, renamingId, renameValue, onRenameChange, onRenameConfirm, onRenameCancel } = props
   const inputRef = useRef<HTMLInputElement>(null)
-  const { expandedFolders, toggleFolder, currentFile, setCurrentFile, setContent, content, saveFileContent } = useBoundStore()
+  const { expandedFolders, toggleFolder, currentFile, setCurrentFile, setContent, content, saveFileContent, moveFile } = useBoundStore()
 
   const isExpanded = expandedFolders.has(node.id)
   const isCurrentFile = currentFile === node.id
   const isFolder = node.type === 'folder'
   const isRenaming = renamingId === node.id
+  const [dragOver, setDragOver] = useState<DropTarget>(null)
 
   useEffect(() => {
     if (isRenaming && inputRef.current) {
@@ -36,6 +42,54 @@ function FileTreeItem(props: FileTreeItemProps) {
     }
   }, [isRenaming])
 
+  // ─── Drag Source ────────────────────────────────────────────────────
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData(DRAG_DATA_KEY, node.id)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  // ─── Drop Target ────────────────────────────────────────────────────
+  const handleDragOver = (e: React.DragEvent) => {
+    const draggedId = e.dataTransfer.types.includes(DRAG_DATA_KEY) ? e.dataTransfer.getData(DRAG_DATA_KEY) : null
+    if (draggedId !== node.id) {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+
+      // Determine position: top 25% → above, bottom 25% → below, middle → on (into folder)
+      const rect = e.currentTarget.getBoundingClientRect()
+      const y = e.clientY - rect.top
+      const h = rect.height
+      if (h < 10) return // too small
+      if (y < h * 0.25) {
+        setDragOver('above')
+      } else if (y > h * 0.75) {
+        setDragOver('below')
+      } else {
+        setDragOver(isFolder ? 'on' : 'below')
+      }
+    }
+  }
+
+  const handleDragLeave = () => setDragOver(null)
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(null)
+
+    const draggedId = e.dataTransfer.getData(DRAG_DATA_KEY)
+    if (!draggedId || draggedId === node.id) return
+
+    if (dragOver === 'on' && isFolder) {
+      // Drop into folder
+      moveFile(draggedId, node.id)
+    } else {
+      // Drop before/after a node — same parent as the target node
+      moveFile(draggedId, null)
+    }
+  }
+
+  // ─── Click ─────────────────────────────────────────────────────────
   const handleClick = () => {
     if (isRenaming) return
     if (isFolder) {
@@ -55,6 +109,16 @@ function FileTreeItem(props: FileTreeItemProps) {
     onContextMenu(e, node)
   }
 
+  // ─── Drag over indicator styles ─────────────────────────────────────
+  const dragBorderClass = dragOver === 'above'
+    ? 'border-t-2 border-t-[#0078d4]'
+    : dragOver === 'below'
+      ? 'border-b-2 border-b-[#0078d4]'
+      : dragOver === 'on'
+        ? 'bg-[#0078d4]/20'
+        : ''
+
+  // ─── Renaming Input ─────────────────────────────────────────────────
   if (isRenaming) {
     return (
       <div className="flex items-center gap-1 px-2 py-1" style={{ paddingLeft: `${depth * 12 + 8}px` }}>
@@ -74,13 +138,21 @@ function FileTreeItem(props: FileTreeItemProps) {
     )
   }
 
+  // ─── Tree Item Row ─────────────────────────────────────────────────
   return (
-    <div>
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={dragBorderClass}
+    >
       <div
         onClick={handleClick}
         onContextMenu={handleContextMenu}
         className={clsx(
-          'flex items-center gap-1 px-2 py-1 cursor-pointer hover:bg-[var(--bg-tertiary)]',
+          'flex items-center gap-1 px-2 py-1 cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors',
           isCurrentFile && 'bg-[var(--file-active-bg)] text-[#ffffff] border-l-2 border-[#0078d4]'
         )}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
@@ -119,7 +191,7 @@ function FileTreeItem(props: FileTreeItemProps) {
 // ─── FileExplorer ────────────────────────────────────────────────────
 
 export function FileExplorer() {
-  const { files, createFile, renameFile, deleteFile, setCurrentFile, setContent } = useBoundStore()
+  const { files, createFile, renameFile, deleteFile, setCurrentFile, setContent, moveFile } = useBoundStore()
   const { t, loading } = useTranslation()
   const { menu, menuRef, showContextMenu } = useContextMenu()
   const [renamingId, setRenamingId] = useState<string | null>(null)
@@ -137,7 +209,7 @@ export function FileExplorer() {
       {
         label: 'New File',
         action: async () => {
-          const newId = await createFile('Untitled.md', 'file', parentId)
+          const newId = await createFile('未命名.md', 'file', parentId)
           setCurrentFile(newId)
           setContent('')
         },
@@ -159,6 +231,20 @@ export function FileExplorer() {
     e.preventDefault()
     showContextMenu(e.clientX, e.clientY, buildMenuItems(node))
   }, [showContextMenu, buildMenuItems])
+
+  // ─── Drop on empty area ────────────────────────────────────────────
+  const handleTreeDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleTreeDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const draggedId = e.dataTransfer.getData(DRAG_DATA_KEY)
+    if (draggedId) {
+      moveFile(draggedId, null)
+    }
+  }
 
   const handleRenameConfirm = (id: string, name: string) => {
     if (name.trim()) {
@@ -192,21 +278,23 @@ export function FileExplorer() {
         </button>
       </div>
 
-      {/* File tree */}
-      {files.map((fileNode) => (
-        <FileTreeItem
-          key={fileNode.id}
-          node={fileNode}
-          depth={0}
-          onContextMenu={openContextMenu}
-          onRename={(id, name) => { setRenamingId(id); setRenameValue(name) }}
-          renamingId={renamingId}
-          renameValue={renameValue}
-          onRenameChange={setRenameValue}
-          onRenameConfirm={handleRenameConfirm}
-          onRenameCancel={handleRenameCancel}
-        />
-      ))}
+      {/* File tree container — allow dropping here */}
+      <div onDragOver={handleTreeDragOver} onDrop={handleTreeDrop}>
+        {files.map((fileNode) => (
+          <FileTreeItem
+            key={fileNode.id}
+            node={fileNode}
+            depth={0}
+            onContextMenu={openContextMenu}
+            onRename={(id, name) => { setRenamingId(id); setRenameValue(name) }}
+            renamingId={renamingId}
+            renameValue={renameValue}
+            onRenameChange={setRenameValue}
+            onRenameConfirm={handleRenameConfirm}
+            onRenameCancel={handleRenameCancel}
+          />
+        ))}
+      </div>
 
       {/* Context menu popover */}
       <ContextMenuPopover menu={menu} menuRef={menuRef} onClose={closeMenu} />

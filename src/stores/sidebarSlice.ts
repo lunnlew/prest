@@ -68,7 +68,7 @@ export const defaultFiles: FileNode[] = [
     children: [
       {
         id: 'file-1',
-        name: 'Welcome.md',
+        name: '欢迎.md',
         type: 'file',
         content: `# Welcome to Prest Editor
 
@@ -136,6 +136,7 @@ export interface SidebarSlice {
   setSearchQuery: (query: string) => void
   addFile: (parentFolderId: string | null, file: FileNode) => void
   deleteFile: (fileId: string) => void
+  moveFile: (fileId: string, newParentId: string | null) => boolean
   loadFilesFromDB: () => Promise<void>
   createFile: (name: string, type: 'file' | 'folder', parentId: string | null) => Promise<string>
   saveFileContent: (fileId: string, content: string) => void
@@ -188,6 +189,60 @@ function removeFromTree(nodes: FileNode[], fileId: string): FileNode[] {
     })
 }
 
+function findNode(nodes: FileNode[], fileId: string): FileNode | null {
+  for (const node of nodes) {
+    if (node.id === fileId) return node
+    if (node.children) {
+      const found = findNode(node.children, fileId)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+/** Check if `ancestorId` is an ancestor of `descendantId` in the tree */
+function isDescendant(nodes: FileNode[], ancestorId: string, descendantId: string): boolean {
+  for (const node of nodes) {
+    if (node.id === ancestorId && node.type === 'folder') {
+      return !!findNode(node.children || [], descendantId)
+    }
+    if (node.children) {
+      if (isDescendant(node.children, ancestorId, descendantId)) return true
+    }
+  }
+  return false
+}
+
+function moveInTree(
+  nodes: FileNode[],
+  fileId: string,
+  newParentId: string | null,
+): FileNode[] {
+  const nodeToMove = findNode(nodes, fileId)
+  if (!nodeToMove) return nodes
+
+  const withoutNode = removeFromTree(nodes, fileId)
+
+  if (newParentId === null) {
+    return [...withoutNode, nodeToMove]
+  }
+
+  function insertIntoFolder(tree: FileNode[]): FileNode[] {
+    return tree.map((node) => {
+      if (node.id === newParentId && node.type === 'folder') {
+            const children: FileNode[] = [...(node.children || []), nodeToMove!]
+        return { ...node, children }
+      }
+      if (node.children) {
+        return { ...node, children: insertIntoFolder(node.children) }
+      }
+      return node
+    })
+  }
+
+  return insertIntoFolder(withoutNode)
+}
+
 function renameInTree(nodes: FileNode[], fileId: string, newName: string): FileNode[] {
   return nodes.map((node) => {
     if (node.id === fileId) {
@@ -209,6 +264,45 @@ function findInTree(nodes: FileNode[], fileId: string): FileNode | null {
     }
   }
   return null
+}
+
+/**
+ * Split a filename into [basename, extension] (only for files)
+ * e.g. "readme.md" → ["readme", ".md"], "New Folder" → ["New Folder", ""]
+ */
+function splitFileName(name: string, type: 'file' | 'folder'): [string, string] {
+  if (type === 'folder') return [name, '']
+  const dot = name.lastIndexOf('.')
+  if (dot <= 0) return [name, ''] // no extension or hidden file like ".gitignore"
+  return [name.slice(0, dot), name.slice(dot)]
+}
+
+/** Check if `name` already exists among siblings of the same type, if so append a number */
+function dedupeName(name: string, type: 'file' | 'folder', tree: FileNode[], parentId: string | null, excludeId: string = ''): string {
+  const parent = parentId ? findNode(tree, parentId) : null
+  const siblings = parent && parent.type === 'folder'
+    ? (parent.children || [])
+    : tree
+
+  const sameType = siblings.filter((n) => n.type === type && n.id !== excludeId)
+  const names = sameType.map((n) => n.name)
+
+  // Already unique
+  if (!names.includes(name)) return name
+
+  // Split into base + extension for files (e.g. "hello.md" → "hello" + ".md")
+  const [base, ext] = splitFileName(name, type)
+
+  // Try numbered suffix: name (1).ext, name (2).ext, ...
+  const suffixRegex = /\s*\(\d+\)$/
+  const cleanBase = base.replace(suffixRegex, '')
+  for (let i = 1; i < 100; i++) {
+    const candidate = `${cleanBase} (${i})${ext}`
+    if (!names.includes(candidate)) return candidate
+  }
+
+  // Fallback: append timestamp
+  return `${name}-${Date.now()}`
 }
 
 // ─── Slice implementation ────────────────────────────────────────────
@@ -251,6 +345,17 @@ export const createSidebarSlice: StateCreator<SidebarSlice, [], [], SidebarSlice
     schedulePersist(updated)
   },
 
+  moveFile: (fileId, newParentId) => {
+    // Prevent dropping a folder into itself or its own descendants
+    if (fileId && newParentId && isDescendant(get().files, fileId, newParentId)) {
+      return false
+    }
+    const updated = moveInTree(get().files, fileId, newParentId)
+    set({ files: updated })
+    schedulePersist(updated)
+    return true
+  },
+
   loadFilesFromDB: async () => {
     set({ isLoadingFiles: true })
     try {
@@ -275,9 +380,10 @@ export const createSidebarSlice: StateCreator<SidebarSlice, [], [], SidebarSlice
   },
 
   createFile: async (name, type, parentId) => {
+    const uniqueName = dedupeName(name, type, get().files, parentId)
     const newFile: FileNode = {
       id: generateId(type === 'folder' ? 'folder' : 'file'),
-      name,
+      name: uniqueName,
       type,
       content: type === 'file' ? '' : undefined,
       children: type === 'folder' ? [] : undefined,
@@ -303,16 +409,29 @@ export const createSidebarSlice: StateCreator<SidebarSlice, [], [], SidebarSlice
   },
 
   renameFile: async (fileId, newName) => {
-    const updated = renameInTree(get().files, fileId, newName)
+    // Find the node to determine its type and parent for dedup
+    const node = findInTree(get().files, fileId)
+    if (!node) return
+    let parentId: string | null = null
+    const findParent = (nodes: FileNode[], childId: string, pId: string | null): boolean => {
+      for (const n of nodes) {
+        if (n.id === childId) { parentId = pId; return true }
+        if (n.children && findParent(n.children, childId, n.id)) return true
+      }
+      return false
+    }
+    findParent(get().files, fileId, null)
+    const finalName = dedupeName(newName, node.type, get().files, parentId, fileId)
+    const updated = renameInTree(get().files, fileId, finalName)
     set({ files: updated })
-    const node = findInTree(updated, fileId)
-    if (node) {
+    const renamedNode = findInTree(updated, fileId)
+    if (renamedNode) {
       const flat: FlatFileNode = {
-        id: node.id,
-        name: newName,
-        type: node.type,
-        parentId: null,
-        ...(node.type === 'file' && node.content !== undefined ? { content: node.content } : {}),
+        id: renamedNode.id,
+        name: renamedNode.name,
+        type: renamedNode.type,
+        parentId,
+        ...(renamedNode.type === 'file' && renamedNode.content !== undefined ? { content: renamedNode.content } : {}),
       }
       await saveFile(flat)
     }
