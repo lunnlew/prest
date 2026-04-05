@@ -4,114 +4,67 @@
 
 ```
 docs/
-├── SPECIFICATIONS.md          # 技术规范文档
-├── REQUIREMENTS.md            # 功能需求文档（含详细需求）
-├── TASK_PLAN.md               # 任务计划文档（含实现记录）
-├── FEATURE_CHECKLIST.md       # 功能完备记录表
-└── INDEX.md                   # 本索引文件
+├── INDEX.md                      # 本索引文件（快速导航）
+├── FEATURE_CHECKLIST.md          # 功能文档主索引（统计 + 路线图 + 导航）
+│
+├── features/                     # 已实现功能详情
+│   ├── editor.md                 #   核心编辑、工具栏、快捷键
+│   ├── preview.md                #   Markdown 渲染、GFM、预览样式
+│   ├── layout.md                 #   三栏布局、面板拖拽、分隔线
+│   ├── sidebar.md                #   文件树、大纲、搜索、设置
+│   ├── state-management.md       #   Zustand stores、actions
+│   ├── services.md               #   Pretext 布局、Markdown 解析
+│   └── styles.md                 #   CSS 变量、Tailwind 配置
+│
+├── export/                       # 导出功能规划
+│   ├── image-export.md           #   通用图片导出（PNG/PDF/HTML/WebP）
+│   └── xiaohongshu.md            #   小红书排版出图（模板 + 导出）
+│
+├── missing-features.md           # 缺失功能补遗（完整清单，含优先级）
+└── testing.md                    # 测试验证（功能/构建/兼容性）
+  └── archive/                    # 历史文档归档
+├── archive/                      # 历史文档归档
+│   ├── SPECIFICATIONS.md         #   技术规范（架构/状态/Pretext/构建）
+│   ├── REQUIREMENTS.md           #   原始需求文档（需求/用户故事/NFR）
+│   └── TASK_PLAN.md              #   任务实施记录（开发日志/里程碑）
 ```
 
-## 文档说明
+## 按用途导航
 
-### 1. 技术规范 (SPECIFICATIONS.md)
+### 了解项目全貌
+- [FEATURE_CHECKLIST.md](FEATURE_CHECKLIST.md) — 统计摘要、版本历史、实现路线图
+- [archive/SPECIFICATIONS.md](archive/SPECIFICATIONS.md) — 技术架构、状态管理协议、Monaco 规范、构建配置
 
-包含项目的技术架构、设计规范和实现标准：
+### 了解需求
+- [archive/REQUIREMENTS.md](archive/REQUIREMENTS.md) — 原始功能需求、验收标准、用户故事
+- [missing-features.md](missing-features.md) — 缺失功能清单、优先级排序
+- [export/xiaohongshu.md](export/xiaohongshu.md) — 小红书排版出图需求
 
-- 整体架构设计
-- 组件层次结构
-- 状态管理规范
-- Pretext 引擎规范
-- Monaco Editor 集成规范
-- 样式规范
-- 性能规范
-- 构建规范
-- 扩展性设计
-- 错误处理规范
-- 安全规范
+### 开发参考
+- [features/editor.md](features/editor.md) — 编辑器功能实现详情
+- [features/preview.md](features/preview.md) — 预览功能实现详情
+- [features/layout.md](features/layout.md) — 布局系统实现详情
+- [features/sidebar.md](features/sidebar.md) — 侧边栏功能实现详情
+- [features/state-management.md](features/state-management.md) — 状态管理实现详情
+- [features/services.md](features/services.md) — 服务层实现详情
+- [features/styles.md](features/styles.md) — 样式系统实现详情
 
-**适用场景：** 新成员了解项目架构、技术选型决策、代码评审参考
+### 导出功能
+- [export/image-export.md](export/image-export.md) — 通用导出规划
+- [export/xiaohongshu.md](export/xiaohongshu.md) — 小红书出图规划
 
-### 2. 功能需求 (REQUIREMENTS.md)
+### 测试验证
+- [testing.md](testing.md) — 功能/构建/兼容性测试记录
 
-包含项目的功能需求定义与详细验收标准：
-
-- 核心功能需求 (编辑器/预览/布局/侧边栏/设置)
-- 每项功能的验收标准、实现文件、测试方法
-- 非功能需求 (性能/兼容性/可用性/安全)
-- 用户故事
-- 约束条件
-- 验收标准
-- P2 功能需求规划
-
-**适用场景：** 需求评审、功能开发参考、验收测试
-
-### 3. 任务计划 (TASK_PLAN.md)
-
-包含项目的任务分解、实现记录与进度跟踪：
-
-- 项目概览与里程碑
-- 任务实现时间线
-- 详细任务清单 (按阶段，含子任务)
-- 任务依赖关系
-- 遇到的问题和解决方案
-- 进度统计与完成率
-- 后续计划 (P2 待实现)
-- 版本发布记录
-
-**适用场景：** 迭代规划、进度汇报、任务分配、技术复盘
-
-### 4. 功能完备记录 (FEATURE_CHECKLIST.md)
-
-包含已实现功能的详细记录：
-
-- 功能实现状态 (✅/🔄/🚧/⏳/❌)
-- 各模块功能清单 (含快捷键、自动补全 Snippets 等详情)
-- 实现文件位置
-- 统计汇总与完成率
-- 测试验证记录
-- 版本历史
-- 待办事项
-
-**适用场景：** 功能验收、迭代回顾、技术债务跟踪
-
-## 迭代更新指南
-
-### 新增功能
-
-1. 在 `REQUIREMENTS.md` 添加功能需求与验收标准
-2. 在 `TASK_PLAN.md` 添加任务分解
-3. 开发完成后在 `FEATURE_CHECKLIST.md` 更新状态
-
-### 修复 Bug
-
-1. 在 `FEATURE_CHECKLIST.md` 找到对应功能
-2. 更新状态为 🔄 (部分完成) 或修复后标记 ✅
-
-### 技术优化
-
-1. 在 `SPECIFICATIONS.md` 更新技术规范
-2. 在 `FEATURE_CHECKLIST.md` 记录优化项
-
-### 版本发布
-
-1. 更新 `FEATURE_CHECKLIST.md` 版本历史
-2. 更新 `README.md` 版本信息
-3. 更新各文档的完成统计
+### 历史任务记录
+- [archive/TASK_PLAN.md](archive/TASK_PLAN.md) — 初始开发日志、任务实施记录
 
 ## 状态符号说明
 
 | 符号 | 含义 |
 |------|------|
-| ✅ | 完成 - 功能已完整实现 |
+| ✅ | 完成 - 已完整实现 |
 | 🔄 | 部分完成 - 需要优化 |
-| 🚧 | 进行中 - 正在开发 |
-| ⏳ | 待开始 - 已规划 |
-| ❌ | 不实现 - 该版本不实现 |
-
-## 快速导航
-
-- [技术规范](./SPECIFICATIONS.md)
-- [功能需求](./REQUIREMENTS.md)
-- [任务计划](./TASK_PLAN.md)
-- [功能完备记录](./FEATURE_CHECKLIST.md)
-- [返回主文档](../README.md)
+| 🚧 | 进行中 |
+| ⏳ | 待开始 |
+| ❌ | 不实现 |
