@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import Editor, { OnMount } from '@monaco-editor/react'
 import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
@@ -10,8 +11,35 @@ export function MonacoEditor() {
     setCursorPosition,
     setEditorInstance,
     settings,
+    cursorPosition,
   } = useBoundStore()
   const { t } = useTranslation()
+  const isInternalChange = useRef(false)
+
+  // Sync external cursor position changes (e.g. outline click) to Monaco editor
+  useEffect(() => {
+    const editor = useBoundStore.getState().editorInstance
+    if (!editor) return
+
+    const current = editor.getPosition()
+    // Only scroll if the target position is different from current (avoids scroll on user click/type)
+    if (
+      cursorPosition.line === current?.lineNumber &&
+      cursorPosition.column === current?.column
+    ) return
+
+    isInternalChange.current = true
+    editor.setPosition({
+      lineNumber: cursorPosition.line,
+      column: cursorPosition.column,
+    })
+    editor.revealLineInCenter(cursorPosition.line)
+    editor.focus()
+
+    requestAnimationFrame(() => {
+      isInternalChange.current = false
+    })
+  }, [cursorPosition])
 
   if (!t) return null
 
@@ -322,6 +350,8 @@ export function MonacoEditor() {
 
     // Track cursor position
     editor.onDidChangeCursorPosition((e) => {
+      // Ignore internal changes (when we programmatically set position)
+      if (isInternalChange.current) return
       setCursorPosition({
         line: e.position.lineNumber,
         column: e.position.column,
