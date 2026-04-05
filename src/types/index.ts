@@ -117,6 +117,7 @@ export interface Settings {
   autoSave: boolean
   toolbar: ToolbarSettings
   locale: Locale
+  xhsExport: XHSExportSettings
 }
 
 // File types
@@ -126,4 +127,31 @@ export interface FileNode {
   type: 'file' | 'folder'
   children?: FileNode[]
   content?: string
+}
+
+// Platform preview types — extensible style system
+export type PlatformPreviewId = 'default' | 'xiaohongshu'
+
+export interface PlatformPreviewMeta {
+  id: PlatformPreviewId
+  name: string            // display name, e.g. "小红书", "默认文档"
+  description: string     // short description for tooltip
+  icon: string            // emoji icon
+}
+
+export interface PlatformPreviewDef {
+  meta: PlatformPreviewMeta
+  component: React.ComponentType<{ content: string }>
+}
+
+// XHS-specific export settings (stored in Settings)
+export type XHSAspectRatio = '3:4' | '3:5' | '1:1' | '16:9'
+export type XHSTemplate = 'cream' | 'minimal' | 'gradient'
+
+export interface XHSExportSettings {
+  aspectRatio: XHSAspectRatio
+  template: XHSTemplate
+  watermark: string
+  tags: string[]
+  showPageNumber: boolean
 }

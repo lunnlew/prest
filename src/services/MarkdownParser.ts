@@ -1,7 +1,7 @@
 import { TextBlock } from '../types'
 
 /**
- * Parse markdown content into text blocks for Pretext processing
+ * Parse markdown content into text blocks
  */
 export function parseMarkdownToBlocks(content: string): TextBlock[] {
   const lines = content.split('\n')

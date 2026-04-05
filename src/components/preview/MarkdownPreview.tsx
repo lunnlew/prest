@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -9,7 +9,6 @@ import { remarkHighlightMark } from 'remark-highlight-mark'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
-import { pretextService, parseMarkdownToBlocks } from '../../services'
 import './MarkdownPreview.css'
 
 interface MarkdownPreviewProps {
@@ -18,47 +17,29 @@ interface MarkdownPreviewProps {
 
 export function MarkdownPreview({ content }: MarkdownPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null)
-  const { settings, previewWidth, updateLayoutResult } = useBoundStore()
+  const { settings } = useBoundStore()
 
-  // Use Pretext to calculate layout for optimization
-  const layoutInfo = useMemo(() => {
-    const blocks = parseMarkdownToBlocks(content)
-    const { totalHeight, blockHeights } = pretextService.calculateTotalHeight(
-      blocks,
-      previewWidth || 400
-    )
-    return { totalHeight, blockHeights, blockCount: blocks.length }
-  }, [content, previewWidth])
-
-  // Update layout results in store
-  useEffect(() => {
-    updateLayoutResult('current', {
-      height: layoutInfo.totalHeight,
-      lineCount: layoutInfo.blockCount,
-      lines: [],
-    })
-  }, [layoutInfo, updateLayoutResult])
-
-  // Monitor preview width
-  useEffect(() => {
-    if (!previewRef.current) return
-
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width
-      if (width) {
-        useBoundStore.getState().setPreviewWidth(width)
-      }
-    })
-
-    observer.observe(previewRef.current)
-    return () => observer.disconnect()
+  // Monitor preview dimensions with ResizeObserver
+  const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
+    const rect = entries[0]?.contentRect
+    if (rect) {
+      useBoundStore.getState().setPreviewWidth(rect.width)
+    }
   }, [])
+
+  useEffect(() => {
+    const el = previewRef.current
+    if (!el) return
+
+    const observer = new ResizeObserver(handleResize)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [handleResize])
 
   return (
     <div
       ref={previewRef}
       className="markdown-preview-container"
-      style={{ minHeight: layoutInfo.totalHeight }}
     >
       <Markdown
         remarkPlugins={[

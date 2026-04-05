@@ -71,6 +71,7 @@ export interface LocaleMessages {
     moveDown: string
     noGroups: string
     buttonOrder: string
+    xhsExport: string
   }
   // Sidebar
   sidebar: {

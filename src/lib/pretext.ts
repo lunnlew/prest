@@ -1,11 +1,6 @@
 /**
- * Pretext Text Measurement Library
- *
- * This is a simplified implementation based on the Pretext library concept.
- * The full library is available at: https://github.com/chenglou/pretext
- *
- * This implementation uses canvas for text measurement and provides
- * the core layout calculation functionality.
+ * Simplified text measurement utilities for XHS pagination.
+ * Uses canvas for text width measurement.
  */
 
 export interface PreparedText {
@@ -20,24 +15,15 @@ export interface TextSegment {
   isBreakable: boolean
 }
 
-export interface LayoutLine {
-  text: string
-  width: number
-  start: { segmentIndex: number; graphemeIndex: number }
-  end: { segmentIndex: number; graphemeIndex: number }
-}
-
 export interface LayoutResult {
   height: number
   lineCount: number
-  lines: LayoutLine[]
 }
 
-// Canvas for text measurement
 let measureCanvas: HTMLCanvasElement | null = null
 let measureCtx: CanvasRenderingContext2D | null = null
 
-function getMeasureContext(): CanvasRenderingContext2D {
+function getCtx(): CanvasRenderingContext2D {
   if (!measureCanvas) {
     measureCanvas = document.createElement('canvas')
     measureCtx = measureCanvas.getContext('2d')
@@ -48,119 +34,51 @@ function getMeasureContext(): CanvasRenderingContext2D {
   return measureCtx
 }
 
-/**
- * Measure text width using canvas
- */
 function measureText(text: string, font: string): number {
-  const ctx = getMeasureContext()
+  const ctx = getCtx()
   ctx.font = font
   return ctx.measureText(text).width
 }
 
 /**
- * Split text into words and spaces
- */
-function tokenize(text: string): string[] {
-  return text.split(/(\s+)/).filter(Boolean)
-}
-
-/**
- * Prepare text for layout calculation
- * This is the one-time measurement pass
+ * Prepare text for layout — tokenize and measure widths.
  */
 export function prepare(text: string, font: string): PreparedText {
-  const tokens = tokenize(text)
-  const segments: TextSegment[] = tokens.map((token) => ({
+  const tokens = text.split(/(\s+)/).filter(Boolean)
+  const segments = tokens.map((token) => ({
     text: token,
     width: measureText(token, font),
     isBreakable: /^\s+$/.test(token),
   }))
-
   return { text, font, segments }
 }
 
 /**
- * Calculate layout for a given width
- * Pure arithmetic - very fast
- */
-export function layout(
-  prepared: PreparedText,
-  maxWidth: number,
-  lineHeight: number
-): { height: number; lineCount: number } {
-  const result = layoutWithLines(prepared, maxWidth, lineHeight)
-  return {
-    height: result.height,
-    lineCount: result.lineCount,
-  }
-}
-
-/**
- * Calculate layout with line information
+ * Calculate line-wrapped layout for a given max width.
  */
 export function layoutWithLines(
   prepared: PreparedText,
   maxWidth: number,
   lineHeight: number
-): LayoutResult & { lines: LayoutLine[] } {
-  const lines: LayoutLine[] = []
-  let currentLineText = ''
+): LayoutResult {
+  let lineCount = 0
   let currentLineWidth = 0
-  let lineStartSegment = 0
-  let lineStartGrapheme = 0
 
-  for (let i = 0; i < prepared.segments.length; i++) {
-    const segment = prepared.segments[i]
-
-    if (currentLineWidth + segment.width > maxWidth && currentLineText.trim()) {
-      // Start new line
-      lines.push({
-        text: currentLineText.trimEnd(),
-        width: currentLineWidth,
-        start: { segmentIndex: lineStartSegment, graphemeIndex: lineStartGrapheme },
-        end: { segmentIndex: i, graphemeIndex: 0 },
-      })
-      currentLineText = ''
-      currentLineWidth = 0
-      lineStartSegment = i
-      lineStartGrapheme = 0
+  for (const segment of prepared.segments) {
+    if (currentLineWidth + segment.width > maxWidth) {
+      lineCount++
+      currentLineWidth = segment.width
+    } else {
+      currentLineWidth += segment.width
     }
-
-    currentLineText += segment.text
-    currentLineWidth += segment.width
   }
 
-  // Add remaining content as last line
-  if (currentLineText.trim()) {
-    lines.push({
-      text: currentLineText.trimEnd(),
-      width: currentLineWidth,
-      start: { segmentIndex: lineStartSegment, graphemeIndex: lineStartGrapheme },
-      end: { segmentIndex: prepared.segments.length, graphemeIndex: 0 },
-    })
-  }
-
-  // If no lines, add one empty line
-  if (lines.length === 0) {
-    lines.push({
-      text: '',
-      width: 0,
-      start: { segmentIndex: 0, graphemeIndex: 0 },
-      end: { segmentIndex: 0, graphemeIndex: 0 },
-    })
+  if (currentLineWidth > 0) {
+    lineCount++
   }
 
   return {
-    height: lines.length * lineHeight,
-    lineCount: lines.length,
-    lines,
+    height: lineCount * lineHeight,
+    lineCount,
   }
-}
-
-/**
- * Clear internal cache
- */
-export function clearCache(): void {
-  measureCanvas = null
-  measureCtx = null
 }

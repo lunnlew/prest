@@ -1,18 +1,38 @@
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { MarkdownPreview } from '../preview/MarkdownPreview'
+import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
+import type { PlatformPreviewId } from '../../types'
+
+const platformOptions: { id: PlatformPreviewId; label: string }[] = [
+  { id: 'default', label: '文档' },
+  { id: 'xiaohongshu', label: '小红书' },
+]
 
 export function PreviewPanel() {
-  const { content } = useBoundStore()
+  const { content, platformPreview, settings, setPlatformPreview } = useBoundStore()
   const { t } = useTranslation()
 
   if (!t) return null
+
+  const xhs = settings.xhsExport
 
   return (
     <div className="flex flex-col h-full">
       <div className="h-9 px-4 flex items-center justify-between border-b border-[var(--border-color)]">
         <span className="text-sm font-medium text-[var(--text-primary)]">{t.preview.title}</span>
         <div className="flex items-center gap-2">
+          {/* Platform preview selector */}
+          <select
+            value={platformPreview}
+            onChange={(e) => setPlatformPreview(e.target.value as PlatformPreviewId)}
+            className="text-xs px-2 py-1 rounded bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none"
+            title="切换预览风格"
+          >
+            {platformOptions.map(opt => (
+              <option key={opt.id} value={opt.id}>{opt.label}</option>
+            ))}
+          </select>
           <button
             className="text-xs px-2 py-1 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
             title={t.preview.toggleSyncScroll}
@@ -23,7 +43,21 @@ export function PreviewPanel() {
       </div>
 
       <div className="flex-1 overflow-auto">
-        <MarkdownPreview content={content} />
+        {platformPreview === 'xiaohongshu' ? (
+          <div className="bg-[var(--bg-primary)] py-6 px-4 min-h-full flex justify-center">
+            <div className="w-full max-w-[480px]">
+              <XiaohongshuPreview
+                content={content}
+                template={xhs.template}
+                watermark={xhs.watermark}
+                tags={xhs.tags}
+                showPageNumber={xhs.showPageNumber}
+              />
+            </div>
+          </div>
+        ) : (
+          <MarkdownPreview content={content} />
+        )}
       </div>
     </div>
   )

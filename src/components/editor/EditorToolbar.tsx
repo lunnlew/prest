@@ -4,6 +4,7 @@ import { useTranslation } from '../../hooks/useTranslation'
 import type { FormatType } from '../../stores'
 import type { ToolbarGroupId } from '../../types'
 import { ToolbarConfigDialog } from './ToolbarConfigDialog'
+import { XHSExportDialog } from './XHSExportDialog'
 import { defaultToolbarGroups, defaultToolbarItems } from '../../stores/settingsSlice'
 import { buttonConfigs } from './buttons'
 
@@ -131,6 +132,7 @@ export function EditorToolbar() {
 
   const [openDropdown, setOpenDropdown] = useState<ToolbarGroupId | null>(null)
   const [showConfigPanel, setShowConfigPanel] = useState(false)
+  const [showXHSDialog, setShowXHSDialog] = useState(false)
 
   if (!t) return null
 
@@ -282,6 +284,12 @@ export function EditorToolbar() {
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <ToolbarButton
+            onClick={() => setShowXHSDialog(true)}
+            title="小红书出图"
+          >
+            <span>📕</span>
+          </ToolbarButton>
+          <ToolbarButton
             onClick={() => setShowConfigPanel(!showConfigPanel)}
             title={t.toolbar.customize}
           >
@@ -303,6 +311,11 @@ export function EditorToolbar() {
       <ToolbarConfigDialog
         isOpen={showConfigPanel}
         onClose={() => setShowConfigPanel(false)}
+      />
+
+      <XHSExportDialog
+        isOpen={showXHSDialog}
+        onClose={() => setShowXHSDialog(false)}
       />
     </div>
   )

@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand'
-import { Settings, Theme, EditorSettings, ToolbarGroupConfig, ToolbarItem, ToolbarButtonId, Locale } from '../types'
+import { Settings, Theme, EditorSettings, ToolbarGroupConfig, ToolbarItem, ToolbarButtonId, Locale, XHSExportSettings } from '../types'
 
 export interface SettingsSlice {
   // State
@@ -17,6 +17,7 @@ export interface SettingsSlice {
   setToolbarGroups: (groups: ToolbarGroupConfig[]) => void
   setPinnedButtons: (buttons: ToolbarButtonId[]) => void
   setToolbarItems: (items: ToolbarItem[]) => void
+  setXHSExportSettings: (settings: Partial<XHSExportSettings>) => void
   resetSettings: () => void
 }
 
@@ -122,6 +123,14 @@ export const defaultToolbarItems: ToolbarItem[] = [
   { type: 'group', id: 'tools' },
 ]
 
+export const defaultXHSExport: XHSExportSettings = {
+  aspectRatio: '3:4',
+  template: 'cream',
+  watermark: '',
+  tags: [],
+  showPageNumber: false,
+}
+
 const defaultSettings: Settings = {
   theme: 'dark',
   editor: {
@@ -138,6 +147,7 @@ const defaultSettings: Settings = {
     items: defaultToolbarItems,
   },
   locale: 'zh-CN',
+  xhsExport: defaultXHSExport,
 }
 
 export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSlice> = (set) => ({
@@ -177,6 +187,14 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   setLocale: (locale) =>
     set((state) => ({
       settings: { ...state.settings, locale },
+    })),
+
+  setXHSExportSettings: (xhsSettings) =>
+    set((state) => ({
+      settings: {
+        ...state.settings,
+        xhsExport: { ...state.settings.xhsExport, ...xhsSettings },
+      },
     })),
 
   toggleToolbarGroup: (groupId) =>

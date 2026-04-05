@@ -86,7 +86,8 @@
     "moveUp": "Move Up",
     "moveDown": "Move Down",
     "noGroups": "No groups yet, click the button above to create one",
-    "buttonOrder": "Button Order"
+    "buttonOrder": "Button Order",
+    "xhsExport": "XHS Export"
   },
   "sidebar": {
     "files": "Files",

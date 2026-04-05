@@ -85,7 +85,8 @@
     "moveUp": "上移",
     "moveDown": "下移",
     "noGroups": "暂无分组，点击上方按钮新建",
-    "buttonOrder": "按钮顺序"
+    "buttonOrder": "按钮顺序",
+    "xhsExport": "小红书出图"
   },
   "sidebar": {
     "files": "文件",

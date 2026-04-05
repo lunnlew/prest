@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand'
-import { LayoutResult } from '../types'
+import { LayoutResult, PlatformPreviewId } from '../types'
 
 export interface PreviewSlice {
   // State
@@ -7,6 +7,7 @@ export interface PreviewSlice {
   syncScroll: boolean
   layoutResults: Map<string, LayoutResult>
   previewWidth: number
+  platformPreview: PlatformPreviewId
 
   // Actions
   setScrollPosition: (position: number) => void
@@ -15,6 +16,8 @@ export interface PreviewSlice {
   updateLayoutResult: (key: string, result: LayoutResult) => void
   setPreviewWidth: (width: number) => void
   clearLayoutResults: () => void
+  setPlatformPreview: (mode: PlatformPreviewId) => void
+  togglePlatformPreview: () => void
 }
 
 export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set, get) => ({
@@ -22,6 +25,7 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   syncScroll: true,
   layoutResults: new Map(),
   previewWidth: 400,
+  platformPreview: 'default',
 
   setScrollPosition: (position) => set({ scrollPosition: position }),
 
@@ -38,4 +42,9 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   setPreviewWidth: (width) => set({ previewWidth: width }),
 
   clearLayoutResults: () => set({ layoutResults: new Map() }),
+
+  setPlatformPreview: (mode) => set({ platformPreview: mode }),
+  togglePlatformPreview: () => set((state) => ({
+    platformPreview: state.platformPreview === 'default' ? 'xiaohongshu' : 'default',
+  })),
 })

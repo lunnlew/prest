@@ -1,0 +1,242 @@
+import { useRef, useState, useCallback, useEffect } from 'react'
+import { useBoundStore } from '../../stores'
+import { useTranslation } from '../../hooks/useTranslation'
+import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
+import { paginate, type PageInfo } from '../../services/XHSPaginator'
+import type { XHSAspectRatio, XHSTemplate } from '../../types'
+
+const ASPECT_DIMENSIONS: Record<XHSAspectRatio, { w: number; h: number }> = {
+  '3:4': { w: 1242, h: 1660 },
+  '3:5': { w: 1080, h: 1800 },
+  '1:1': { w: 1080, h: 1080 },
+  '16:9': { w: 1920, h: 1080 },
+}
+
+const TEMPLATE_LABELS: Record<XHSTemplate, string> = {
+  cream: '奶油',
+  minimal: '简约',
+  gradient: '渐变',
+}
+
+const ASPECT_LABELS: Record<XHSAspectRatio, string> = {
+  '3:4': '竖版 3:4',
+  '3:5': '竖版 3:5',
+  '1:1': '方版 1:1',
+  '16:9': '横版 16:9',
+}
+
+interface XHSExportDialogProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
+  const { content, settings, setXHSExportSettings } = useBoundStore()
+  const { t, loading } = useTranslation()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const measureRef = useRef<HTMLDivElement>(null)
+  const [tags, setTags] = useState(settings.xhsExport.tags.join(' '))
+  const [exporting, setExporting] = useState(false)
+  const [currentPageNum, setCurrentPageNum] = useState(1)
+  const [pages, setPages] = useState<PageInfo[]>([])
+  const [totalPages, setTotalPages] = useState(0)
+
+  const handleClose = useCallback(() => onClose(), [onClose])
+
+  const handleExport = useCallback(async () => {
+    setExporting(true)
+    try { window.print() } catch (e) { console.error('Export failed:', e) }
+    finally { setExporting(false) }
+  }, [onClose])
+
+  const xhs = settings.xhsExport
+  const measureKey = `${xhs.aspectRatio}-${xhs.template}-${xhs.watermark}-${xhs.showPageNumber}-${content}-${tags}`
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const measure = () => {
+      const el = measureRef.current
+      const preview = el?.querySelector('.xhs-preview') as HTMLElement | null
+      if (!preview) return
+
+      const result = paginate(preview, xhs.aspectRatio)
+      setPages(result.pages)
+      setTotalPages(result.totalPages)
+      setCurrentPageNum(1)
+    }
+
+    const timer1 = setTimeout(measure, 150)
+    const timer2 = setTimeout(measure, 500)
+    return () => { clearTimeout(timer1); clearTimeout(timer2) }
+  }, [isOpen, measureKey])
+
+  const handleAspectChange = useCallback(
+    (ratio: XHSAspectRatio) => {
+      setXHSExportSettings({ aspectRatio: ratio })
+      setPages([]); setTotalPages(0)
+    }, [setXHSExportSettings]
+  )
+
+  const handleTemplateChange = useCallback(
+    (tpl: XHSTemplate) => {
+      setXHSExportSettings({ template: tpl })
+      setPages([]); setTotalPages(0)
+    }, [setXHSExportSettings]
+  )
+
+  const handleTagsChange = useCallback(
+    (val: string) => {
+      setTags(val)
+      setXHSExportSettings({ tags: val.split(/\s+/).filter(Boolean) })
+      setPages([]); setTotalPages(0)
+    }, [setXHSExportSettings]
+  )
+
+  if (loading || !t) return null
+  if (!isOpen) return null
+
+  // Page display: fixed width 440px
+  const frameW = 440
+  const ratioH = ASPECT_DIMENSIONS[xhs.aspectRatio].h / ASPECT_DIMENSIONS[xhs.aspectRatio].w
+  const frameH = Math.round(frameW * ratioH)
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
+      <div
+        ref={dialogRef}
+        className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg shadow-xl w-[95vw] max-w-[1400px] h-[90vh] flex flex-col overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-color)]">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+            {t.toolbar.xhsExport || '小红书出图'}
+          </h2>
+          <button onClick={handleClose} className="p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)]">✕</button>
+        </div>
+
+        {/* Hidden measure: full content at display width */}
+        <div
+          ref={measureRef}
+          style={{
+            position: 'absolute',
+            left: '-9999px',
+            visibility: 'hidden',
+            width: `${frameW}px`,
+          }}
+        >
+          <XiaohongshuPreview key={measureKey} content={content} template={xhs.template}
+            watermark={xhs.watermark} tags={xhs.tags} showPageNumber={xhs.showPageNumber} />
+        </div>
+
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left: Settings */}
+          <div className="w-64 border-r border-[var(--border-color)] overflow-y-auto p-4 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-[var(--text-muted)] uppercase block mb-2">尺寸</label>
+              <div className="space-y-1">
+                {Object.entries(ASPECT_DIMENSIONS).map(([key, { w, h }]) => (
+                  <button key={key} onClick={() => handleAspectChange(key as XHSAspectRatio)}
+                    className={`w-full px-3 py-2 text-sm rounded transition-colors flex items-center justify-between ${
+                      xhs.aspectRatio === key
+                        ? 'bg-[var(--accent-color)] text-white'
+                        : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+                    }`}>
+                    <span>{ASPECT_LABELS[key as XHSAspectRatio]}</span>
+                    <span className="text-xs opacity-75">{w}×{h}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[var(--text-muted)] uppercase block mb-2">模板</label>
+              <div className="space-y-1">
+                {Object.entries(TEMPLATE_LABELS).map(([key, label]) => (
+                  <button key={key} onClick={() => handleTemplateChange(key as XHSTemplate)}
+                    className={`w-full px-3 py-2 text-sm rounded transition-colors ${
+                      xhs.template === key
+                        ? 'bg-[var(--accent-color)] text-white'
+                        : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+                    }`}>{label}</button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[var(--text-muted)] uppercase block mb-2">水印</label>
+              <input value={xhs.watermark}
+                onChange={(e) => setXHSExportSettings({ watermark: e.target.value })}
+                placeholder="留空不显示"
+                className="w-full px-3 py-2 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]" />
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-[var(--text-muted)] uppercase block mb-2">话题标签</label>
+              <textarea value={tags} onChange={(e) => handleTagsChange(e.target.value)}
+                placeholder="用空格分隔" rows={2}
+                className="w-full px-3 py-2 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] resize-none" />
+            </div>
+
+            <div>
+              <button onClick={() => setXHSExportSettings({ showPageNumber: !xhs.showPageNumber })}
+                className={`px-3 py-2 text-sm rounded transition-colors ${
+                  xhs.showPageNumber
+                    ? 'bg-[var(--accent-color)] text-white'
+                    : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+                }`}>显示页码</button>
+            </div>
+
+            {totalPages > 0 && (
+              <div className="text-xs text-[var(--text-muted)] bg-[var(--bg-tertiary)] rounded p-3">
+                共 {totalPages} 页
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button onClick={() => setCurrentPageNum(Math.max(1, currentPageNum - 1))}
+                  disabled={currentPageNum <= 1}
+                  className="flex-1 px-3 py-2 text-sm rounded bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">上一页</button>
+                <span className="text-sm text-[var(--text-primary)] min-w-[3rem] text-center">{currentPageNum} / {totalPages}</span>
+                <button onClick={() => setCurrentPageNum(Math.min(totalPages, currentPageNum + 1))}
+                  disabled={currentPageNum >= totalPages}
+                  className="flex-1 px-3 py-2 text-sm rounded bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">下一页</button>
+              </div>
+            )}
+
+            <button onClick={handleExport} disabled={exporting}
+              className="w-full px-4 py-2 text-sm rounded bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/80 text-white font-medium disabled:opacity-50 transition-colors">
+              {exporting ? '导出中...' : '导出 PDF'}
+            </button>
+          </div>
+
+          {/* Right: Paginated preview — each page renders ONLY its own content */}
+          <div className="flex-1 overflow-y-auto bg-[var(--bg-primary)] p-6 flex flex-col items-center gap-4">
+            {pages.length === 0 ? (
+              <div className="text-[var(--text-muted)] text-sm mt-20">计算分页中...</div>
+            ) : (
+              pages.map((pageInfo, pageIdx) => {
+                const pageNum = pageIdx + 1
+                const isLast = pageIdx === pages.length - 1
+                return (
+                  <div key={pageIdx} className="xhs-page-frame flex-shrink-0"
+                    style={{ width: frameW, height: frameH }}>
+                    <XiaohongshuPreview
+                      html={pageInfo.html}
+                      template={xhs.template}
+                      watermark={isLast ? xhs.watermark : ''}
+                      tags={isLast ? xhs.tags : []}
+                      showPageNumber={xhs.showPageNumber}
+                      currentPage={pages.length > 1 ? pageNum : 1}
+                      totalPages={pages.length}
+                    />
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
