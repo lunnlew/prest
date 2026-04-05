@@ -17,6 +17,11 @@
 | S-012 | 文件点击切换 | ✅ | `FileExplorer.tsx` | setContent |
 | S-013 | 文件图标 | ✅ | `FileExplorer.tsx` | 文件/文件夹图标 |
 | S-014 | 当前文件高亮 | ✅ | `FileExplorer.tsx` | currentFile |
+| S-015 | 右键上下文菜单 | ✅ | `FileExplorer.tsx` | ContextMenuPopover，支持新建/重命名/删除 |
+| S-016 | 文件树拖拽排序 | ✅ | `FileExplorer.tsx` | 拖到文件夹上移入，拖到节点上/下调整顺序 |
+| S-017 | IndexedDB 持久化 | ✅ | `sidebarSlice.ts`, `storage/` | 文件树自动保存，首次启动从 DB 加载 |
+| S-018 | 文件名自动去重 | ✅ | `sidebarSlice.ts:dedupeName` | 同类型同目录下不重复，自动编号 `name (1).ext` |
+| S-019 | 重命名去重校验 | ✅ | `sidebarSlice.ts:renameFile` | 重命名时检测冲突并自动编号，文件名与目录名可重叠 |
 
 ## 5.3 大纲视图
 
