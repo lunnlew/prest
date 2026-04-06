@@ -22,10 +22,19 @@ export const buttons: ButtonConfig[] = [
     group: groupId,
   },
   {
-    id: 'downloadMd',
-    icon: <span className="text-sm">↓</span>,
-    getDisplayName: (t) => t.editor.downloadMd || 'Download MD',
-    getTitle: (t) => t.editor.downloadMd || 'Download Markdown File',
+    id: 'copyWechat',
+    icon: <span className="text-xs">公众号</span>,
+    getDisplayName: (t) => t.editor.copyWechat || 'Copy Wechat',
+    getTitle: (t) => t.editor.copyWechat || 'Copy for Wechat Public Account',
+    format: 'copyWechat',
+    group: groupId,
+  },
+  {
+    id: 'copyWeibo',
+    icon: <span className="text-xs">微博</span>,
+    getDisplayName: (t) => t.editor.copyWeibo || 'Copy Weibo',
+    getTitle: (t) => t.editor.copyWeibo || 'Copy for Weibo',
+    format: 'copyWeibo',
     group: groupId,
   },
 ]

@@ -1,7 +1,7 @@
 import type { ToolbarButtonId, ToolbarGroupId } from '../../../types'
 import type { FormatType } from '../../../stores/editorSlice'
 
-export const groupId: ToolbarGroupId = 'textFormatting'
+export const groupId: ToolbarGroupId = 'basic'
 
 export interface ButtonConfig {
   id: ToolbarButtonId
@@ -30,14 +30,6 @@ export const buttons: ButtonConfig[] = [
     group: groupId,
   },
   {
-    id: 'underline',
-    icon: <span className="underline">U</span>,
-    getDisplayName: (t) => t.editor.underline || 'Underline',
-    getTitle: (t) => t.editor.underline || 'Underline',
-    format: 'underline',
-    group: groupId,
-  },
-  {
     id: 'strikethrough',
     icon: <s className="line-through">S</s>,
     getDisplayName: (t) => t.editor.strikethrough,
@@ -54,19 +46,11 @@ export const buttons: ButtonConfig[] = [
     group: groupId,
   },
   {
-    id: 'subscript',
-    icon: <span>X<sub>2</sub></span>,
-    getDisplayName: (t) => t.editor.subscript || 'Subscript',
-    getTitle: (t) => t.editor.subscript || 'Subscript',
-    format: 'subscript',
-    group: groupId,
-  },
-  {
-    id: 'superscript',
-    icon: <span>X<sup>2</sup></span>,
-    getDisplayName: (t) => t.editor.superscript || 'Superscript',
-    getTitle: (t) => t.editor.superscript || 'Superscript',
-    format: 'superscript',
+    id: 'underline',
+    icon: <span className="underline">U</span>,
+    getDisplayName: (t) => t.editor.underline || 'Underline',
+    getTitle: (t) => t.editor.underline || 'Underline',
+    format: 'underline',
     group: groupId,
   },
 ]

@@ -44,17 +44,12 @@ export interface EditorSettings {
 
 // Toolbar configuration types
 export type ToolbarButtonId =
-  // Text formatting
+  // Basic formatting
   | 'bold'
   | 'italic'
   | 'strikethrough'
   | 'highlight'
   | 'underline'
-  | 'subscript'
-  | 'superscript'
-  | 'code'
-  | 'link'
-  | 'image'
   // Headings
   | 'heading1'
   | 'heading2'
@@ -66,19 +61,43 @@ export type ToolbarButtonId =
   | 'bulletList'
   | 'orderedList'
   | 'taskList'
-  // Blocks
-  | 'quote'
+  // Insert
+  | 'link'
+  | 'image'
+  | 'code'
+  | 'codeBlock'
+  | 'math'
   | 'table'
   | 'hr'
+  | 'emoji'
+  // Blocks
+  | 'quote'
+  | 'footnote'
+  | 'definitionList'
   // Alignment
   | 'alignLeft'
   | 'alignCenter'
   | 'alignRight'
+  // Advanced
+  | 'subscript'
+  | 'superscript'
+  | 'fontColor'
+  | 'fontBackground'
+  // File
+  | 'downloadMd'
+  | 'importFile'
+  | 'exportHtml'
+  | 'exportPdf'
   // Tools
   | 'clearFormat'
-  | 'downloadMd'
+  | 'copyWechat'
+  | 'copyWeibo'
+  // View
+  | 'focusMode'
+  | 'typewriterMode'
+  | 'fullscreen'
 
-export type ToolbarGroupId = 'headings' | 'textFormatting' | 'codeLinks' | 'lists' | 'blocks' | 'alignment' | 'tools' | (string & {})
+export type ToolbarGroupId = 'basic' | 'headings' | 'lists' | 'insert' | 'blocks' | 'alignment' | 'advanced' | 'file' | 'tools' | 'view' | (string & {})
 
 export interface ToolbarGroupConfig {
   id: ToolbarGroupId

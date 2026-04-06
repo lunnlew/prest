@@ -1,53 +1,58 @@
 import type { ToolbarButtonId } from '../../../types'
-import { buttons as headings, groupId as headingsGroupId, ButtonConfig } from './headings'
-import { buttons as textFormatting, groupId as textFormattingGroupId } from './textFormatting'
-import { buttons as codeLinks, groupId as codeLinksGroupId } from './codeLinks'
+import { buttons as basic, groupId as basicGroupId, ButtonConfig } from './basic'
+import { buttons as headings, groupId as headingsGroupId } from './headings'
 import { buttons as lists, groupId as listsGroupId } from './lists'
+import { buttons as insert, groupId as insertGroupId } from './insert'
 import { buttons as blocks, groupId as blocksGroupId } from './blocks'
 import { buttons as alignment, groupId as alignmentGroupId } from './alignment'
+import { buttons as advanced, groupId as advancedGroupId } from './advanced'
+import { buttons as file, groupId as fileGroupId } from './file'
 import { buttons as tools, groupId as toolsGroupId } from './tools'
+import { buttons as view, groupId as viewGroupId } from './view'
 
 // Re-export types
-export type { ButtonConfig } from './headings'
+export type { ButtonConfig } from './basic'
 
 // Re-export group IDs
 export {
+  basicGroupId,
   headingsGroupId,
-  textFormattingGroupId,
-  codeLinksGroupId,
   listsGroupId,
+  insertGroupId,
   blocksGroupId,
   alignmentGroupId,
+  advancedGroupId,
+  fileGroupId,
   toolsGroupId,
+  viewGroupId,
 }
 
 // All buttons grouped by category
 export const buttonGroups = {
+  basic,
   headings,
-  textFormatting,
-  codeLinks,
   lists,
+  insert,
   blocks,
   alignment,
+  advanced,
+  file,
   tools,
+  view,
 } as const
 
 // All buttons as a flat record for easy lookup
 export const buttonConfigs: Record<ToolbarButtonId, ButtonConfig> = {
-  // Headings
+  ...Object.fromEntries(basic.map(b => [b.id, b])),
   ...Object.fromEntries(headings.map(b => [b.id, b])),
-  // Text formatting
-  ...Object.fromEntries(textFormatting.map(b => [b.id, b])),
-  // Code & Links
-  ...Object.fromEntries(codeLinks.map(b => [b.id, b])),
-  // Lists
   ...Object.fromEntries(lists.map(b => [b.id, b])),
-  // Blocks
+  ...Object.fromEntries(insert.map(b => [b.id, b])),
   ...Object.fromEntries(blocks.map(b => [b.id, b])),
-  // Alignment
   ...Object.fromEntries(alignment.map(b => [b.id, b])),
-  // Tools
+  ...Object.fromEntries(advanced.map(b => [b.id, b])),
+  ...Object.fromEntries(file.map(b => [b.id, b])),
   ...Object.fromEntries(tools.map(b => [b.id, b])),
+  ...Object.fromEntries(view.map(b => [b.id, b])),
 } as Record<ToolbarButtonId, ButtonConfig>
 
 // All button IDs

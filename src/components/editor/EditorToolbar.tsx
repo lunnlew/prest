@@ -2,9 +2,12 @@ import { useState, useRef, useEffect } from 'react'
 import { useBoundStore, type AppStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import type { FormatType } from '../../stores'
-import type { ToolbarGroupId } from '../../types'
+import type { ToolbarGroupId, ToolbarButtonId } from '../../types'
 import { ToolbarConfigDialog } from './ToolbarConfigDialog'
 import { XHSExportDialog } from './XHSExportDialog'
+import { CodeBlockDialog } from './CodeBlockDialog'
+import { EmojiPicker } from './EmojiPicker'
+import { ColorPicker } from './ColorPicker'
 import { defaultToolbarGroups, defaultToolbarItems } from '../../stores/settingsSlice'
 import { buttonConfigs } from './buttons'
 
@@ -36,13 +39,20 @@ interface DropdownMenuProps {
 }
 
 function DropdownMenu({ label, icon, isOpen, onToggle, onClose, children }: DropdownMenuProps) {
-  const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement
+      // Check if click is on a dropdown item (has data-dropdown-item attribute)
+      const isDropdownItem = target.closest?.('[data-dropdown-item]')
+      if (isDropdownItem) {
+        return // Don't close if clicking on dropdown item
+      }
+      // Check if click is outside the button
+      const isOutsideButton = !buttonRef.current?.contains(target)
+      if (isOutsideButton) {
         onClose()
       }
     }
@@ -63,7 +73,7 @@ function DropdownMenu({ label, icon, isOpen, onToggle, onClose, children }: Drop
   }, [isOpen])
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative">
       <button
         ref={buttonRef}
         onClick={onToggle}
@@ -97,9 +107,14 @@ interface DropdownItemProps {
 }
 
 function DropdownItem({ onClick, icon, displayName, shortcut }: DropdownItemProps) {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClick()
+  }
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
+      data-dropdown-item="true"
       className="w-full px-3 py-1.5 text-sm text-left hover:bg-[var(--bg-tertiary)] flex items-center justify-between gap-2 text-[var(--text-primary)]"
     >
       <span className="flex items-center gap-2">
@@ -116,6 +131,12 @@ function DropdownItem({ onClick, icon, displayName, shortcut }: DropdownItemProp
 // Custom action handlers for buttons without format property
 const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
   downloadMd: (store) => store.downloadMd(),
+  codeBlock: () => {
+    window.dispatchEvent(new CustomEvent('open-codeblock-dialog'))
+  },
+  emoji: () => {
+    window.dispatchEvent(new CustomEvent('open-emoji-picker'))
+  },
 }
 
 export function EditorToolbar() {
@@ -124,7 +145,6 @@ export function EditorToolbar() {
     previewVisible,
     toggleEditorPosition,
     editorOnLeft,
-    formatMarkdown,
     undo,
     redo,
     settings,
@@ -134,6 +154,8 @@ export function EditorToolbar() {
   const [openDropdown, setOpenDropdown] = useState<ToolbarGroupId | null>(null)
   const [showConfigPanel, setShowConfigPanel] = useState(false)
   const [showXHSDialog, setShowXHSDialog] = useState(false)
+  const [showColorPicker, setShowColorPicker] = useState(false)
+  const [colorPickerType, setColorPickerType] = useState<'color' | 'background'>('color')
 
   if (!t) return null
 
@@ -143,8 +165,18 @@ export function EditorToolbar() {
   }
 
   const handleFormat = (type: FormatType) => {
-    formatMarkdown(type)
+    const store = useBoundStore.getState()
+    if (typeof store.formatMarkdown === 'function') {
+      store.formatMarkdown(type)
+    }
     setOpenDropdown(null)
+  }
+
+  const handleFormatWithButtonId = (buttonId: string) => {
+    const config = buttonConfigs[buttonId as ToolbarButtonId]
+    if (config && config.format) {
+      handleFormat(config.format)
+    }
   }
 
   const handleDropdownToggle = (groupId: ToolbarGroupId) => {
@@ -226,24 +258,54 @@ export function EditorToolbar() {
               const config = buttonConfigs[buttonId]
               if (!config) return null
 
-              // Format buttons
-              if (config.format) {
+              // Special handling for color pickers
+              if (buttonId === 'fontColor') {
                 return (
                   <DropdownItem
                     key={buttonId}
-                    onClick={() => handleFormat(config.format!)}
+                    onClick={() => {
+                      setColorPickerType('color')
+                      setShowColorPicker(true)
+                      setOpenDropdown(null)
+                    }}
+                    icon={config.icon}
+                    displayName={config.getDisplayName(t)}
+                  />
+                )
+              }
+              if (buttonId === 'fontBackground') {
+                return (
+                  <DropdownItem
+                    key={buttonId}
+                    onClick={() => {
+                      setColorPickerType('background')
+                      setShowColorPicker(true)
+                      setOpenDropdown(null)
+                    }}
                     icon={config.icon}
                     displayName={config.getDisplayName(t)}
                   />
                 )
               }
 
-              // Custom action buttons in dropdown
+              // Custom action handlers take priority (e.g., codeBlock needs dialog)
               if (buttonActionHandlers[buttonId]) {
                 return (
                   <DropdownItem
                     key={buttonId}
                     onClick={() => handleCustomAction(buttonId)}
+                    icon={config.icon}
+                    displayName={config.getDisplayName(t)}
+                  />
+                )
+              }
+
+              // Format buttons
+              if (config.format) {
+                return (
+                  <DropdownItem
+                    key={buttonId}
+                    onClick={() => handleFormatWithButtonId(buttonId)}
                     icon={config.icon}
                     displayName={config.getDisplayName(t)}
                   />
@@ -329,6 +391,16 @@ export function EditorToolbar() {
       <XHSExportDialog
         isOpen={showXHSDialog}
         onClose={() => setShowXHSDialog(false)}
+      />
+
+      <CodeBlockDialog />
+
+      <EmojiPicker />
+
+      <ColorPicker
+        type={colorPickerType}
+        isOpen={showColorPicker}
+        onClose={() => setShowColorPicker(false)}
       />
     </div>
   )

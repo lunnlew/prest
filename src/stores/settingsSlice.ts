@@ -24,54 +24,75 @@ export interface SettingsSlice {
 // Default toolbar configuration
 export const defaultToolbarGroups: ToolbarGroupConfig[] = [
   {
+    id: 'basic',
+    label: 'basic',
+    buttons: ['bold', 'italic', 'strikethrough', 'highlight', 'underline'],
+    visible: true,
+    expanded: false,
+  },
+  {
     id: 'headings',
-    label: 'Headings',
-    buttons: ['heading1', 'heading2', 'heading3'],
-    visible: true,
-    expanded: false,
-  },
-  {
-    id: 'textFormatting',
-    label: 'Text',
-    buttons: ['bold', 'italic', 'strikethrough', 'highlight'],
-    visible: true,
-    expanded: false,
-  },
-  {
-    id: 'codeLinks',
-    label: 'Code & Links',
-    buttons: ['code', 'link', 'image'],
+    label: 'headings',
+    buttons: ['heading1', 'heading2', 'heading3', 'heading4', 'heading5', 'heading6'],
     visible: true,
     expanded: false,
   },
   {
     id: 'lists',
-    label: 'Lists',
+    label: 'lists',
     buttons: ['bulletList', 'orderedList', 'taskList'],
     visible: true,
     expanded: false,
   },
   {
+    id: 'insert',
+    label: 'insert',
+    buttons: ['link', 'image', 'code', 'codeBlock', 'math', 'table', 'hr', 'emoji'],
+    visible: true,
+    expanded: false,
+  },
+  {
     id: 'blocks',
-    label: 'Blocks',
-    buttons: ['quote', 'table', 'hr'],
+    label: 'blocks',
+    buttons: ['quote', 'footnote', 'definitionList'],
     visible: true,
     expanded: false,
   },
   {
     id: 'alignment',
-    label: 'Align',
+    label: 'alignment',
     buttons: ['alignLeft', 'alignCenter', 'alignRight'],
     visible: true,
     expanded: false,
   },
   {
-    id: 'tools',
-    label: 'Tools',
-    buttons: ['clearFormat', 'downloadMd'],
-    visible: true,
+    id: 'advanced',
+    label: 'advanced',
+    buttons: ['subscript', 'superscript', 'fontColor', 'fontBackground'],
+    visible: false,
     expanded: false,
-  }
+  },
+  {
+    id: 'file',
+    label: 'file',
+    buttons: ['downloadMd', 'importFile', 'exportHtml', 'exportPdf'],
+    visible: false,
+    expanded: false,
+  },
+  {
+    id: 'tools',
+    label: 'tools',
+    buttons: ['clearFormat', 'copyWechat', 'copyWeibo'],
+    visible: false,
+    expanded: false,
+  },
+  {
+    id: 'view',
+    label: 'view',
+    buttons: ['focusMode', 'typewriterMode', 'fullscreen'],
+    visible: false,
+    expanded: false,
+  },
 ]
 
 // Default pinned buttons (most commonly used)
@@ -79,14 +100,12 @@ export const defaultPinnedButtons: ToolbarButtonId[] = ['bold', 'italic', 'bulle
 
 // Default toolbar items order
 export const defaultToolbarItems: ToolbarItem[] = [
-  // Text formatting
+  // Basic
   { type: 'button', id: 'bold' },
   { type: 'button', id: 'italic' },
-  { type: 'button', id: 'underline' },
   { type: 'button', id: 'strikethrough' },
   { type: 'button', id: 'highlight' },
-  { type: 'button', id: 'subscript' },
-  { type: 'button', id: 'superscript' },
+  { type: 'button', id: 'underline' },
   // Headings
   { type: 'button', id: 'heading1' },
   { type: 'button', id: 'heading2' },
@@ -94,33 +113,56 @@ export const defaultToolbarItems: ToolbarItem[] = [
   { type: 'button', id: 'heading4' },
   { type: 'button', id: 'heading5' },
   { type: 'button', id: 'heading6' },
-  // Code & Links
-  { type: 'button', id: 'code' },
-  { type: 'button', id: 'link' },
-  { type: 'button', id: 'image' },
   // Lists
   { type: 'button', id: 'bulletList' },
   { type: 'button', id: 'orderedList' },
   { type: 'button', id: 'taskList' },
-  // Blocks
-  { type: 'button', id: 'quote' },
+  // Insert
+  { type: 'button', id: 'link' },
+  { type: 'button', id: 'image' },
+  { type: 'button', id: 'code' },
+  { type: 'button', id: 'codeBlock' },
+  { type: 'button', id: 'math' },
   { type: 'button', id: 'table' },
   { type: 'button', id: 'hr' },
+  { type: 'button', id: 'emoji' },
+  // Blocks
+  { type: 'button', id: 'quote' },
+  { type: 'button', id: 'footnote' },
+  { type: 'button', id: 'definitionList' },
   // Alignment
   { type: 'button', id: 'alignLeft' },
   { type: 'button', id: 'alignCenter' },
   { type: 'button', id: 'alignRight' },
+  // Advanced
+  { type: 'button', id: 'subscript' },
+  { type: 'button', id: 'superscript' },
+  { type: 'button', id: 'fontColor' },
+  { type: 'button', id: 'fontBackground' },
+  // File
+  { type: 'button', id: 'downloadMd' },
+  { type: 'button', id: 'importFile' },
+  { type: 'button', id: 'exportHtml' },
+  { type: 'button', id: 'exportPdf' },
   // Tools
   { type: 'button', id: 'clearFormat' },
-  { type: 'button', id: 'downloadMd' },
+  { type: 'button', id: 'copyWechat' },
+  { type: 'button', id: 'copyWeibo' },
+  // View
+  { type: 'button', id: 'focusMode' },
+  { type: 'button', id: 'typewriterMode' },
+  { type: 'button', id: 'fullscreen' },
   // Groups
+  { type: 'group', id: 'basic' },
   { type: 'group', id: 'headings' },
-  { type: 'group', id: 'textFormatting' },
-  { type: 'group', id: 'codeLinks' },
   { type: 'group', id: 'lists' },
+  { type: 'group', id: 'insert' },
   { type: 'group', id: 'blocks' },
   { type: 'group', id: 'alignment' },
+  { type: 'group', id: 'advanced' },
+  { type: 'group', id: 'file' },
   { type: 'group', id: 'tools' },
+  { type: 'group', id: 'view' },
 ]
 
 export const defaultXHSExport: XHSExportSettings = {

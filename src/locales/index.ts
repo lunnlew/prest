@@ -14,14 +14,21 @@ export interface LocaleMessages {
     title: string
     bold: string
     italic: string
+    underline: string
     strikethrough: string
     highlight: string
+    subscript: string
+    superscript: string
     code: string
+    codeBlock: string
     link: string
     image: string
     heading1: string
     heading2: string
     heading3: string
+    heading4: string
+    heading5: string
+    heading6: string
     bulletList: string
     orderedList: string
     taskList: string
@@ -46,16 +53,33 @@ export interface LocaleMessages {
     lines: string
     unsaved: string
     loadingEditor: string
+    math: string
+    emoji: string
+    footnote: string
+    definitionList: string
+    fontColor: string
+    fontBackground: string
+    importFile: string
+    exportHtml: string
+    exportPdf: string
+    copyWechat: string
+    copyWeibo: string
+    focusMode: string
+    typewriterMode: string
+    fullscreen: string
   }
   // Toolbar
   toolbar: {
+    basic: string
     headings: string
-    textFormatting: string
-    codeLinks: string
     lists: string
+    insert: string
     blocks: string
     alignment: string
+    advanced: string
+    file: string
     tools: string
+    view: string
     expand: string
     collapse: string
     customize: string

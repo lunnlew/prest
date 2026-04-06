@@ -14,33 +14,58 @@ export type EditorRange = {
 }
 
 export type FormatType =
+  // Basic
   | 'bold'
   | 'italic'
   | 'strikethrough'
   | 'highlight'
   | 'underline'
-  | 'subscript'
-  | 'superscript'
-  | 'code'
-  | 'link'
-  | 'image'
+  // Headings
   | 'heading1'
   | 'heading2'
   | 'heading3'
   | 'heading4'
   | 'heading5'
   | 'heading6'
-  | 'quote'
+  // Lists
   | 'list'
   | 'orderedList'
   | 'taskList'
+  // Insert
+  | 'link'
+  | 'image'
+  | 'code'
+  | 'codeBlock'
+  | 'math'
   | 'table'
   | 'hr'
+  | 'emoji'
+  // Blocks
+  | 'quote'
+  | 'footnote'
+  | 'definitionList'
+  // Alignment
   | 'alignLeft'
   | 'alignCenter'
   | 'alignRight'
-  | 'clearFormat'
+  // Advanced
+  | 'subscript'
+  | 'superscript'
+  | 'fontColor'
+  | 'fontBackground'
+  // File
   | 'downloadMd'
+  | 'importFile'
+  | 'exportHtml'
+  | 'exportPdf'
+  // Tools
+  | 'clearFormat'
+  | 'copyWechat'
+  | 'copyWeibo'
+  // View
+  | 'focusMode'
+  | 'typewriterMode'
+  | 'fullscreen'
 
 export interface EditorSlice {
   // State
@@ -63,7 +88,7 @@ export interface EditorSlice {
   save: () => void
   setCurrentFile: (fileId: string | null) => void
   insertText: (text: string) => void
-  formatMarkdown: (type: FormatType) => void
+  formatMarkdown: (type: FormatType, lang?: string) => void
   downloadMd: (filename?: string) => void
 }
 
@@ -166,7 +191,7 @@ console.log(greeting)
     }
   },
 
-  formatMarkdown: (type) => {
+  formatMarkdown: (type, lang) => {
     const state = get()
     const editor = state.editorInstance
     if (!editor) return
@@ -188,9 +213,37 @@ console.log(greeting)
       return
     }
 
-    // Define format actions (all types except downloadMd)
-    const formatEntry: Exclude<FormatType, 'downloadMd'> = type as Exclude<FormatType, 'downloadMd'>
-    const formats: Record<Exclude<FormatType, 'downloadMd'>, { prefix: string; suffix: string; placeholder?: string }> = {
+    // Handle codeBlock with language
+    if (type === 'codeBlock' && lang) {
+      const codeLang = lang || 'plaintext'
+      if (isEmpty || !selection) {
+        editor.executeEdits('', [{
+          range: {
+            startLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          },
+          text: `\`\`\`${codeLang}\ncode\n\`\`\``
+        }])
+        // Position cursor inside the code block
+        editor.setPosition({
+          lineNumber: position.lineNumber + 1,
+          column: 1
+        })
+      } else {
+        editor.executeEdits('', [{
+          range: selection,
+          text: `\`\`\`${codeLang}\n${selectedText}\n\`\`\``
+        }])
+      }
+      editor.focus()
+      return
+    }
+
+    // Define format actions (all types except downloadMd and codeBlock)
+    const formatEntry: Exclude<FormatType, 'downloadMd' | 'codeBlock'> = type as Exclude<FormatType, 'downloadMd' | 'codeBlock'>
+    const formats: Record<Exclude<FormatType, 'downloadMd' | 'codeBlock'>, { prefix: string; suffix: string; placeholder?: string }> = {
       bold: { prefix: '**', suffix: '**', placeholder: 'bold text' },
       italic: { prefix: '*', suffix: '*', placeholder: 'italic text' },
       strikethrough: { prefix: '~~', suffix: '~~', placeholder: 'strikethrough' },
@@ -199,6 +252,8 @@ console.log(greeting)
       subscript: { prefix: '<sub>', suffix: '</sub>', placeholder: 'subscript' },
       superscript: { prefix: '<sup>', suffix: '</sup>', placeholder: 'superscript' },
       code: { prefix: '`', suffix: '`', placeholder: 'code' },
+      math: { prefix: '$$\n', suffix: '\n$$', placeholder: 'math equation' },
+      emoji: { prefix: ':', suffix: ':', placeholder: 'emoji' },
       link: { prefix: '[', suffix: '](url)', placeholder: 'link text' },
       image: { prefix: '![', suffix: '](image-url)', placeholder: 'alt text' },
       heading1: { prefix: '# ', suffix: '', placeholder: 'Heading 1' },
@@ -208,6 +263,8 @@ console.log(greeting)
       heading5: { prefix: '##### ', suffix: '', placeholder: 'Heading 5' },
       heading6: { prefix: '###### ', suffix: '', placeholder: 'Heading 6' },
       quote: { prefix: '> ', suffix: '', placeholder: 'quote' },
+      footnote: { prefix: '[^', suffix: ']', placeholder: 'footnote' },
+      definitionList: { prefix: '\n<dl>\n<dt>Term</dt>\n<dd>Definition</dd>\n</dl>\n', suffix: '', placeholder: '' },
       list: { prefix: '- ', suffix: '', placeholder: 'list item' },
       orderedList: { prefix: '1. ', suffix: '', placeholder: 'list item' },
       taskList: { prefix: '- [ ] ', suffix: '', placeholder: 'task' },
@@ -216,7 +273,17 @@ console.log(greeting)
       alignLeft: { prefix: '<div align="left">\n\n', suffix: '\n\n</div>', placeholder: 'left aligned text' },
       alignCenter: { prefix: '<div align="center">\n\n', suffix: '\n\n</div>', placeholder: 'centered text' },
       alignRight: { prefix: '<div align="right">\n\n', suffix: '\n\n</div>', placeholder: 'right aligned text' },
+      fontColor: { prefix: '<span style="color: #fff">', suffix: '</span>', placeholder: 'colored text' },
+      fontBackground: { prefix: '<span style="background: yellow">', suffix: '</span>', placeholder: 'background text' },
       clearFormat: { prefix: '', suffix: '', placeholder: '' },
+      importFile: { prefix: '', suffix: '', placeholder: '' },
+      exportHtml: { prefix: '', suffix: '', placeholder: '' },
+      exportPdf: { prefix: '', suffix: '', placeholder: '' },
+      copyWechat: { prefix: '', suffix: '', placeholder: '' },
+      copyWeibo: { prefix: '', suffix: '', placeholder: '' },
+      focusMode: { prefix: '', suffix: '', placeholder: '' },
+      typewriterMode: { prefix: '', suffix: '', placeholder: '' },
+      fullscreen: { prefix: '', suffix: '', placeholder: '' },
     }
 
     const format = formats[formatEntry]
