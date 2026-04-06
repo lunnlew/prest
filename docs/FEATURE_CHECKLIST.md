@@ -81,6 +81,8 @@
 | v0.8.2 | 2026-04-06 | 水印配置独立栏目：位置(7种)/显示范围/透明度/大小，去掉话题标签 |
 | v0.8.3 | 2026-04-06 | Markdown渲染增强：Callout(8种)/脚注/定义列表/上下标 |
 | v0.8.4 | 2026-04-06 | 工具栏视图按钮：打字机模式/专注模式/全屏模式完成；菜单显示启用/关闭文本；状态栏显示当前模式 |
+| v0.8.5 | 2026-04-06 | 专注模式修复：面板折叠/展开使用 imperative panel API 防止 panelLayout 损坏；退出专注模式恢复侧边栏/预览区可见性 |
+| v0.8.6 | 2026-04-06 | XHS 导出对话框/预览面板国际化：新增 40+ 翻译键支持中英文切换 |
 
 ---
 
@@ -143,6 +145,8 @@
 | 3.5.9 | 隐藏页码时自动释放分页空间 | ✅ | 1h | `XHSPaginator.ts`, `XiaohongshuPreview.tsx`, `base.css` — footer 高度自适应分页计算 |
 | 3.5.10 | 导出宽度可调滑块 | ✅ | 1h | `XHSExportDialog.tsx`, `XHSPaginator.ts`, `base.css` — 宽度滑块 320-1920px，自动重排分页 |
 | 3.5.11 | 水印配置独立栏目 | ✅ | 1h | `XHSExportDialog.tsx` — 位置(7种)/显示范围/透明度/大小，去掉话题标签 |
+| 3.5.12 | XHS 导出对话框国际化 | ✅ | 1h | `XHSExportDialog.tsx` — 水印/进度/标签等 40+ 翻译键支持中英文 |
+| 3.5.13 | 预览面板国际化 | ✅ | 0.5h | `PreviewPanel.tsx` — 平台切换标签（文档/小红书）支持中英文 |
 
 ### Phase 4: 高级功能（P3）
 
@@ -176,3 +180,5 @@
 | 5.8 | 编辑器滚动-大纲同步选中 | ✅ | 1h | `MonacoEditor.tsx`, `OutlineView.tsx`, `previewSlice.ts` — 滚动时自动高亮对应标题 |
 | 5.9 | 侧边栏标签页选中状态持久化 | ✅ | 0.5h | `useBoundStore.ts` — `activeSidebarTab` 添加到 persist partialize |
 | 5.10 | 语言切换即时更新 | ✅ | 0.5h | `useTranslation.ts` — 语言包缓存时调用 setMessages 更新状态 |
+| 5.11 | 专注模式面板控制重构 | ✅ | 1h | `AppLayout.tsx` — 使用 ImperativePanelHandle 替代条件渲染，折叠/展开更可靠 |
+| 5.12 | 专注模式退出恢复可见性 | ✅ | 1h | `AppLayout.tsx`, `layoutSlice.ts` — 保存退出前 sidebarVisible/previewVisible，退出后恢复 |
