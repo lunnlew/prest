@@ -4,6 +4,8 @@ import { useTranslation } from '../../hooks/useTranslation'
 import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
 import { paginate, type PageInfo } from '../../services/XHSPaginator'
 import type { XHSAspectRatio, XHSTemplate } from '../../types'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 const ASPECT_DIMENSIONS: Record<XHSAspectRatio, { w: number; h: number }> = {
   '3:4': { w: 1242, h: 1660 },
@@ -16,6 +18,10 @@ const TEMPLATE_LABELS: Record<XHSTemplate, string> = {
   cream: '奶油',
   minimal: '简约',
   gradient: '渐变',
+  pink: '粉色',
+  mint: '薄荷',
+  lavender: '薰衣草',
+  peach: '蜜桃',
 }
 
 const ASPECT_LABELS: Record<XHSAspectRatio, string> = {
@@ -44,15 +50,118 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   const measureRef = useRef<HTMLDivElement>(null)
   const [tags, setTags] = useState(settings.xhsExport.tags.join(' '))
   const [exporting, setExporting] = useState(false)
+  const [exportProgress, setExportProgress] = useState('')
   const [pages, setPages] = useState<PageInfo[]>([])
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'png'>('pdf')
+  const frameRefs = useRef<(HTMLDivElement | null)[]>([])
 
   const handleClose = useCallback(() => onClose(), [onClose])
 
+  const capturePageAsCanvas = useCallback(async (pageEl: HTMLDivElement, pageW: number, pageH: number): Promise<HTMLCanvasElement> => {
+    const canvas = await html2canvas(pageEl, {
+      width: pageW,
+      height: pageH,
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      onclone: (clonedDoc: Document) => {
+        const defaultView = clonedDoc.defaultView
+        if (!defaultView) return
+
+        // 重置所有 padding 和 margin
+        const allElements = clonedDoc.body.querySelectorAll('h1, h2, h3, h4, h5, h6, xhs-inline-code')
+        allElements.forEach(el => {
+          const htmlEl = el as HTMLElement
+          htmlEl.style.padding = '0'
+          htmlEl.style.margin = '0'
+        })
+
+        // 根据 lineHeight 计算偏移：lineHeight * 0.45
+        // lineHeight 直接反映 line-box 的高度，大字体有更大的 line-height，
+        // 因此自然地给予更大的偏移量（与 fontSize 不同，fontSize 与 descent 不成正比）
+        const textSelectors = 'h1, h2, h3, h4, h5, h6, p, span, li, .xhs-paragraph, .xhs-blockquote'
+        const textElements = clonedDoc.body.querySelectorAll(textSelectors)
+        textElements.forEach(el => {
+          const htmlEl = el as HTMLElement
+          const computedStyle = defaultView.getComputedStyle(htmlEl)
+          const lineHeight = parseFloat(computedStyle.lineHeight) || 20
+          const offset = lineHeight * 0.45
+          htmlEl.style.transform = `translateY(-${offset}px)`
+        })
+      }
+    })
+    return canvas
+  }, [])
+
   const handleExport = useCallback(async () => {
+    if (pages.length === 0) return
     setExporting(true)
-    try { window.print() } catch (e) { console.error('Export failed:', e) }
-    finally { setExporting(false) }
-  }, [onClose])
+    setExportProgress('准备导出...')
+
+    const xhsLocal = settings.xhsExport
+    const frameWLocal = xhsLocal.exportWidth ?? 440
+    const ratioH = ASPECT_DIMENSIONS[xhsLocal.aspectRatio].h / ASPECT_DIMENSIONS[xhsLocal.aspectRatio].w
+    const frameHLocal = Math.round(frameWLocal * ratioH)
+
+    try {
+      const pageW = frameWLocal
+      const pageH = frameHLocal
+      const canvasList: HTMLCanvasElement[] = []
+
+      for (let i = 0; i < pages.length; i++) {
+        setExportProgress(`正在处理第 ${i + 1}/${pages.length} 页...`)
+        const pageEl = frameRefs.current[i]
+        if (pageEl) {
+          const canvas = await capturePageAsCanvas(pageEl, pageW, pageH)
+          canvasList.push(canvas)
+        }
+      }
+
+      if (canvasList.length === 0) {
+        throw new Error('没有可导出的页面')
+      }
+
+      if (exportFormat === 'png') {
+        for (let i = 0; i < canvasList.length; i++) {
+          setExportProgress(`正在下载第 ${i + 1}/${canvasList.length} 页...`)
+          const link = document.createElement('a')
+          link.download = `小红书-${String(i + 1).padStart(3, '0')}.png`
+          link.href = canvasList[i].toDataURL('image/png', 1.0)
+          link.click()
+          await new Promise(resolve => setTimeout(resolve, 200))
+        }
+      } else {
+        setExportProgress(`正在生成 PDF...`)
+        const pdf = new jsPDF({
+          orientation: pageW > pageH ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [pageW, pageH]
+        })
+
+        for (let i = 0; i < canvasList.length; i++) {
+          if (i > 0) {
+            pdf.addPage([pageW, pageH], pageW > pageH ? 'landscape' : 'portrait')
+          }
+          setExportProgress(`正在添加第 ${i + 1}/${canvasList.length} 页...`)
+          const imgData = canvasList[i].toDataURL('image/jpeg', 0.95)
+          pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH)
+        }
+
+        pdf.save('小红书导出.pdf')
+      }
+
+      setExportProgress('导出完成!')
+      setTimeout(() => setExportProgress(''), 1500)
+    } catch (e) {
+      console.error('Export failed:', e)
+      setExportProgress('导出失败')
+      setTimeout(() => setExportProgress(''), 2000)
+    } finally {
+      setExporting(false)
+    }
+  }, [pages, settings, exportFormat, capturePageAsCanvas])
 
   const xhs = settings.xhsExport
   const frameW = xhs.exportWidth ?? 440
@@ -210,9 +319,35 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
               </div>
             )}
 
+            <div>
+              <label className="text-xs font-medium text-[var(--text-muted)] uppercase block mb-2">导出格式</label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setExportFormat('pdf')}
+                  className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
+                    exportFormat === 'pdf'
+                      ? 'bg-[var(--accent-color)] text-white'
+                      : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+                  }`}
+                >
+                  PDF
+                </button>
+                <button
+                  onClick={() => setExportFormat('png')}
+                  className={`flex-1 px-3 py-2 text-sm rounded transition-colors ${
+                    exportFormat === 'png'
+                      ? 'bg-[var(--accent-color)] text-white'
+                      : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+                  }`}
+                >
+                  PNG
+                </button>
+              </div>
+            </div>
+
             <button onClick={handleExport} disabled={exporting}
               className="w-full px-4 py-2 text-sm rounded bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/80 text-white font-medium disabled:opacity-50 transition-colors">
-              {exporting ? '导出中...' : '导出 PDF'}
+              {exporting ? (exportProgress || '导出中...') : `导出 ${exportFormat.toUpperCase()}`}
             </button>
           </div>
 
@@ -225,8 +360,12 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                 const pageNum = pageIdx + 1
                 const isLast = pageIdx === pages.length - 1
                 return (
-                  <div key={pageIdx} className="xhs-page-frame flex-shrink-0"
-                    style={{ width: frameW, height: frameH }}>
+                  <div
+                    key={pageIdx}
+                    ref={(el) => { frameRefs.current[pageIdx] = el }}
+                    className="xhs-page-frame flex-shrink-0"
+                    style={{ width: frameW, height: frameH }}
+                  >
                     <XiaohongshuPreview
                       html={pageInfo.html}
                       template={xhs.template}

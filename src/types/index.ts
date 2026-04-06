@@ -146,7 +146,7 @@ export interface PlatformPreviewDef {
 
 // XHS-specific export settings (stored in Settings)
 export type XHSAspectRatio = '3:4' | '3:5' | '1:1' | '16:9'
-export type XHSTemplate = 'cream' | 'minimal' | 'gradient'
+export type XHSTemplate = 'cream' | 'minimal' | 'gradient' | 'pink' | 'mint' | 'lavender' | 'peach'
 
 export interface XHSExportSettings {
   aspectRatio: XHSAspectRatio

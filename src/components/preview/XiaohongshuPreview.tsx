@@ -27,6 +27,10 @@ const templateFonts: Record<XHSTemplate, { title: string; body: string }> = {
   cream: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
   minimal: { title: 'bold 2em -apple-system, "Helvetica Neue", sans-serif', body: '0.95em -apple-system, "Helvetica Neue", sans-serif' },
   gradient: { title: 'bold 2.2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
+  pink: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
+  mint: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
+  lavender: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
+  peach: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
 }
 
 function BlockWrap({
@@ -61,19 +65,29 @@ function createRenderers(
       </BlockWrap>
     ),
     h2: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h2" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-h2" data-xhs-block={nextIdx()}>
+        <span>{children}</span>
+      </BlockWrap>
     ),
     h3: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}>
+        <span>{children}</span>
+      </BlockWrap>
     ),
     h4: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}>
+        <span>{children}</span>
+      </BlockWrap>
     ),
     h5: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}>
+        <span>{children}</span>
+      </BlockWrap>
     ),
     h6: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}>
+        <span>{children}</span>
+      </BlockWrap>
     ),
     p: ({ children }: { children?: React.ReactNode }) => (
       <BlockWrap className="xhs-card" data-xhs-block={nextIdx()}>
@@ -88,10 +102,14 @@ function createRenderers(
       </BlockWrap>
     ),
     ul: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}>
+        <ul>{children}</ul>
+      </BlockWrap>
     ),
     ol: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}>
+        <ol>{children}</ol>
+      </BlockWrap>
     ),
     hr: () => (
       <BlockWrap className="xhs-hr" tag="hr" data-xhs-block={nextIdx()} />
@@ -99,7 +117,9 @@ function createRenderers(
     code: ({ className: codeCls, children }: { className?: string; children?: React.ReactNode }) => {
       const match = /language-(\w+)/.exec(codeCls || '')
       if (!match) {
-        return <code className="xhs-inline-code">{children}</code>
+        return <code className="xhs-inline-code">
+          <span>{children}</span>
+        </code>
       }
       return (
         <BlockWrap className="xhs-code-block" data-xhs-block={nextIdx()}>
@@ -135,7 +155,7 @@ export function XiaohongshuPreview({
   currentPage = 1,
   totalPages = 1,
 }: XiaohongshuPreviewProps) {
-  const fontConfig = templateFonts[template]
+  const fontConfig = templateFonts[template] || { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' }
   const counter = { current: 0 }
   const renderers = createRenderers(fontConfig, counter)
 

@@ -24,6 +24,8 @@
   color: var(--xhs-text-color);
   box-sizing: border-box;
   position: relative;
+  /* 确保基础 line-height 一致 */
+  line-height: 1.5;
 }
 
 /* When inside a fixed frame (export dialog) */
@@ -77,6 +79,54 @@
   --xhs-template-meta: rgba(255, 255, 255, 0.6);
 }
 
+/* ---------- 模板: Pink 马卡龙粉色 ---------- */
+.xhs-template-pink {
+  --xhs-template-bg: #FFF0F5;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255, 182, 193, 0.2);
+  --xhs-template-title: #2d2d2d;
+  --xhs-template-text: #4a4a4a;
+  --xhs-template-accent: #FF69B4;
+  --xhs-template-border: #FFE4E9;
+  --xhs-template-meta: #c9a0a0;
+}
+
+/* ---------- 模板: Mint 薄荷清新绿 ---------- */
+.xhs-template-mint {
+  --xhs-template-bg: #F0FFF4;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(46, 213, 115, 0.15);
+  --xhs-template-title: #2d2d2d;
+  --xhs-template-text: #3a3a3a;
+  --xhs-template-accent: #2ED573;
+  --xhs-template-border: #C8E6C9;
+  --xhs-template-meta: #90CAF9;
+}
+
+/* ---------- 模板: Lavender 薰衣草紫 ---------- */
+.xhs-template-lavender {
+  --xhs-template-bg: #F8F0FF;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(147, 112, 219, 0.15);
+  --xhs-template-title: #2d2d2d;
+  --xhs-template-text: #3a3a3a;
+  --xhs-template-accent: #9370DB;
+  --xhs-template-border: #E6E6FA;
+  --xhs-template-meta: #B19CD9;
+}
+
+/* ---------- 模板: Peach 蜜桃色 ---------- */
+.xhs-template-peach {
+  --xhs-template-bg: #FFF5EE;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255, 218, 185, 0.25);
+  --xhs-template-title: #2d2d2d;
+  --xhs-template-text: #4a4a4a;
+  --xhs-template-accent: #FFB07C;
+  --xhs-template-border: #FFE5D9;
+  --xhs-template-meta: #DEB887;
+}
+
 /* ---------- H1 封面标题 ---------- */
 .xhs-preview .xhs-h1 {
   font-size: 1.8em;
@@ -99,6 +149,7 @@
   line-height: 1.4;
   padding-left: 12px;
   border-left: 4px solid var(--xhs-accent);
+  text-align: left;
 }
 
 /* ---------- H3 小分段标题 ---------- */
@@ -108,6 +159,7 @@
   color: var(--xhs-text-color);
   margin: 20px 0 10px 0;
   line-height: 1.45;
+  text-align: left;
 }
 
 /* ---------- H4-H6 普通小标题 ---------- */
@@ -119,6 +171,7 @@
   color: var(--xhs-meta-color);
   margin: 16px 0 8px 0;
   line-height: 1.5;
+  text-align: left;
 }
 
 /* ---------- 段落 — 卡片式 ---------- */
@@ -255,6 +308,7 @@
   border-collapse: collapse;
   font-size: 0.85em;
   background: var(--xhs-card-bg);
+  margin-left: -3px;
 }
 
 .xhs-preview .xhs-table th {
