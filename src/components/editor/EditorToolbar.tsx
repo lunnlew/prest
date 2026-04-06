@@ -11,6 +11,7 @@ import { ColorPicker } from './ColorPicker'
 import { defaultToolbarGroups, defaultToolbarItems } from '../../stores/settingsSlice'
 import { buttonConfigs } from './buttons'
 import { importFile } from '../../utils/importFile'
+import { exportHtml, exportPdf } from '../../utils/export'
 
 interface ToolbarButtonProps {
   onClick: () => void
@@ -140,6 +141,12 @@ const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
   },
   importFile: () => {
     importFile()
+  },
+  exportHtml: () => {
+    exportHtml()
+  },
+  exportPdf: () => {
+    exportPdf()
   },
 }
 
