@@ -45,7 +45,8 @@ export const createLayoutSlice: StateCreator<LayoutSlice, [], [], LayoutSlice> =
     if (!state.focusMode) {
       return { focusMode: true, sidebarVisible: false, previewVisible: false }
     }
-    return { focusMode: false }
+    // When disabling focus mode, restore sidebar and preview
+    return { focusMode: false, sidebarVisible: true, previewVisible: true }
   }),
   toggleTypewriterMode: () => set((state) => ({ typewriterMode: !state.typewriterMode })),
   setSidebarVisible: (visible) => set({ sidebarVisible: visible }),

@@ -156,7 +156,9 @@ const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
     copyWeibo()
   },
   focusMode: () => {
+    console.log('focusMode handler called')
     const store = useBoundStore.getState()
+    console.log('toggleFocusMode exists:', typeof store.toggleFocusMode)
     store.toggleFocusMode()
   },
   typewriterMode: () => {
@@ -221,7 +223,9 @@ export function EditorToolbar() {
   }
 
   const handleCustomAction = (buttonId: string) => {
+    console.log('handleCustomAction called:', buttonId)
     const store = useBoundStore.getState()
+    console.log('buttonActionHandlers[buttonId]:', buttonActionHandlers[buttonId])
     buttonActionHandlers[buttonId]?.(store)
   }
 

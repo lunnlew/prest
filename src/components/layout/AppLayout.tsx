@@ -54,6 +54,16 @@ export function AppLayout() {
 
   return (
     <div className="h-full w-full bg-[var(--bg-primary)] flex">
+      {/* 专注模式退出按钮 */}
+      {showEditorOnly && (
+        <button
+          onClick={() => useBoundStore.getState().toggleFocusMode()}
+          className="fixed top-2 right-2 z-50 px-3 py-1 bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-sm rounded hover:bg-[var(--bg-hover)]"
+        >
+          Exit Focus
+        </button>
+      )}
+
       {/* 侧边栏标签按钮列 - 始终显示，除非专注模式 */}
       {!showEditorOnly && <SidebarTabs />}
 
