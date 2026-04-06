@@ -12,6 +12,7 @@ import { defaultToolbarGroups, defaultToolbarItems } from '../../stores/settings
 import { buttonConfigs } from './buttons'
 import { importFile } from '../../utils/importFile'
 import { exportHtml, exportPdf } from '../../utils/export'
+import { copyWechat, copyWeibo } from '../../utils/clipboard'
 
 interface ToolbarButtonProps {
   onClick: () => void
@@ -147,6 +148,12 @@ const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
   },
   exportPdf: () => {
     exportPdf()
+  },
+  copyWechat: () => {
+    copyWechat()
+  },
+  copyWeibo: () => {
+    copyWeibo()
   },
 }
 
