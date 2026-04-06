@@ -32,6 +32,8 @@ export const useBoundStore = create<AppStore>()(
         expandedFolders: Array.from(state.expandedFolders),
         platformPreview: state.platformPreview,
         activeSidebarTab: state.activeSidebarTab,
+        focusMode: state.focusMode,
+        typewriterMode: state.typewriterMode,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {

@@ -9,11 +9,15 @@ export interface LayoutSlice {
   editorPanelSize: number  // Editor panel size in percent
   previewPanelSize: number  // Preview panel size in percent
   activeSidebarTab: 'files' | 'search' | 'outline' | 'settings'
+  focusMode: boolean  // Hide all UI, only show editor
+  typewriterMode: boolean  // Keep cursor vertically centered
 
   // Actions
   toggleSidebar: () => void
   togglePreview: () => void
   toggleEditorPosition: () => void
+  toggleFocusMode: () => void
+  toggleTypewriterMode: () => void
   setSidebarVisible: (visible: boolean) => void
   setPreviewVisible: (visible: boolean) => void
   setPanelLayout: (layout: number[]) => void
@@ -30,10 +34,20 @@ export const createLayoutSlice: StateCreator<LayoutSlice, [], [], LayoutSlice> =
   editorPanelSize: 50,
   previewPanelSize: 50,
   activeSidebarTab: 'files',
+  focusMode: false,
+  typewriterMode: false,
 
   toggleSidebar: () => set((state) => ({ sidebarVisible: !state.sidebarVisible })),
   togglePreview: () => set((state) => ({ previewVisible: !state.previewVisible })),
   toggleEditorPosition: () => set((state) => ({ editorOnLeft: !state.editorOnLeft })),
+  toggleFocusMode: () => set((state) => {
+    // When enabling focus mode, also hide sidebar and preview
+    if (!state.focusMode) {
+      return { focusMode: true, sidebarVisible: false, previewVisible: false }
+    }
+    return { focusMode: false }
+  }),
+  toggleTypewriterMode: () => set((state) => ({ typewriterMode: !state.typewriterMode })),
   setSidebarVisible: (visible) => set({ sidebarVisible: visible }),
   setPreviewVisible: (visible) => set({ previewVisible: visible }),
   setPanelLayout: (layout) => set({ panelLayout: layout }),

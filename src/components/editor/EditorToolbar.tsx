@@ -155,6 +155,21 @@ const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
   copyWeibo: () => {
     copyWeibo()
   },
+  focusMode: () => {
+    const store = useBoundStore.getState()
+    store.toggleFocusMode()
+  },
+  typewriterMode: () => {
+    const store = useBoundStore.getState()
+    store.toggleTypewriterMode()
+  },
+  fullscreen: () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
+    } else {
+      document.documentElement.requestFullscreen()
+    }
+  },
 }
 
 export function EditorToolbar() {
