@@ -7,6 +7,8 @@ import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import remarkDirective from 'remark-directive'
 import remarkDeflist from 'remark-deflist'
+import { remarkHighlightMark } from 'remark-highlight-mark'
+import remarkEmoji from 'remark-emoji'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
@@ -60,6 +62,8 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
           remarkMath,
           remarkDirective,
           remarkDeflist,
+          remarkHighlightMark,
+          remarkEmoji,
         ]}
         rehypePlugins={[
           rehypeRaw,
