@@ -130,6 +130,54 @@ export interface LocaleMessages {
   preview: {
     title: string
     toggleSyncScroll: string
+    document: string
+    xiaohongshu: string
+    togglePreviewStyle: string
+  }
+  // XHS Export
+  xhsExport: {
+    title: string
+    size: string
+    width: string
+    template: string
+    watermarkSettings: string
+    watermarkText: string
+    watermarkTextPlaceholder: string
+    position: string
+    show: string
+    opacity: string
+    pageNumber: string
+    showPageNumber: string
+    calculating: string
+    pages: string
+    preparing: string
+    processing: string
+    downloading: string
+    generatingPdf: string
+    addingPage: string
+    noPagesToExport: string
+    exportComplete: string
+    exportFailed: string
+    exporting: string
+    export: string
+    aspectPortrait35: string
+    aspectPortrait34: string
+    aspectSquare: string
+    aspectLandscape: string
+    watermarkTopLeft: string
+    watermarkTopCenter: string
+    watermarkTopRight: string
+    watermarkBottomLeft: string
+    watermarkBottomCenter: string
+    watermarkBottomRight: string
+    watermarkDiagonal: string
+    watermarkAll: string
+    watermarkFirst: string
+    watermarkLast: string
+    watermarkNone: string
+    watermarkSmall: string
+    watermarkMedium: string
+    watermarkLarge: string
   }
   // Settings
   settings: {

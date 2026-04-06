@@ -428,7 +428,7 @@ export function EditorToolbar() {
         <div className="flex items-center gap-1 shrink-0">
           <ToolbarButton
             onClick={() => setShowXHSDialog(true)}
-            title="小红书出图"
+            title={t.toolbar.xhsExport}
           >
             <span>📕</span>
           </ToolbarButton>

@@ -5,11 +5,6 @@ import { MarkdownPreview } from '../preview/MarkdownPreview'
 import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
 import type { PlatformPreviewId } from '../../types'
 
-const platformOptions: { id: PlatformPreviewId; label: string }[] = [
-  { id: 'default', label: '文档' },
-  { id: 'xiaohongshu', label: '小红书' },
-]
-
 export function PreviewPanel() {
   const { content, platformPreview, settings, setPlatformPreview, setSyncScroll, editorScrollRatio } = useBoundStore()
   const { t } = useTranslation()
@@ -66,11 +61,10 @@ export function PreviewPanel() {
             value={platformPreview}
             onChange={(e) => setPlatformPreview(e.target.value as PlatformPreviewId)}
             className="text-xs px-2 py-1 rounded bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none"
-            title="切换预览风格"
+            title={t.preview.togglePreviewStyle}
           >
-            {platformOptions.map(opt => (
-              <option key={opt.id} value={opt.id}>{opt.label}</option>
-            ))}
+            <option value="default">{t.preview.document}</option>
+            <option value="xiaohongshu">{t.preview.xiaohongshu}</option>
           </select>
           <button
             onClick={() => setSyncScroll(!syncScroll)}

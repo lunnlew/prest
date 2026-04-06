@@ -8,27 +8,27 @@ import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import { TEMPLATE_LABELS } from '../../config/xhsTemplates'
 
-const WATERMARK_POSITION_OPTIONS: { value: XHSWatermarkPosition; label: string }[] = [
-  { value: 'top-left', label: '左上' },
-  { value: 'top-center', label: '顶部居中' },
-  { value: 'top-right', label: '右上' },
-  { value: 'bottom-left', label: '左下' },
-  { value: 'bottom-center', label: '底部居中' },
-  { value: 'bottom-right', label: '右下' },
-  { value: 'diagonal', label: '斜铺' },
+const WATERMARK_POSITION_OPTIONS: { value: XHSWatermarkPosition; labelKey: string }[] = [
+  { value: 'top-left', labelKey: 'watermarkTopLeft' },
+  { value: 'top-center', labelKey: 'watermarkTopCenter' },
+  { value: 'top-right', labelKey: 'watermarkTopRight' },
+  { value: 'bottom-left', labelKey: 'watermarkBottomLeft' },
+  { value: 'bottom-center', labelKey: 'watermarkBottomCenter' },
+  { value: 'bottom-right', labelKey: 'watermarkBottomRight' },
+  { value: 'diagonal', labelKey: 'watermarkDiagonal' },
 ]
 
-const WATERMARK_SCOPE_OPTIONS: { value: XHSWatermarkScope; label: string }[] = [
-  { value: 'all', label: '每页' },
-  { value: 'first', label: '仅首页' },
-  { value: 'last', label: '仅末页' },
-  { value: 'none', label: '不显示' },
+const WATERMARK_SCOPE_OPTIONS: { value: XHSWatermarkScope; labelKey: string }[] = [
+  { value: 'all', labelKey: 'watermarkAll' },
+  { value: 'first', labelKey: 'watermarkFirst' },
+  { value: 'last', labelKey: 'watermarkLast' },
+  { value: 'none', labelKey: 'watermarkNone' },
 ]
 
-const WATERMARK_SIZE_OPTIONS: { value: XHSWatermarkSize; label: string }[] = [
-  { value: 'small', label: '小' },
-  { value: 'medium', label: '中' },
-  { value: 'large', label: '大' },
+const WATERMARK_SIZE_OPTIONS: { value: XHSWatermarkSize; labelKey: string }[] = [
+  { value: 'small', labelKey: 'watermarkSmall' },
+  { value: 'medium', labelKey: 'watermarkMedium' },
+  { value: 'large', labelKey: 'watermarkLarge' },
 ]
 
 const ASPECT_DIMENSIONS: Record<XHSAspectRatio, { w: number; h: number }> = {
@@ -39,10 +39,10 @@ const ASPECT_DIMENSIONS: Record<XHSAspectRatio, { w: number; h: number }> = {
 }
 
 const ASPECT_LABELS: Record<XHSAspectRatio, string> = {
-  '3:5': '竖版 3:5',
-  '3:4': '竖版 3:4',
-  '1:1': '方版 1:1',
-  '16:9': '横版 16:9',
+  '3:5': 'aspectPortrait35',
+  '3:4': 'aspectPortrait34',
+  '1:1': 'aspectSquare',
+  '16:9': 'aspectLandscape',
 }
 
 const MAX_WIDTHS: Record<XHSAspectRatio, number> = {
@@ -139,9 +139,10 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   }, [])
 
   const handleExport = useCallback(async () => {
+    if (!t) return
     if (pages.length === 0) return
     setExporting(true)
-    setExportProgress('准备导出...')
+    setExportProgress(t.xhsExport.preparing)
 
     const xhsLocal = settings.xhsExport
     const frameWLocal = xhsLocal.exportWidth ?? 440
@@ -154,7 +155,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
       const canvasList: HTMLCanvasElement[] = []
 
       for (let i = 0; i < pages.length; i++) {
-        setExportProgress(`正在处理第 ${i + 1}/${pages.length} 页...`)
+        setExportProgress(t.xhsExport.processing.replace('{{current}}', String(i + 1)).replace('{{total}}', String(pages.length)))
         const pageEl = frameRefs.current[i]
         if (pageEl) {
           const canvas = await capturePageAsCanvas(pageEl, pageW, pageH)
@@ -163,12 +164,12 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
       }
 
       if (canvasList.length === 0) {
-        throw new Error('没有可导出的页面')
+        throw new Error(t.xhsExport.noPagesToExport)
       }
 
       if (exportFormat === 'png') {
         for (let i = 0; i < canvasList.length; i++) {
-          setExportProgress(`正在下载第 ${i + 1}/${canvasList.length} 页...`)
+          setExportProgress(t.xhsExport.downloading.replace('{{current}}', String(i + 1)).replace('{{total}}', String(canvasList.length)))
           const link = document.createElement('a')
           link.download = `小红书-${String(i + 1).padStart(3, '0')}.png`
           link.href = canvasList[i].toDataURL('image/png', 1.0)
@@ -176,7 +177,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
           await new Promise(resolve => setTimeout(resolve, 200))
         }
       } else {
-        setExportProgress(`正在生成 PDF...`)
+        setExportProgress(t.xhsExport.generatingPdf)
         const pdf = new jsPDF({
           orientation: pageW > pageH ? 'landscape' : 'portrait',
           unit: 'px',
@@ -187,7 +188,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
           if (i > 0) {
             pdf.addPage([pageW, pageH], pageW > pageH ? 'landscape' : 'portrait')
           }
-          setExportProgress(`正在添加第 ${i + 1}/${canvasList.length} 页...`)
+          setExportProgress(t.xhsExport.addingPage.replace('{{current}}', String(i + 1)).replace('{{total}}', String(canvasList.length)))
           const imgData = canvasList[i].toDataURL('image/jpeg', 0.95)
           pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH)
         }
@@ -195,16 +196,16 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
         pdf.save('小红书导出.pdf')
       }
 
-      setExportProgress('导出完成!')
+      setExportProgress(t.xhsExport.exportComplete)
       setTimeout(() => setExportProgress(''), 1500)
     } catch (e) {
       console.error('Export failed:', e)
-      setExportProgress('导出失败')
+      setExportProgress(t.xhsExport.exportFailed)
       setTimeout(() => setExportProgress(''), 2000)
     } finally {
       setExporting(false)
     }
-  }, [pages, settings, exportFormat, capturePageAsCanvas])
+  }, [pages, settings, exportFormat, capturePageAsCanvas, t])
 
   const xhs = settings.xhsExport
   const frameW = xhs.exportWidth ?? 440
@@ -255,15 +256,15 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
       >
         <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
           <h2 className="text-base font-semibold text-[var(--text-primary)]">
-            {t.toolbar.xhsExport || '小红书出图'}
+            {t.xhsExport.title}
           </h2>
 
           <div className="flex items-center gap-4">
             {/* Size selector in header */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--text-muted)]">尺寸:</span>
+              <span className="text-xs text-[var(--text-muted)]">{t.xhsExport.size}:</span>
               <div className="flex items-center bg-[var(--bg-tertiary)] rounded-lg p-0.5">
-                {Object.entries(ASPECT_LABELS).map(([key, label]) => (
+                {Object.entries(ASPECT_LABELS).map(([key, labelKey]) => (
                   <button
                     key={key}
                     onClick={() => handleAspectChange(key as XHSAspectRatio)}
@@ -273,7 +274,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    {label}
+                    {t.xhsExport[labelKey as keyof typeof t.xhsExport]}
                   </button>
                 ))}
               </div>
@@ -281,7 +282,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
             {/* Export Width */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--text-muted)]">宽度:</span>
+              <span className="text-xs text-[var(--text-muted)]">{t.xhsExport.width}:</span>
               <input
                 type="range"
                 min={320}
@@ -296,7 +297,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
             {/* Page count */}
             <span className="text-sm text-[var(--text-muted)] min-w-[3rem] text-center">
-              {pages.length > 0 ? `${pages.length} 页` : '— 页'}
+              {pages.length > 0 ? `${pages.length} ${t.xhsExport.pages}` : `— ${t.xhsExport.pages}`}
             </span>
 
             {/* Format toggle */}
@@ -329,12 +330,12 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
               {exporting ? (
                 <>
                   <span className="animate-spin text-base">⟳</span>
-                  <span>{exportProgress || '导出中...'}</span>
+                  <span>{exportProgress || t.xhsExport.exporting}</span>
                 </>
               ) : (
                 <>
                   <span>↓</span>
-                  <span>导出</span>
+                  <span>{t.xhsExport.export}</span>
                 </>
               )}
             </button>
@@ -364,7 +365,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
           <div className="w-80 border-r border-[var(--border-color)] overflow-y-auto p-5 space-y-5">
             {/* Section: Template */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">模板</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t.xhsExport.template}</h3>
               <div className="grid grid-cols-4 gap-1.5">
                 {Object.entries(TEMPLATE_LABELS).map(([key, label]) => (
                   <button key={key} onClick={() => handleTemplateChange(key as XHSTemplate)}
@@ -379,41 +380,41 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
             {/* Section: Watermark Options */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">水印设置</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t.xhsExport.watermarkSettings}</h3>
               <div className="bg-[var(--bg-tertiary)] rounded-lg p-3 space-y-3">
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">水印文字</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">{t.xhsExport.watermarkText}</label>
                   <input value={xhs.watermark}
                     onChange={(e) => setXHSExportSettings({ watermark: e.target.value })}
-                    placeholder="留空则不显示"
+                    placeholder={t.xhsExport.watermarkTextPlaceholder}
                     className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]" />
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">位置</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">{t.xhsExport.position}</label>
                   <select
                     value={xhs.watermarkPosition}
                     onChange={(e) => setXHSExportSettings({ watermarkPosition: e.target.value as XHSWatermarkPosition })}
                     className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-color)]"
                   >
                     {WATERMARK_POSITION_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      <option key={opt.value} value={opt.value}>{t.xhsExport[opt.labelKey as keyof typeof t.xhsExport]}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">显示</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">{t.xhsExport.show}</label>
                   <select
                     value={xhs.watermarkScope}
                     onChange={(e) => setXHSExportSettings({ watermarkScope: e.target.value as XHSWatermarkScope })}
                     className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-color)]"
                   >
                     {WATERMARK_SCOPE_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      <option key={opt.value} value={opt.value}>{t.xhsExport[opt.labelKey as keyof typeof t.xhsExport]}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">透明度: {Math.round(xhs.watermarkOpacity * 100)}%</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">{t.xhsExport.opacity}: {Math.round(xhs.watermarkOpacity * 100)}%</label>
                   <input
                     type="range"
                     min={10}
@@ -425,7 +426,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">大小</label>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">{t.xhsExport.size}</label>
                   <div className="flex gap-1">
                     {WATERMARK_SIZE_OPTIONS.map(opt => (
                       <button
@@ -437,7 +438,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                             : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
                         }`}
                       >
-                        {opt.label}
+                        {t.xhsExport[opt.labelKey as keyof typeof t.xhsExport]}
                       </button>
                     ))}
                   </div>
@@ -447,12 +448,12 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
             {/* Section: Page Number */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">页码</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{t.xhsExport.pageNumber}</h3>
               <div className="bg-[var(--bg-tertiary)] rounded-lg p-3">
                 <Toggle
                   checked={xhs.showPageNumber}
                   onChange={(v) => setXHSExportSettings({ showPageNumber: v })}
-                  label="显示页码"
+                  label={t.xhsExport.showPageNumber}
                 />
               </div>
             </div>
@@ -461,7 +462,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
           {/* Right: Paginated preview — each page renders ONLY its own content */}
           <div className="flex-1 overflow-y-auto bg-[var(--bg-primary)] p-6 flex flex-col items-center gap-4">
             {pages.length === 0 ? (
-              <div className="text-[var(--text-muted)] text-sm mt-20">计算分页中...</div>
+              <div className="text-[var(--text-muted)] text-sm mt-20">{t.xhsExport.calculating}</div>
             ) : (
               pages.map((pageInfo, pageIdx) => {
                 const pageNum = pageIdx + 1
