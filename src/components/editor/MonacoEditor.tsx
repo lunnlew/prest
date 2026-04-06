@@ -31,12 +31,19 @@ export function MonacoEditor() {
     const editor = useBoundStore.getState().editorInstance
     if (!editor) return
 
+    // Skip if no cursor position to sync
+    if (!cursorPosition.line || !cursorPosition.column) return
+
     const current = editor.getPosition()
-    // Only scroll if the target position is different from current (avoids scroll on user click/type)
+    // Only update if the target position is different from current
+    if (!current) return
     if (
-      cursorPosition.line === current?.lineNumber &&
-      cursorPosition.column === current?.column
+      cursorPosition.line === current.lineNumber &&
+      cursorPosition.column === current.column
     ) return
+
+    // Skip if we're already in the middle of an internal change
+    if (isInternalChange.current) return
 
     isInternalChange.current = true
     editor.setPosition({
@@ -46,9 +53,10 @@ export function MonacoEditor() {
     editor.revealLineInCenter(cursorPosition.line)
     editor.focus()
 
-    requestAnimationFrame(() => {
+    // Use setTimeout instead of requestAnimationFrame for more reliable reset
+    setTimeout(() => {
       isInternalChange.current = false
-    })
+    }, 0)
   }, [cursorPosition])
 
   // Update Monaco editor theme when app theme changes
@@ -356,6 +364,7 @@ export function MonacoEditor() {
         'editor.foreground': '#000000',
         'editorLineNumber.foreground': '#999999',
         'editorLineNumber.activeForeground': '#333333',
+        'editor.selectionBackground': '#add6ff',
       },
     })
 
@@ -625,6 +634,107 @@ export function MonacoEditor() {
           }
         }
       )
+    })
+
+    // Helper function to get selected text including full lines (with newline)
+    const getFullSelectionText = (ed: Monaco.editor.ICodeEditor): string | null => {
+      const selection = ed.getSelection()
+      if (!selection) return null
+      const model = ed.getModel()
+      if (!model) return null
+
+      // If selection is empty, return null
+      if (selection.isEmpty()) return null
+
+      // Get the selected text normally
+      let text = model.getValueInRange(selection)
+
+      // If selection spans multiple lines or ends at start of a line,
+      // it might not include the newline - check and add if needed
+      const endLine = selection.endLineNumber
+      const endCol = selection.endColumn
+      const endLineContent = model.getLineContent(endLine)
+      const lineLength = endLineContent.length
+
+      // If the selection ends at the end of a line (but not the very end of the line + 1 which is newline)
+      // and the text doesn't end with newline, add it
+      if (endCol > lineLength && !text.endsWith('\n')) {
+        text = text + '\n'
+      }
+
+      return text
+    }
+
+    // AI Context Menu Actions
+    editor.addAction({
+      id: 'ai-summarize',
+      label: 'AI: 总结',
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyS],
+      contextMenuGroupId: 'ai',
+      contextMenuOrder: 1,
+      run: (ed) => {
+        const selectedText = getFullSelectionText(ed)
+        if (selectedText) {
+          window.dispatchEvent(new CustomEvent('ai-action', { detail: { action: 'summarize', text: selectedText } }))
+        }
+      },
+    })
+
+    editor.addAction({
+      id: 'ai-translate',
+      label: 'AI: 翻译',
+      contextMenuGroupId: 'ai',
+      contextMenuOrder: 2,
+      run: (ed) => {
+        const selectedText = getFullSelectionText(ed)
+        if (selectedText) {
+          window.dispatchEvent(new CustomEvent('ai-action', { detail: { action: 'translate', text: selectedText } }))
+        }
+      },
+    })
+
+    editor.addAction({
+      id: 'ai-polish',
+      label: 'AI: 润色',
+      contextMenuGroupId: 'ai',
+      contextMenuOrder: 3,
+      run: (ed) => {
+        const selectedText = getFullSelectionText(ed)
+        if (selectedText) {
+          window.dispatchEvent(new CustomEvent('ai-action', { detail: { action: 'polish', text: selectedText } }))
+        }
+      },
+    })
+
+    editor.addAction({
+      id: 'ai-explain',
+      label: 'AI: 解释代码',
+      contextMenuGroupId: 'ai',
+      contextMenuOrder: 4,
+      run: (ed) => {
+        const selectedText = getFullSelectionText(ed)
+        if (selectedText) {
+          window.dispatchEvent(new CustomEvent('ai-action', { detail: { action: 'explain', text: selectedText } }))
+        }
+      },
+    })
+
+    editor.addAction({
+      id: 'ai-continue',
+      label: 'AI: 续写',
+      contextMenuGroupId: 'ai',
+      contextMenuOrder: 5,
+      run: (ed) => {
+        const position = ed.getPosition()
+        const model = ed.getModel()
+        if (position && model) {
+          // Get text from current position to end of document for continuation
+          const fullText = model.getValue()
+          const offset = model.getOffsetAt(position)
+          const textAfterCursor = fullText.slice(offset)
+          window.dispatchEvent(new CustomEvent('ai-action', { detail: { action: 'continue', text: textAfterCursor || '' } }))
+        }
+      },
     })
   }
 

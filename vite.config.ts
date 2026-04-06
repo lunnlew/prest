@@ -20,11 +20,11 @@ export default defineConfig(({ command }) => {
         headers: {
           'Content-Security-Policy': `
             default-src 'self';
-            script-src 'self' 'unsafe-inline' 'unsafe-eval';
+            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net;
             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
             font-src 'self' https://fonts.gstatic.com data:;
             img-src 'self' data: https: blob:;
-            connect-src 'self' https://fonts.googleapis.com;
+            connect-src 'self' https://fonts.googleapis.com https://*.openai.com https://*.anthropic.com https://*.deepseek.com https://*.mistral.ai https://dashscope.aliyuncs.com https://*.aliyun.com;
             worker-src 'self' blob:;
             frame-src 'none';
             object-src 'none';

@@ -19,6 +19,7 @@
 - [预览功能](features/preview.md) — Markdown 渲染、GFM、预览样式
 - [布局功能](features/layout.md) — 三栏布局、面板拖拽、分隔线
 - [侧边栏功能](features/sidebar.md) — 文件树、大纲、搜索、设置
+- [AI 功能](features/ai.md) — AI 对话、快捷命令、编辑器集成
 - [状态管理](features/state-management.md) — Zustand stores、actions
 - [服务层](features/services.md) — Markdown 解析、XHS 分页引擎、文字测量
 - [样式系统](features/styles.md) — CSS 变量、Tailwind 配置
@@ -38,25 +39,28 @@
 | P0 | 21 | 21 | 0 | 0 |
 | P1 | 18 | 18 | 0 | 0 |
 | P2 | 4 | 4 | 0 | 0 |
-| **总计** | **43** | **43** | **0** | **0** |
+| P3 (AI) | 14 | 14 | 0 | 0 |
+| **总计** | **57** | **57** | **0** | **0** |
 
 - **P0 功能完成率:** 100% (21/21)
 - **P1 功能完成率:** 100% (18/18)
 - **P2 功能完成率:** 100% (4/4)
-- **总体完成率:** 100% (43/43)
+- **P3 (AI) 功能完成率:** 100% (14/14)
+- **总体完成率:** 100% (57/57)
 
 ### 文件统计
 
 | 类型 | 数量 | 说明 |
 |------|------|------|
-| React 组件 | 17 | 含 XHS 导出/预览新组件 |
+| React 组件 | 18 | 含 XHS 导出/预览/AI 面板组件 |
 | Store 文件 | 6 | editor/preview/layout/sidebar/settings + useBoundStore |
-| Service 文件 | 3 | index.ts / MarkdownParser.ts / XHSPaginator.ts |
+| Service 文件 | 4 | index.ts / MarkdownParser.ts / XHSPaginator.ts / AIService.ts |
 | 类型文件 | 1 | `types/index.ts` |
 | lib 工具 | 1 | `pretext.ts` — 文字测量 |
 | 配置文件 | 7 | vite/package/tailwind/tsconfig 等 |
 | 样式文件 | 3 | globals.css / MarkdownPreview.css / xiaohongshu.css |
-| **总计** | **38** | |
+| 文档文件 | 10 | 含 features/ai.md |
+| **总计** | **50** | |
 
 ---
 
@@ -84,6 +88,8 @@
 | v0.8.5 | 2026-04-06 | 专注模式修复：面板折叠/展开使用 imperative panel API 防止 panelLayout 损坏；退出专注模式恢复侧边栏/预览区可见性 |
 | v0.8.6 | 2026-04-06 | XHS 导出对话框/预览面板国际化：新增 40+ 翻译键支持中英文切换 |
 | v0.8.7 | 2026-04-06 | 专注模式/切换预览区修复：面板折叠时保存尺寸、展开时恢复；统一 syncScroll 状态到 settings；修复 Monaco 搜索框文字透明问题 |
+| v0.9.0 | 2026-04-06 | AI 功能集成：AI 对话浮动面板（编辑器下方）、自定义 API 配置（兼容 OpenAI 格式）、AI 配置面板（设置页面） |
+| v0.9.1 | 2026-04-07 | AI 增强：开关控制、高度可调、消息持久化、快捷命令、编辑器右键菜单、Insert/Replace 功能、流式响应 |
 
 ---
 
@@ -186,3 +192,27 @@
 | 5.13 | 切换预览区尺寸恢复 | ✅ | 1h | `AppLayout.tsx` — 隐藏时保存尺寸，展开时用 resize() 恢复之前拖动的宽度 |
 | 5.14 | 同步滚动状态统一 | ✅ | 0.5h | `previewSlice.ts`, `PreviewPanel.tsx` — 删除 previewSlice.syncScroll，统一使用 settings.syncScroll |
 | 5.15 | Monaco 搜索框文字修复 | ✅ | 0.5h | `globals.css` — 移除 textarea color:transparent 样式 |
+
+### Phase 6: AI 功能集成
+
+| 序号 | 任务 | 状态 | 预估工作量 | 相关文件 |
+|------|------|------|-----------|----------|
+| 6.1 | AI 类型定义 | ✅ | 0.5h | `types/index.ts` — AIConfig, AIMessage, AIConversation |
+| 6.2 | AI Slice 状态管理 | ✅ | 1h | `aiSlice.ts` — AI 配置、对话状态、sendAIMessage action |
+| 6.3 | AI 对话面板组件 | ✅ | 2h | `AIChatPanel.tsx` — 浮动面板、消息列表、输入框 |
+| 6.4 | AI 配置面板 | ✅ | 1h | `SettingsPanel.tsx` — API Endpoint/Key/Model/Temperature |
+| 6.5 | AI 面板集成到编辑器 | ✅ | 0.5h | `EditorPanel.tsx` — 引入 AIChatPanel |
+| 6.6 | AI 翻译键 | ✅ | 0.5h | `locales/index.ts`, `data/zh-CN.json`, `data/en.json` |
+| 6.7 | AI 开关控制 | ✅ | 0.5h | `SettingsPanel.tsx` — 设置面板添加 aiEnabled 开关 |
+| 6.8 | AI 面板条件渲染 | ✅ | 0.5h | `AIChatPanel.tsx` — aiEnabled=false 时不显示 |
+| 6.9 | AI 面板高度可调 | ✅ | 1h | `AIChatPanel.tsx` — 拖拽调整 200-600px |
+| 6.10 | AI 消息持久化 | ✅ | 0.5h | `AIChatPanel.tsx` — localStorage 保存对话消息 |
+| 6.11 | AI 高度持久化 | ✅ | 0.5h | `AIChatPanel.tsx` — localStorage 保存面板高度 |
+| 6.12 | AI 快捷命令按钮 | ✅ | 1h | `AIChatPanel.tsx` — 总结/翻译/润色/解释/续写 |
+| 6.13 | AI 编辑器右键菜单 | ✅ | 1h | `MonacoEditor.tsx` — 选中文字后右键 AI 操作 |
+| 6.14 | AI Insert/Replace 功能 | ✅ | 1h | `AIChatPanel.tsx`, `editorSlice.ts` — 插入/替换到编辑器 |
+| 6.15 | AI 流式响应 | ✅ | 1h | `AIService.ts` — OpenAI SDK 流式输出 |
+| 6.16 | AI 上下文菜单集成 | ✅ | 0.5h | `MonacoEditor.tsx` — 续写功能使用 textAfterCursor |
+| 6.17 | AI 双行问题修复 | ✅ | 1h | `AIChatPanel.tsx` — 过滤空的 assistant 占位消息 |
+| 6.18 | AI CSP 配置 | ✅ | 0.5h | `vite.config.ts`, `index.html` — 添加 AI API 域名白名单 |
+| 6.19 | AI 文档 | ✅ | 0.5h | `docs/features/ai.md` — AI 功能详细文档 |

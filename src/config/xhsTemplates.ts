@@ -87,7 +87,7 @@ export async function loadTemplateCSS(template: XHSTemplate): Promise<void> {
   if (!meta?.cssFile) return
   if (loadedCSS.has(meta.cssFile)) return
   loadedCSS.add(meta.cssFile)
-  await import(`../styles/templates/${meta.cssFile}`)
+  await import(/* @vite-ignore */ `../styles/templates/${meta.cssFile}`)
 }
 
 /** 加载模板完整样式（base + template CSS） */

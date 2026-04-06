@@ -88,6 +88,7 @@ export interface EditorSlice {
   save: () => void
   setCurrentFile: (fileId: string | null) => void
   insertText: (text: string) => void
+  replaceSelection: (text: string) => boolean
   formatMarkdown: (type: FormatType, lang?: string) => void
   downloadMd: (filename?: string) => void
 }
@@ -189,6 +190,24 @@ console.log(greeting)
     } else {
       set({ content: state.content + text, isDirty: true })
     }
+  },
+
+  replaceSelection: (text) => {
+    const state = get()
+    const editor = state.editorInstance
+    if (editor) {
+      const selection = editor.getSelection()
+      if (selection && !selection.isEmpty()) {
+        editor.executeEdits('', [{
+          range: selection,
+          text,
+        }])
+        editor.focus()
+        return true
+      }
+      return false
+    }
+    return false
   },
 
   formatMarkdown: (type, lang) => {

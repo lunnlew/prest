@@ -17,6 +17,7 @@ export interface SettingsSlice {
   setPinnedButtons: (buttons: ToolbarButtonId[]) => void
   setToolbarItems: (items: ToolbarItem[]) => void
   setXHSExportSettings: (settings: Partial<XHSExportSettings>) => void
+  setAiEnabled: (enabled: boolean) => void
   resetSettings: () => void
 }
 
@@ -193,6 +194,7 @@ const defaultSettings: Settings = {
   },
   locale: 'zh-CN',
   xhsExport: defaultXHSExport,
+  aiEnabled: false,
 }
 
 export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSlice> = (set) => ({
@@ -305,6 +307,11 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
           items,
         },
       },
+    })),
+
+  setAiEnabled: (enabled) =>
+    set((state) => ({
+      settings: { ...state.settings, aiEnabled: enabled },
     })),
 
   resetSettings: () => set({ settings: defaultSettings }),

@@ -152,6 +152,7 @@ export interface Settings {
   toolbar: ToolbarSettings
   locale: Locale
   xhsExport: XHSExportSettings
+  aiEnabled: boolean
 }
 
 // File types
@@ -207,4 +208,29 @@ export interface XHSExportSettings {
   showPageNumber: boolean
   /** Export frame width in CSS pixels (default 440, range 320-1920) */
   exportWidth: number
+}
+
+// AI types
+export type AIProvider = 'openai' | 'claude' | 'custom'
+
+export interface AIConfig {
+  provider: AIProvider
+  apiEndpoint: string
+  apiKey: string
+  model: string
+  temperature: number
+  maxTokens: number
+}
+
+export interface AIMessage {
+  id: string
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  timestamp: number
+}
+
+export interface AIConversation {
+  id: string
+  messages: AIMessage[]
+  createdAt: number
 }

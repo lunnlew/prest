@@ -5,8 +5,9 @@ import { createPreviewSlice, PreviewSlice } from './previewSlice'
 import { createLayoutSlice, LayoutSlice } from './layoutSlice'
 import { createSidebarSlice, SidebarSlice } from './sidebarSlice'
 import { createSettingsSlice, SettingsSlice, defaultToolbarGroups, defaultToolbarItems, defaultXHSExport } from './settingsSlice'
+import { createAISlice, AISlice } from './aiSlice'
 
-export type AppStore = EditorSlice & PreviewSlice & LayoutSlice & SidebarSlice & SettingsSlice
+export type AppStore = EditorSlice & PreviewSlice & LayoutSlice & SidebarSlice & SettingsSlice & AISlice
 
 export const useBoundStore = create<AppStore>()(
   persist(
@@ -16,6 +17,7 @@ export const useBoundStore = create<AppStore>()(
       ...createLayoutSlice(...args),
       ...createSidebarSlice(...args),
       ...createSettingsSlice(...args),
+      ...createAISlice(...args),
     }),
     {
       name: 'prest-storage',
@@ -34,6 +36,9 @@ export const useBoundStore = create<AppStore>()(
         activeSidebarTab: state.activeSidebarTab,
         focusMode: state.focusMode,
         typewriterMode: state.typewriterMode,
+        config: state.config,
+        conversations: state.conversations,
+        currentConversationId: state.currentConversationId,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
@@ -59,6 +64,7 @@ export const useBoundStore = create<AppStore>()(
               },
               locale: 'zh-CN',
               xhsExport: defaultXHSExport,
+              aiEnabled: false,
             }
           } else {
             // Ensure editor settings
@@ -96,6 +102,10 @@ export const useBoundStore = create<AppStore>()(
               if (xhs.watermarkScope === undefined) xhs.watermarkScope = 'last'
               if (xhs.watermarkOpacity === undefined) xhs.watermarkOpacity = 0.5
               if (xhs.watermarkSize === undefined) xhs.watermarkSize = 'medium'
+            }
+            // Migrate aiEnabled (default to false for privacy)
+            if (state.settings.aiEnabled === undefined) {
+              state.settings.aiEnabled = false
             }
           }
         }

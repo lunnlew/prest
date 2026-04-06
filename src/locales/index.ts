@@ -202,6 +202,36 @@ export interface LocaleMessages {
     toolbarGroups: string
     toolbarOrder: string
     visible: string
+    aiSettings: string
+    apiEndpoint: string
+    apiKey: string
+    apiKeyPlaceholder: string
+    model: string
+    temperature: string
+    maxTokens: string
+  }
+  // AI
+  ai: {
+    chat: string
+    send: string
+    placeholder: string
+    thinking: string
+    welcome: string
+    welcomeHint: string
+    clear: string
+    close: string
+    copy: string
+    online: string
+    notConfigured: string
+    openChat: string
+    insert: string
+    insertToEditor: string
+    replace: string
+    summarize: string
+    translate: string
+    polish: string
+    explain: string
+    continue: string
   }
 }
 

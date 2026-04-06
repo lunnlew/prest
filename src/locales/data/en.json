@@ -197,6 +197,35 @@
     "pinnedButtons": "Quick Access Buttons",
     "toolbarGroups": "Toolbar Groups",
     "toolbarOrder": "Toolbar Order",
-    "visible": "Visible"
+    "visible": "Visible",
+    "aiSettings": "AI Settings",
+    "apiEndpoint": "API Endpoint",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "sk-...",
+    "model": "Model",
+    "temperature": "Temperature",
+    "maxTokens": "Max Tokens"
+  },
+  "ai": {
+    "chat": "AI Chat",
+    "send": "Send",
+    "placeholder": "Type your message...",
+    "thinking": "Thinking...",
+    "welcome": "Ask me anything...",
+    "welcomeHint": "I can help you write, summarize, translate and more",
+    "clear": "Clear",
+    "close": "Close",
+    "copy": "Copy",
+    "online": "Online",
+    "notConfigured": "Please configure AI API first",
+    "openChat": "Open AI Chat",
+    "insert": "Insert",
+    "insertToEditor": "Insert to editor",
+    "replace": "Replace",
+    "summarize": "Summarize",
+    "translate": "Translate",
+    "polish": "Polish",
+    "explain": "Explain",
+    "continue": "Continue"
   }
 }

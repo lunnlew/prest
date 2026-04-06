@@ -10,6 +10,9 @@ export function SettingsPanel() {
     setTheme,
     setSyncScroll,
     setAutoSave,
+    config,
+    setAIConfig,
+    setAiEnabled,
   } = useBoundStore()
   const { t, locale, setLocale: changeLocale } = useTranslation()
 
@@ -148,6 +151,97 @@ export function SettingsPanel() {
             {settings.autoSave ? t.settings.on : t.settings.off}
           </button>
         </div>
+      </div>
+
+      {/* AI Settings */}
+      <div className="px-4 py-3 border-b border-[var(--border-color)]">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-[var(--text-primary)]">{t.settings.aiSettings}</span>
+          <button
+            onClick={() => setAiEnabled(!settings.aiEnabled)}
+            className={`relative w-11 h-6 rounded-full transition-colors ${
+              settings.aiEnabled
+                ? 'bg-[var(--accent-color)]'
+                : 'bg-[var(--bg-tertiary)]'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                settings.aiEnabled ? 'translate-x-5' : ''
+              }`}
+            />
+          </button>
+        </div>
+
+        {settings.aiEnabled && (
+          <>
+            {/* API Endpoint */}
+            <div className="mb-3">
+              <label className="text-xs text-[var(--text-muted)] block mb-1">{t.settings.apiEndpoint}</label>
+              <input
+                type="text"
+                value={config.apiEndpoint}
+                onChange={(e) => setAIConfig({ apiEndpoint: e.target.value })}
+                placeholder="https://api.openai.com/v1"
+                className="w-full px-2 py-1.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]"
+              />
+            </div>
+
+            {/* API Key */}
+            <div className="mb-3">
+              <label className="text-xs text-[var(--text-muted)] block mb-1">{t.settings.apiKey}</label>
+              <input
+                type="password"
+                value={config.apiKey}
+                onChange={(e) => setAIConfig({ apiKey: e.target.value })}
+                placeholder={t.settings.apiKeyPlaceholder || 'sk-...'}
+                className="w-full px-2 py-1.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]"
+              />
+            </div>
+
+            {/* Model */}
+            <div className="mb-3">
+              <label className="text-xs text-[var(--text-muted)] block mb-1">{t.settings.model}</label>
+              <input
+                type="text"
+                value={config.model}
+                onChange={(e) => setAIConfig({ model: e.target.value })}
+                placeholder="gpt-3.5-turbo"
+                className="w-full px-2 py-1.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]"
+              />
+            </div>
+
+            {/* Temperature */}
+            <div className="mb-3">
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-[var(--text-muted)]">{t.settings.temperature}</label>
+                <span className="text-xs text-[var(--text-muted)]">{config.temperature}</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.1"
+                value={config.temperature}
+                onChange={(e) => setAIConfig({ temperature: Number(e.target.value) })}
+                className="w-full"
+              />
+            </div>
+
+            {/* Max Tokens */}
+            <div>
+              <label className="text-xs text-[var(--text-muted)] block mb-1">{t.settings.maxTokens}</label>
+              <input
+                type="number"
+                min="100"
+                max="8000"
+                value={config.maxTokens}
+                onChange={(e) => setAIConfig({ maxTokens: Number(e.target.value) })}
+                className="w-full px-2 py-1.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-color)]"
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

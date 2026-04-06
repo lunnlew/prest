@@ -197,6 +197,35 @@
     "on": "开",
     "off": "关",
     "saved": "已保存",
-    "loadingEditor": "编辑器加载中..."
+    "loadingEditor": "编辑器加载中...",
+    "aiSettings": "AI 设置",
+    "apiEndpoint": "API 地址",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "sk-...",
+    "model": "模型",
+    "temperature": "温度",
+    "maxTokens": "最大 Token"
+  },
+  "ai": {
+    "chat": "AI 对话",
+    "send": "发送",
+    "placeholder": "输入消息...",
+    "thinking": "思考中...",
+    "welcome": "问我任何问题...",
+    "welcomeHint": "我可以帮你写作、总结、翻译等",
+    "clear": "清空",
+    "close": "关闭",
+    "copy": "复制",
+    "online": "在线",
+    "notConfigured": "请先配置 AI API",
+    "openChat": "打开 AI 对话",
+    "insert": "插入",
+    "insertToEditor": "插入到编辑器",
+    "replace": "替换",
+    "summarize": "总结",
+    "translate": "翻译",
+    "polish": "润色",
+    "explain": "解释",
+    "continue": "续写"
   }
 }
