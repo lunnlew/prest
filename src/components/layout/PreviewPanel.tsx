@@ -11,11 +11,12 @@ const platformOptions: { id: PlatformPreviewId; label: string }[] = [
 ]
 
 export function PreviewPanel() {
-  const { content, platformPreview, settings, setPlatformPreview, syncScroll, toggleSyncScroll, editorScrollRatio } = useBoundStore()
+  const { content, platformPreview, settings, setPlatformPreview, setSyncScroll, editorScrollRatio } = useBoundStore()
   const { t } = useTranslation()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isScrollingRef = useRef(false)
   const xhs = settings.xhsExport
+  const syncScroll = settings.syncScroll
 
   // Sync scroll from editor to preview
   useEffect(() => {
@@ -72,7 +73,7 @@ export function PreviewPanel() {
             ))}
           </select>
           <button
-            onClick={toggleSyncScroll}
+            onClick={() => setSyncScroll(!syncScroll)}
             className={`text-xs px-2 py-1 rounded transition-colors ${
               syncScroll
                 ? 'bg-[var(--accent-color)] text-white'
