@@ -8,7 +8,7 @@ import rehypeKatex from 'rehype-katex'
 import { remarkHighlightMark } from 'remark-highlight-mark'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import type { XHSTemplate } from '../../types'
+import type { XHSTemplate, XHSWatermarkPosition, XHSWatermarkSize } from '../../types'
 import { XHS_TEMPLATE_META, loadTemplateFullCSS } from '../../config/xhsTemplates'
 import { TEMPLATE_RENDERERS, type RendererType } from '../../styles/rendererFactory'
 
@@ -21,7 +21,9 @@ interface XiaohongshuPreviewProps {
   html?: string
   template: XHSTemplate
   watermark?: string
-  tags?: string[]
+  watermarkPosition?: XHSWatermarkPosition
+  watermarkOpacity?: number
+  watermarkSize?: XHSWatermarkSize
   showPageNumber?: boolean
   currentPage?: number
   totalPages?: number
@@ -427,7 +429,8 @@ function createRenderersByType(type: RendererType, fontConfig: FontConfig, count
 }
 
 export function XiaohongshuPreview({
-  content, html: htmlContent, template, watermark = '', tags = [],
+  content, html: htmlContent, template,
+  watermark = '', watermarkPosition = 'bottom-right', watermarkOpacity = 0.5, watermarkSize = 'medium',
   showPageNumber = false, currentPage = 1, totalPages = 1,
 }: XiaohongshuPreviewProps) {
   const prevTemplate = useRef<XHSTemplate>(template)
@@ -468,19 +471,57 @@ export function XiaohongshuPreview({
     )
   }
 
+  // 水印大小映射
+  const watermarkSizeClass = {
+    small: 'xhs-watermark--small',
+    medium: 'xhs-watermark--medium',
+    large: 'xhs-watermark--large',
+  }[watermarkSize] || 'xhs-watermark--medium'
+
+  // 水印位置样式
+  const getWatermarkPositionClass = () => {
+    switch (watermarkPosition) {
+      case 'top-left': return 'xhs-watermark--top-left'
+      case 'top-center': return 'xhs-watermark--top-center'
+      case 'top-right': return 'xhs-watermark--top-right'
+      case 'bottom-left': return 'xhs-watermark--bottom-left'
+      case 'bottom-center': return 'xhs-watermark--bottom-center'
+      case 'bottom-right': return 'xhs-watermark--bottom-right'
+      case 'diagonal': return 'xhs-watermark--diagonal'
+      default: return 'xhs-watermark--bottom-right'
+    }
+  }
+
+  // 斜铺水印需要特殊渲染
+  const isDiagonal = watermarkPosition === 'diagonal'
+
   return (
     <div className={`xhs-preview xhs-template-${template}`}>
       {renderBody()}
-      {(tags.length > 0 || watermark || showPageNumber) && (
-        <div className="xhs-footer" data-xhs-footer>
-          {tags.length > 0 && (
-            <div className={`xhs-footer-tags ${!showPageNumber ? 'xhs-footer-tags--last' : ''}`}>
-              {tags.map((tag, i) => <span key={i} className="xhs-footer-tag">#{tag}</span>)}
-            </div>
-          )}
-          {watermark && <div className={`xhs-footer-watermark ${!showPageNumber ? 'xhs-footer-watermark--last' : ''}`}>{watermark}</div>}
-          {showPageNumber && <div className="xhs-footer-page">{currentPage} / {totalPages}</div>}
+
+      {/* 斜铺水印 */}
+      {isDiagonal && watermark && (
+        <div
+          className={`xhs-watermark-diagonal ${watermarkSizeClass}`}
+          style={{ opacity: watermarkOpacity }}
+        >
+          {watermark}
         </div>
+      )}
+
+      {/* 固定位置水印 */}
+      {!isDiagonal && watermark && (
+        <div
+          className={`xhs-watermark-fixed ${getWatermarkPositionClass()} ${watermarkSizeClass}`}
+          style={{ opacity: watermarkOpacity }}
+        >
+          {watermark}
+        </div>
+      )}
+
+      {/* 页码 */}
+      {showPageNumber && (
+        <div className="xhs-footer-page">{currentPage} / {totalPages}</div>
       )}
     </div>
   )

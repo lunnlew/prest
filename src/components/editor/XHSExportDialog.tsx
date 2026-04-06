@@ -3,10 +3,33 @@ import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
 import { paginate, type PageInfo } from '../../services/XHSPaginator'
-import type { XHSAspectRatio, XHSTemplate } from '../../types'
+import type { XHSAspectRatio, XHSTemplate, XHSWatermarkPosition, XHSWatermarkScope, XHSWatermarkSize } from '../../types'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import { TEMPLATE_LABELS } from '../../config/xhsTemplates'
+
+const WATERMARK_POSITION_OPTIONS: { value: XHSWatermarkPosition; label: string }[] = [
+  { value: 'top-left', label: '左上' },
+  { value: 'top-center', label: '顶部居中' },
+  { value: 'top-right', label: '右上' },
+  { value: 'bottom-left', label: '左下' },
+  { value: 'bottom-center', label: '底部居中' },
+  { value: 'bottom-right', label: '右下' },
+  { value: 'diagonal', label: '斜铺' },
+]
+
+const WATERMARK_SCOPE_OPTIONS: { value: XHSWatermarkScope; label: string }[] = [
+  { value: 'all', label: '每页' },
+  { value: 'first', label: '仅首页' },
+  { value: 'last', label: '仅末页' },
+  { value: 'none', label: '不显示' },
+]
+
+const WATERMARK_SIZE_OPTIONS: { value: XHSWatermarkSize; label: string }[] = [
+  { value: 'small', label: '小' },
+  { value: 'medium', label: '中' },
+  { value: 'large', label: '大' },
+]
 
 const ASPECT_DIMENSIONS: Record<XHSAspectRatio, { w: number; h: number }> = {
   '3:5': { w: 1080, h: 1800 },
@@ -59,7 +82,6 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   const { t, loading } = useTranslation()
   const dialogRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
-  const [tags, setTags] = useState(settings.xhsExport.tags.join(' '))
   const [exporting, setExporting] = useState(false)
   const [exportProgress, setExportProgress] = useState('')
   const [pages, setPages] = useState<PageInfo[]>([])
@@ -186,7 +208,7 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
 
   const xhs = settings.xhsExport
   const frameW = xhs.exportWidth ?? 440
-  const measureKey = `${xhs.aspectRatio}-${xhs.template}-${xhs.watermark}-${xhs.showPageNumber}-${xhs.exportWidth}-${content}-${tags}`
+  const measureKey = `${xhs.aspectRatio}-${xhs.template}-${xhs.watermark}-${xhs.showPageNumber}-${xhs.exportWidth}-${content}`
 
   useEffect(() => {
     if (!isOpen) return
@@ -215,14 +237,6 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
   const handleTemplateChange = useCallback(
     (tpl: XHSTemplate) => {
       setXHSExportSettings({ template: tpl })
-      setPages([])
-    }, [setXHSExportSettings]
-  )
-
-  const handleTagsChange = useCallback(
-    (val: string) => {
-      setTags(val)
-      setXHSExportSettings({ tags: val.split(/\s+/).filter(Boolean) })
       setPages([])
     }, [setXHSExportSettings]
   )
@@ -340,7 +354,9 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
           }}
         >
           <XiaohongshuPreview key={measureKey} content={content} template={xhs.template}
-            watermark={xhs.watermark} tags={xhs.tags} showPageNumber={xhs.showPageNumber} />
+            watermark={xhs.watermark} watermarkPosition={xhs.watermarkPosition}
+            watermarkOpacity={xhs.watermarkOpacity} watermarkSize={xhs.watermarkSize}
+            showPageNumber={xhs.showPageNumber} />
         </div>
 
         <div className="flex-1 flex overflow-hidden">
@@ -361,9 +377,9 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
               </div>
             </div>
 
-            {/* Section: Content Options */}
+            {/* Section: Watermark Options */}
             <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">内容选项</h3>
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">水印设置</h3>
               <div className="bg-[var(--bg-tertiary)] rounded-lg p-3 space-y-3">
                 <div>
                   <label className="text-xs text-[var(--text-muted)] block mb-1.5">水印文字</label>
@@ -373,11 +389,66 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                     className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]" />
                 </div>
                 <div>
-                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">话题标签</label>
-                  <textarea value={tags} onChange={(e) => handleTagsChange(e.target.value)}
-                    placeholder="多个标签用空格分隔" rows={2}
-                    className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] resize-none" />
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">位置</label>
+                  <select
+                    value={xhs.watermarkPosition}
+                    onChange={(e) => setXHSExportSettings({ watermarkPosition: e.target.value as XHSWatermarkPosition })}
+                    className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-color)]"
+                  >
+                    {WATERMARK_POSITION_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 </div>
+                <div>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">显示</label>
+                  <select
+                    value={xhs.watermarkScope}
+                    onChange={(e) => setXHSExportSettings({ watermarkScope: e.target.value as XHSWatermarkScope })}
+                    className="w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-color)]"
+                  >
+                    {WATERMARK_SCOPE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">透明度: {Math.round(xhs.watermarkOpacity * 100)}%</label>
+                  <input
+                    type="range"
+                    min={10}
+                    max={100}
+                    step={5}
+                    value={xhs.watermarkOpacity * 100}
+                    onChange={(e) => setXHSExportSettings({ watermarkOpacity: Number(e.target.value) / 100 })}
+                    className="w-full accent-[var(--accent-color)] h-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[var(--text-muted)] block mb-1.5">大小</label>
+                  <div className="flex gap-1">
+                    {WATERMARK_SIZE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setXHSExportSettings({ watermarkSize: opt.value })}
+                        className={`flex-1 px-2 py-1.5 text-xs rounded-lg transition-all ${
+                          xhs.watermarkSize === opt.value
+                            ? 'bg-[var(--accent-color)] text-white'
+                            : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Page Number */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">页码</h3>
+              <div className="bg-[var(--bg-tertiary)] rounded-lg p-3">
                 <Toggle
                   checked={xhs.showPageNumber}
                   onChange={(v) => setXHSExportSettings({ showPageNumber: v })}
@@ -394,7 +465,12 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
             ) : (
               pages.map((pageInfo, pageIdx) => {
                 const pageNum = pageIdx + 1
+                const isFirst = pageIdx === 0
                 const isLast = pageIdx === pages.length - 1
+                // 根据 watermarkScope 决定是否显示水印
+                const showWatermark = xhs.watermarkScope === 'all' ||
+                  (xhs.watermarkScope === 'first' && isFirst) ||
+                  (xhs.watermarkScope === 'last' && isLast)
                 return (
                   <div
                     key={pageIdx}
@@ -405,8 +481,10 @@ export function XHSExportDialog({ isOpen, onClose }: XHSExportDialogProps) {
                     <XiaohongshuPreview
                       html={pageInfo.html}
                       template={xhs.template}
-                      watermark={isLast ? xhs.watermark : ''}
-                      tags={isLast ? xhs.tags : []}
+                      watermark={showWatermark ? xhs.watermark : ''}
+                      watermarkPosition={xhs.watermarkPosition}
+                      watermarkOpacity={xhs.watermarkOpacity}
+                      watermarkSize={xhs.watermarkSize}
                       showPageNumber={xhs.showPageNumber}
                       currentPage={pages.length > 1 ? pageNum : 1}
                       totalPages={pages.length}

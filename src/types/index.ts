@@ -148,11 +148,28 @@ export interface PlatformPreviewDef {
 export type XHSAspectRatio = '3:4' | '3:5' | '1:1' | '16:9'
 export type XHSTemplate = 'cream' | 'minimal' | 'gradient' | 'pink' | 'mint' | 'lavender' | 'peach' | 'ink' | 'flame' | 'sakura' | 'nordic' | 'forest' | 'magazine' | 'scrapbook' | 'gallery' | 'wechat' | 'notebook' | 'retro' | 'tape' | 'postcard' | 'sunset' | 'ocean' | 'aurora' | 'honey' | 'wine' | 'lemon' | 'matcha' | 'berry' | 'caramel' | 'coral' | 'sky' | 'autumn' | 'night'
 
+// 水印位置
+export type XHSWatermarkPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'diagonal'
+
+// 水印显示范围
+export type XHSWatermarkScope = 'all' | 'first' | 'last' | 'none'
+
+// 水印大小
+export type XHSWatermarkSize = 'small' | 'medium' | 'large'
+
 export interface XHSExportSettings {
   aspectRatio: XHSAspectRatio
   template: XHSTemplate
+  /** 水印文字 */
   watermark: string
-  tags: string[]
+  /** 水印位置 */
+  watermarkPosition: XHSWatermarkPosition
+  /** 水印显示范围 */
+  watermarkScope: XHSWatermarkScope
+  /** 水印透明度 0.1-1.0 */
+  watermarkOpacity: number
+  /** 水印大小 */
+  watermarkSize: XHSWatermarkSize
   showPageNumber: boolean
   /** Export frame width in CSS pixels (default 440, range 320-1920) */
   exportWidth: number

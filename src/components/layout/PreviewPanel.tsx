@@ -97,7 +97,9 @@ export function PreviewPanel() {
                 content={content}
                 template={xhs.template}
                 watermark={xhs.watermark}
-                tags={xhs.tags}
+                watermarkPosition={xhs.watermarkPosition}
+                watermarkOpacity={xhs.watermarkOpacity}
+                watermarkSize={xhs.watermarkSize}
                 showPageNumber={xhs.showPageNumber}
               />
             </div>

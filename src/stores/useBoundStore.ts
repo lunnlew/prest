@@ -84,6 +84,13 @@ export const useBoundStore = create<AppStore>()(
             }
             if (!state.settings.xhsExport) {
               state.settings.xhsExport = { ...defaultXHSExport }
+            } else {
+              // Migrate xhsExport with new fields
+              const xhs = state.settings.xhsExport
+              if (xhs.watermarkPosition === undefined) xhs.watermarkPosition = 'bottom-right'
+              if (xhs.watermarkScope === undefined) xhs.watermarkScope = 'last'
+              if (xhs.watermarkOpacity === undefined) xhs.watermarkOpacity = 0.5
+              if (xhs.watermarkSize === undefined) xhs.watermarkSize = 'medium'
             }
           }
         }

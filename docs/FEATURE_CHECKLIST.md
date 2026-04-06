@@ -78,6 +78,7 @@
 | v0.7.1 | 2026-04-06 | XHS 导出宽度可调/隐藏页码时自动释放 footer 空间/面板布局自动保存持久化 |
 | v0.8.0 | 2026-04-06 | 编辑器-预览区滚动同步（双向）/编辑器滚动-大纲同步选中 |
 | v0.8.1 | 2026-04-06 | 侧边栏标签页选中状态持久化/语言切换即时更新生效 |
+| v0.8.2 | 2026-04-06 | 水印配置独立栏目：位置(7种)/显示范围/透明度/大小，去掉话题标签 |
 
 ---
 
@@ -129,16 +130,17 @@
 
 | 序号 | 任务 | 状态 | 预估工作量 | 相关文件 |
 |------|------|------|-----------|----------|
-| 3.5.1 | 小红书预览组件 (XiaohongshuPreview) | ✅ | 3h | `XiaohongshuPreview.tsx` — 模板/水印/话题标签/页码/分页块渲染 |
-| 3.5.2 | 小红书 CSS 样式系统 | ✅ | 2h | `xiaohongshu.css` — cream/minimal/gradient 三套模板完整样式 |
+| 3.5.1 | 小红书预览组件 (XiaohongshuPreview) | ✅ | 3h | `XiaohongshuPreview.tsx` — 模板/水印/页码/分页块渲染 |
+| 3.5.2 | 小红书 CSS 样式系统 | ✅ | 2h | `base.css` — cream/minimal/gradient 等30+套模板完整样式 |
 | 3.5.3 | 分页估计算法 | ✅ | 2h | `XHSPaginator.ts`, `pretext.ts` — canvas 测量 + 安全系数 0.85 |
-| 3.5.4 | 小红书导出对话框 | ✅ | 2h | `XHSExportDialog.tsx` — 比例/模板/页码导航/水印/话题/分页卡片预览 |
+| 3.5.4 | 小红书导出对话框 | ✅ | 2h | `XHSExportDialog.tsx` — 比例/模板/页码导航/水印配置/分页卡片预览 |
 | 3.5.5 | XHS 状态管理 | ✅ | 1h | `settingsSlice.ts`, `types/index.ts` — XHSExportSettings + defaultXHSExport |
 | 3.5.6 | 工具栏快捷入口 | ✅ | 0.5h | `EditorToolbar.tsx` — 📕 按钮 + `toolbar.xhsExport` 翻译键 |
 | 3.5.7 | 平台预览切换（文档/小红书） | ✅ | 0.5h | `PreviewPanel.tsx`, `previewSlice.ts` — selector + platformPreview state |
 | 3.5.8 | 文字测量工具（最小化） | ✅ | 1h | `lib/pretext.ts` — prepare/layoutWithLines，仅 canvas 宽度测量 |
-| 3.5.9 | 隐藏页码时自动释放分页空间 | ✅ | 1h | `XHSPaginator.ts`, `XiaohongshuPreview.tsx`, `xiaohongshu.css` — footer 高度自适应分页计算 |
-| 3.5.10 | 导出宽度可调滑块 | ✅ | 1h | `XHSExportDialog.tsx`, `XHSPaginator.ts`, `xiaohongshu.css` — 宽度滑块 320-1920px，自动重排分页 |
+| 3.5.9 | 隐藏页码时自动释放分页空间 | ✅ | 1h | `XHSPaginator.ts`, `XiaohongshuPreview.tsx`, `base.css` — footer 高度自适应分页计算 |
+| 3.5.10 | 导出宽度可调滑块 | ✅ | 1h | `XHSExportDialog.tsx`, `XHSPaginator.ts`, `base.css` — 宽度滑块 320-1920px，自动重排分页 |
+| 3.5.11 | 水印配置独立栏目 | ✅ | 1h | `XHSExportDialog.tsx` — 位置(7种)/显示范围/透明度/大小，去掉话题标签 |
 
 ### Phase 4: 高级功能（P3）
 

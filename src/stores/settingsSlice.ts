@@ -127,7 +127,10 @@ export const defaultXHSExport: XHSExportSettings = {
   aspectRatio: '3:4',
   template: 'cream',
   watermark: '',
-  tags: [],
+  watermarkPosition: 'bottom-right',
+  watermarkScope: 'last',
+  watermarkOpacity: 0.5,
+  watermarkSize: 'medium',
   showPageNumber: false,
   exportWidth: 440,
 }
