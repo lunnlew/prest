@@ -95,6 +95,7 @@ export function AppLayout() {
         {effectiveSidebarVisible && !showEditorOnly && (
           <Panel
             id="sidebar"
+            order={1}
             defaultSize={Math.min(panelLayout[0], 35)}
             minSize={15}
             maxSize={35}
@@ -129,6 +130,7 @@ export function AppLayout() {
               {effectivePreviewVisible && (
                 <Panel
                   id={leftPanelId}
+                  order={1}
                   defaultSize={leftPanelSize}
                   minSize={leftPanelMinSize}
                   maxSize={leftPanelMaxSize}
@@ -149,6 +151,7 @@ export function AppLayout() {
               {effectivePreviewVisible && (
                 <Panel
                   id={rightPanelId}
+                  order={2}
                   defaultSize={rightPanelSize}
                   minSize={rightPanelMinSize}
                   maxSize={rightPanelMaxSize}
