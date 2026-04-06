@@ -1,12 +1,13 @@
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { availableLocales } from '../../locales'
+import { themes } from '../../types'
 
 export function SettingsPanel() {
   const {
     settings,
     updateEditorSettings,
-    toggleTheme,
+    setTheme,
     setSyncScroll,
     setAutoSave,
   } = useBoundStore()
@@ -38,14 +39,27 @@ export function SettingsPanel() {
 
       {/* Theme */}
       <div className="px-4 py-3 border-b border-[var(--border-color)]">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[var(--text-primary)]">{t.settings.theme}</span>
-          <button
-            onClick={toggleTheme}
-            className="px-3 py-1 text-sm bg-[var(--bg-tertiary)] rounded hover:bg-[var(--border-color)] transition-colors"
-          >
-            {settings.theme === 'dark' ? `🌙 ${t.settings.darkTheme}` : `☀️ ${t.settings.lightTheme}`}
-          </button>
+        <div className="text-sm text-[var(--text-primary)] mb-3">{t.settings.theme}</div>
+        <div className="grid grid-cols-5 gap-2">
+          {themes.map((theme) => (
+            <button
+              key={theme.id}
+              onClick={() => setTheme(theme.id)}
+              className={`flex flex-col items-center p-2 rounded transition-all ${
+                settings.theme === theme.id
+                  ? 'ring-2 ring-[var(--accent-color)] bg-[var(--bg-tertiary)]'
+                  : 'hover:bg-[var(--bg-tertiary)]'
+              }`}
+              title={t.settings[`theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}` as keyof typeof t.settings] || theme.id}
+            >
+              <div className="flex gap-0.5 mb-1">
+                {theme.previewColors.map((color, i) => (
+                  <div key={i} className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />
+                ))}
+              </div>
+              <span className="text-xs">{theme.icon}</span>
+            </button>
+          ))}
         </div>
       </div>
 

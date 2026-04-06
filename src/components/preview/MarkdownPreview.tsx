@@ -96,7 +96,7 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
 
             return (
               <SyntaxHighlighter
-                style={settings.theme === 'dark' ? oneDark : oneLight}
+                style={settings.theme === 'light' ? oneLight : oneDark}
                 language={match[1]}
                 PreTag="div"
                 className="code-block"

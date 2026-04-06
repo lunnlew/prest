@@ -109,11 +109,11 @@ function FileTreeItem(props: FileTreeItemProps) {
 
   // ─── Drag over indicator styles ─────────────────────────────────────
   const dragBorderClass = dragOver === 'above'
-    ? 'border-t-2 border-t-[#0078d4]'
+    ? 'border-t-2 border-t-[var(--accent-color)]'
     : dragOver === 'below'
-      ? 'border-b-2 border-b-[#0078d4]'
+      ? 'border-b-2 border-b-[var(--accent-color)]'
       : dragOver === 'on'
-        ? 'bg-[#0078d4]/20'
+        ? 'bg-[var(--accent-color)]/20'
         : ''
 
   // ─── Renaming Input ─────────────────────────────────────────────────
@@ -151,7 +151,7 @@ function FileTreeItem(props: FileTreeItemProps) {
         onContextMenu={handleContextMenu}
         className={clsx(
           'flex items-center gap-1 px-2 py-1 cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors',
-          isCurrentFile && 'bg-[var(--file-active-bg)] text-[#ffffff] border-l-2 border-[#0078d4]'
+          isCurrentFile && 'bg-[var(--file-active-bg)] text-[var(--file-active-fg)] border-l-2 border-[var(--accent-color)]'
         )}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >

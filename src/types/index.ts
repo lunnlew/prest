@@ -32,7 +32,22 @@ export interface LayoutResult {
 export type SidebarTab = 'files' | 'search' | 'outline' | 'settings'
 
 // Settings types
-export type Theme = 'light' | 'dark'
+export type Theme = 'dark' | 'light' | 'blue' | 'purple' | 'green'
+
+export interface ThemeDef {
+  id: Theme
+  nameKey: string
+  icon: string
+  previewColors: string[]
+}
+
+export const themes: ThemeDef[] = [
+  { id: 'dark', nameKey: 'settings.themeDark', icon: '🌙', previewColors: ['#1e1e1e', '#252526', '#3c3c3c', '#0078d4', '#cccccc'] },
+  { id: 'light', nameKey: 'settings.themeLight', icon: '☀️', previewColors: ['#ffffff', '#f3f3f3', '#e0e0e0', '#0078d4', '#1e1e1e'] },
+  { id: 'blue', nameKey: 'settings.themeBlue', icon: '💙', previewColors: ['#0d1117', '#161b22', '#30363d', '#58a6ff', '#c9d1d9'] },
+  { id: 'purple', nameKey: 'settings.themePurple', icon: '💜', previewColors: ['#1e1e2e', '#313244', '#45475a', '#cba6f7', '#cdd6f4'] },
+  { id: 'green', nameKey: 'settings.themeGreen', icon: '💚', previewColors: ['#1a1a1a', '#2d2d2d', '#3d3d3d', '#4ade80', '#e4e4e4'] },
+]
 
 export interface EditorSettings {
   fontSize: number

@@ -19,7 +19,7 @@ function App() {
 
   useEffect(() => {
     const html = document.documentElement
-    html.classList.remove('light', 'dark')
+    html.classList.remove('light', 'dark', 'blue', 'purple', 'green')
     html.classList.add(theme)
   }, [theme])
 

@@ -7,7 +7,6 @@ export interface SettingsSlice {
 
   // Actions
   setTheme: (theme: Theme) => void
-  toggleTheme: () => void
   updateEditorSettings: (settings: Partial<EditorSettings>) => void
   setSyncScroll: (enabled: boolean) => void
   setAutoSave: (enabled: boolean) => void
@@ -202,14 +201,6 @@ export const createSettingsSlice: StateCreator<SettingsSlice, [], [], SettingsSl
   setTheme: (theme) =>
     set((state) => ({
       settings: { ...state.settings, theme },
-    })),
-
-  toggleTheme: () =>
-    set((state) => ({
-      settings: {
-        ...state.settings,
-        theme: state.settings.theme === 'dark' ? 'light' : 'dark',
-      },
     })),
 
   updateEditorSettings: (editorSettings) =>

@@ -83,6 +83,7 @@
 | v0.8.4 | 2026-04-06 | 工具栏视图按钮：打字机模式/专注模式/全屏模式完成；菜单显示启用/关闭文本；状态栏显示当前模式 |
 | v0.8.5 | 2026-04-06 | 专注模式修复：面板折叠/展开使用 imperative panel API 防止 panelLayout 损坏；退出专注模式恢复侧边栏/预览区可见性 |
 | v0.8.6 | 2026-04-06 | XHS 导出对话框/预览面板国际化：新增 40+ 翻译键支持中英文切换 |
+| v0.8.7 | 2026-04-06 | 专注模式/切换预览区修复：面板折叠时保存尺寸、展开时恢复；统一 syncScroll 状态到 settings；修复 Monaco 搜索框文字透明问题 |
 
 ---
 
@@ -182,3 +183,6 @@
 | 5.10 | 语言切换即时更新 | ✅ | 0.5h | `useTranslation.ts` — 语言包缓存时调用 setMessages 更新状态 |
 | 5.11 | 专注模式面板控制重构 | ✅ | 1h | `AppLayout.tsx` — 使用 ImperativePanelHandle 替代条件渲染，折叠/展开更可靠 |
 | 5.12 | 专注模式退出恢复可见性 | ✅ | 1h | `AppLayout.tsx`, `layoutSlice.ts` — 保存退出前 sidebarVisible/previewVisible，退出后恢复 |
+| 5.13 | 切换预览区尺寸恢复 | ✅ | 1h | `AppLayout.tsx` — 隐藏时保存尺寸，展开时用 resize() 恢复之前拖动的宽度 |
+| 5.14 | 同步滚动状态统一 | ✅ | 0.5h | `previewSlice.ts`, `PreviewPanel.tsx` — 删除 previewSlice.syncScroll，统一使用 settings.syncScroll |
+| 5.15 | Monaco 搜索框文字修复 | ✅ | 0.5h | `globals.css` — 移除 textarea color:transparent 样式 |

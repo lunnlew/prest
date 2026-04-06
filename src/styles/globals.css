@@ -21,6 +21,7 @@ body {
   --accent-color: #0078d4;
   --accent-hover: #106ebe;
   --file-active-bg: #d6ebfc;
+  --file-active-fg: #1e1e1e;
   --resize-handle-bg: transparent;
   --resize-handle-hover-bg: #0078d420;
   --resize-handle-active-bg: #0078d440;
@@ -38,9 +39,61 @@ body {
   --accent-color: #0078d4;
   --accent-hover: #1a8cdb;
   --file-active-bg: #094771;
+  --file-active-fg: #ffffff;
   --resize-handle-bg: transparent;
   --resize-handle-hover-bg: #ffffff15;
   --resize-handle-active-bg: #0078d440;
+}
+
+.blue {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --border-color: #30363d;
+  --accent-color: #58a6ff;
+  --accent-hover: #79c0ff;
+  --file-active-bg: #1f3a5f;
+  --file-active-fg: #ffffff;
+  --resize-handle-bg: transparent;
+  --resize-handle-hover-bg: #ffffff15;
+  --resize-handle-active-bg: #58a6ff40;
+}
+
+.purple {
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #313244;
+  --bg-tertiary: #45475a;
+  --text-primary: #cdd6f4;
+  --text-secondary: #a6adc8;
+  --text-muted: #9399b2;
+  --border-color: #585b70;
+  --accent-color: #cba6f7;
+  --accent-hover: #e0b0ff;
+  --file-active-bg: #4a3b5c;
+  --file-active-fg: #ffffff;
+  --resize-handle-bg: transparent;
+  --resize-handle-hover-bg: #ffffff15;
+  --resize-handle-active-bg: #cba6f740;
+}
+
+.green {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3d3d3d;
+  --text-primary: #e4e4e4;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+  --border-color: #3d3d3d;
+  --accent-color: #4ade80;
+  --accent-hover: #22c55e;
+  --file-active-bg: #14532d;
+  --file-active-fg: #ffffff;
+  --resize-handle-bg: transparent;
+  --resize-handle-hover-bg: #ffffff15;
+  --resize-handle-active-bg: #4ade8040;
 }
 
 /* Light theme overrides */

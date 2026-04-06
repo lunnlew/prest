@@ -4,6 +4,15 @@ import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
 import type * as Monaco from 'monaco-editor'
 
+// Map app theme to Monaco editor theme
+const themeMap: Record<string, string> = {
+  dark: 'prest-dark',
+  light: 'prest-light',
+  blue: 'prest-blue',
+  purple: 'prest-purple',
+  green: 'prest-green',
+}
+
 export function MonacoEditor() {
   const {
     content,
@@ -15,6 +24,7 @@ export function MonacoEditor() {
   } = useBoundStore()
   const { t } = useTranslation()
   const isInternalChange = useRef(false)
+  const monacoRef = useRef<typeof Monaco | null>(null)
 
   // Sync external cursor position changes (e.g. outline click) to Monaco editor
   useEffect(() => {
@@ -40,6 +50,13 @@ export function MonacoEditor() {
       isInternalChange.current = false
     })
   }, [cursorPosition])
+
+  // Update Monaco editor theme when app theme changes
+  useEffect(() => {
+    const editor = useBoundStore.getState().editorInstance
+    if (!editor || !monacoRef.current) return
+    monacoRef.current.editor.setTheme(themeMap[settings.theme] || 'prest-dark')
+  }, [settings.theme])
 
   if (!t) return null
 
@@ -240,6 +257,8 @@ export function MonacoEditor() {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Store editor instance for toolbar access
     setEditorInstance(editor)
+    // Store monaco instance for theme changes
+    monacoRef.current = monaco
     // Register custom Markdown language
     monaco.languages.register({ id: 'markdown-prest' })
 
@@ -292,7 +311,7 @@ export function MonacoEditor() {
       },
     })
 
-    // Set theme colors
+    // Set theme colors - prest-dark
     monaco.editor.defineTheme('prest-dark', {
       base: 'vs-dark',
       inherit: true,
@@ -318,6 +337,7 @@ export function MonacoEditor() {
       },
     })
 
+    // prest-light
     monaco.editor.defineTheme('prest-light', {
       base: 'vs',
       inherit: true,
@@ -339,8 +359,93 @@ export function MonacoEditor() {
       },
     })
 
-    // Apply theme
-    monaco.editor.setTheme(settings.theme === 'dark' ? 'prest-dark' : 'prest-light')
+    // prest-blue (GitHub dark)
+    monaco.editor.defineTheme('prest-blue', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: 'FF7B72', fontStyle: 'bold' },
+        { token: 'strong', foreground: '7EE787', fontStyle: 'bold' },
+        { token: 'emphasis', foreground: 'FFA657', fontStyle: 'italic' },
+        { token: 'string', foreground: 'A5D6FF' },
+        { token: 'constant', foreground: '79C0FF' },
+        { token: 'link', foreground: '7EE787' },
+        { token: 'comment', foreground: '8B949E' },
+        { token: 'variable', foreground: 'FFA657' },
+        { token: 'tag', foreground: '7EE787' },
+        { token: 'strikethrough', foreground: '6E7681' },
+      ],
+      colors: {
+        'editor.background': '#0d1117',
+        'editor.foreground': '#c9d1d9',
+        'editorLineNumber.foreground': '#6e7681',
+        'editorLineNumber.activeForeground': '#c9d1d9',
+        'editor.selectionBackground': '#264f78',
+        'editor.lineHighlightBackground': '#161b22',
+      },
+    })
+
+    // prest-purple (Catppuccin Mocha)
+    monaco.editor.defineTheme('prest-purple', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: 'CBA6F7', fontStyle: 'bold' },
+        { token: 'strong', foreground: 'A6E3A1', fontStyle: 'bold' },
+        { token: 'emphasis', foreground: 'FAB387', fontStyle: 'italic' },
+        { token: 'string', foreground: 'A6E3A1' },
+        { token: 'constant', foreground: '89DCEB' },
+        { token: 'link', foreground: 'A6E3A1' },
+        { token: 'comment', foreground: '6C7086' },
+        { token: 'variable', foreground: 'F9E2AF' },
+        { token: 'tag', foreground: 'CBA6F7' },
+        { token: 'strikethrough', foreground: '6C7086' },
+      ],
+      colors: {
+        'editor.background': '#1e1e2e',
+        'editor.foreground': '#cdd6f4',
+        'editorLineNumber.foreground': '#6c7086',
+        'editorLineNumber.activeForeground': '#cdd6f4',
+        'editor.selectionBackground': '#45475a',
+        'editor.lineHighlightBackground': '#313244',
+      },
+    })
+
+    // prest-green
+    monaco.editor.defineTheme('prest-green', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: '4ade80', fontStyle: 'bold' },
+        { token: 'strong', foreground: '86efac', fontStyle: 'bold' },
+        { token: 'emphasis', foreground: 'fbbf24', fontStyle: 'italic' },
+        { token: 'string', foreground: '86efac' },
+        { token: 'constant', foreground: '67e8f9' },
+        { token: 'link', foreground: '86efac' },
+        { token: 'comment', foreground: '737373' },
+        { token: 'variable', foreground: 'fde047' },
+        { token: 'tag', foreground: '4ade80' },
+        { token: 'strikethrough', foreground: '737373' },
+      ],
+      colors: {
+        'editor.background': '#1a1a1a',
+        'editor.foreground': '#e4e4e4',
+        'editorLineNumber.foreground': '#737373',
+        'editorLineNumber.activeForeground': '#e4e4e4',
+        'editor.selectionBackground': '#14532d',
+        'editor.lineHighlightBackground': '#2d2d2d',
+      },
+    })
+
+    // Apply theme based on current app theme
+    const themeMap: Record<string, string> = {
+      dark: 'prest-dark',
+      light: 'prest-light',
+      blue: 'prest-blue',
+      purple: 'prest-purple',
+      green: 'prest-green',
+    }
+    monaco.editor.setTheme(themeMap[settings.theme] || 'prest-dark')
 
     // Set language
     const model = editor.getModel()
@@ -534,7 +639,7 @@ export function MonacoEditor() {
       height="100%"
       language="markdown-prest"
       value={content}
-      theme={settings.theme === 'dark' ? 'prest-dark' : 'prest-light'}
+      theme={themeMap[settings.theme] || 'prest-dark'}
       onChange={handleChange}
       onMount={handleEditorDidMount}
       options={{
