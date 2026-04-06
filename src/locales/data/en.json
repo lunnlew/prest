@@ -52,6 +52,8 @@
     "undo": "Undo",
     "redo": "Redo",
     "toggleSidebar": "Toggle Sidebar",
+    "collapseSidebar": "Collapse Sidebar",
+    "expandSidebar": "Expand Sidebar",
     "togglePreview": "Toggle Preview",
     "lineNumber": "Ln",
     "columnNumber": "Col",

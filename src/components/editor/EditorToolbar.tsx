@@ -120,7 +120,6 @@ const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
 
 export function EditorToolbar() {
   const {
-    toggleSidebar,
     togglePreview,
     previewVisible,
     formatMarkdown,
@@ -262,13 +261,6 @@ export function EditorToolbar() {
     <div className="h-auto min-h-10 px-2 flex flex-col border-b border-[var(--border-color)] bg-[var(--bg-secondary)] gap-1 py-1">
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1 shrink-0">
-          <ToolbarButton
-            onClick={toggleSidebar}
-            title={t.editor.toggleSidebar}
-          >
-            <span className="text-base">☰</span>
-          </ToolbarButton>
-          <div className="w-px h-4 bg-[var(--border-color)] mx-1" />
           <ToolbarButton
             onClick={undo}
             title={t.editor.undo}

@@ -34,6 +34,8 @@ export interface LocaleMessages {
     undo: string
     redo: string
     toggleSidebar: string
+    collapseSidebar: string
+    expandSidebar: string
     togglePreview: string
     lineNumber: string
     columnNumber: string

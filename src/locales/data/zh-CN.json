@@ -52,6 +52,8 @@
     "undo": "撤销",
     "redo": "重做",
     "toggleSidebar": "切换侧边栏",
+    "collapseSidebar": "收起侧边栏",
+    "expandSidebar": "展开侧边栏",
     "togglePreview": "切换预览",
     "lineNumber": "行",
     "columnNumber": "列",

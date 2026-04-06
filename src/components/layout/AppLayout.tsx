@@ -1,5 +1,6 @@
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { useBoundStore } from '../../stores'
+import { SidebarTabs } from './SidebarTabs'
 import { SidebarPanel } from './SidebarPanel'
 import { EditorPanel } from './EditorPanel'
 import { PreviewPanel } from './PreviewPanel'
@@ -13,14 +14,17 @@ export function AppLayout() {
   }
 
   return (
-    <div className="h-full w-full bg-[var(--bg-primary)]">
+    <div className="h-full w-full bg-[var(--bg-primary)] flex">
+      {/* 侧边栏标签按钮列 - 始终显示 */}
+      <SidebarTabs />
+
       <PanelGroup
         direction="horizontal"
         autoSaveId="main-layout"
         onLayout={handleLayoutChange}
         className="h-full"
       >
-        {/* Left Sidebar */}
+        {/* Left Sidebar Content - 可隐藏 */}
         {sidebarVisible && (
           <Panel
             id="sidebar"
