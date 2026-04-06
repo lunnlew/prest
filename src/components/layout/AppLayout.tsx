@@ -7,11 +7,46 @@ import { PreviewPanel } from './PreviewPanel'
 import { ResizeHandle } from './ResizeHandle'
 
 export function AppLayout() {
-  const { panelLayout, sidebarVisible, previewVisible, setPanelLayout } = useBoundStore()
+  const {
+    panelLayout,
+    sidebarVisible,
+    previewVisible,
+    editorOnLeft,
+    editorPanelSize,
+    previewPanelSize,
+    setPanelLayout,
+    setEditorPanelSize,
+    setPreviewPanelSize,
+  } = useBoundStore()
 
   const handleLayoutChange = (sizes: number[]) => {
     setPanelLayout(sizes)
   }
+
+  // Handle editor-preview split size changes
+  const handleEditorPreviewLayoutChange = (sizes: number[]) => {
+    if (sizes.length >= 2) {
+      if (editorOnLeft) {
+        setEditorPanelSize(sizes[0])
+        setPreviewPanelSize(sizes[1])
+      } else {
+        setPreviewPanelSize(sizes[0])
+        setEditorPanelSize(sizes[1])
+      }
+    }
+  }
+
+  // Determine panel order based on editorOnLeft
+  const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
+  const rightPanel = editorOnLeft ? <PreviewPanel /> : <EditorPanel />
+  const leftPanelId = editorOnLeft ? 'editor' : 'preview'
+  const rightPanelId = editorOnLeft ? 'preview' : 'editor'
+  const leftPanelMinSize = editorOnLeft ? 25 : 20
+  const rightPanelMinSize = editorOnLeft ? 20 : 25
+  const leftPanelMaxSize = editorOnLeft ? undefined : 60
+  const rightPanelMaxSize = editorOnLeft ? 60 : undefined
+  const leftPanelSize = editorOnLeft ? editorPanelSize : previewPanelSize
+  const rightPanelSize = editorOnLeft ? previewPanelSize : editorPanelSize
 
   return (
     <div className="h-full w-full bg-[var(--bg-primary)] flex">
@@ -46,16 +81,25 @@ export function AppLayout() {
 
         {/* Center Editor + Right Preview */}
         <Panel id="main" defaultSize={sidebarVisible ? panelLayout[1] : 100} minSize={30}>
-          <PanelGroup direction="horizontal" autoSaveId="editor-preview-layout" className="h-full">
-            {/* Editor Panel */}
-            <Panel
-              id="editor"
-              defaultSize={previewVisible ? 50 : 100}
-              minSize={25}
-              className="bg-[var(--bg-primary)]"
-            >
-              <EditorPanel />
-            </Panel>
+          <PanelGroup
+            key={`editor-preview-${editorOnLeft}`}
+            direction="horizontal"
+            autoSaveId={`editor-preview-layout-${editorOnLeft}`}
+            className="h-full"
+            onLayout={handleEditorPreviewLayoutChange}
+          >
+            {/* Left Panel (Editor or Preview) */}
+            {previewVisible && (
+              <Panel
+                id={leftPanelId}
+                defaultSize={leftPanelSize}
+                minSize={leftPanelMinSize}
+                maxSize={leftPanelMaxSize}
+                className={leftPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
+              >
+                {leftPanel}
+              </Panel>
+            )}
 
             {/* Resize Handle between Editor and Preview */}
             {previewVisible && (
@@ -64,16 +108,16 @@ export function AppLayout() {
               </PanelResizeHandle>
             )}
 
-            {/* Preview Panel */}
+            {/* Right Panel (Preview or Editor) */}
             {previewVisible && (
               <Panel
-                id="preview"
-                defaultSize={50}
-                minSize={20}
-                maxSize={60}
-                className="bg-[var(--bg-secondary)]"
+                id={rightPanelId}
+                defaultSize={rightPanelSize}
+                minSize={rightPanelMinSize}
+                maxSize={rightPanelMaxSize}
+                className={rightPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
               >
-                <PreviewPanel />
+                {rightPanel}
               </Panel>
             )}
           </PanelGroup>

@@ -55,6 +55,8 @@
     "collapseSidebar": "Collapse Sidebar",
     "expandSidebar": "Expand Sidebar",
     "togglePreview": "Toggle Preview",
+    "swapToRight": "Move Preview to Right",
+    "swapToLeft": "Move Preview to Left",
     "lineNumber": "Ln",
     "columnNumber": "Col",
     "words": "words",

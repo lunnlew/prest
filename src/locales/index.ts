@@ -37,6 +37,8 @@ export interface LocaleMessages {
     collapseSidebar: string
     expandSidebar: string
     togglePreview: string
+    swapToRight: string
+    swapToLeft: string
     lineNumber: string
     columnNumber: string
     words: string

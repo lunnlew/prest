@@ -122,6 +122,8 @@ export function EditorToolbar() {
   const {
     togglePreview,
     previewVisible,
+    toggleEditorPosition,
+    editorOnLeft,
     formatMarkdown,
     undo,
     redo,
@@ -260,7 +262,16 @@ export function EditorToolbar() {
   return (
     <div className="h-auto min-h-10 px-2 flex flex-col border-b border-[var(--border-color)] bg-[var(--bg-secondary)] gap-1 py-1">
       <div className="flex items-center justify-between shrink-0">
+        {/* Left side: Undo/Redo or Swap+Undo/Redo */}
         <div className="flex items-center gap-1 shrink-0">
+          {!editorOnLeft && (
+            <ToolbarButton
+              onClick={toggleEditorPosition}
+              title={t.editor.swapToRight}
+            >
+              <span className="text-[var(--text-secondary)]">⇄</span>
+            </ToolbarButton>
+          )}
           <ToolbarButton
             onClick={undo}
             title={t.editor.undo}
@@ -274,6 +285,8 @@ export function EditorToolbar() {
             <span className="text-base">↷</span>
           </ToolbarButton>
         </div>
+
+        {/* Right side: XHS, Config, Preview, Swap (if editor on left) */}
         <div className="flex items-center gap-1 shrink-0">
           <ToolbarButton
             onClick={() => setShowXHSDialog(true)}
@@ -293,6 +306,14 @@ export function EditorToolbar() {
           >
             <span className={previewVisible ? 'text-[var(--accent-color)]' : ''}>👁</span>
           </ToolbarButton>
+          {editorOnLeft && (
+            <ToolbarButton
+              onClick={toggleEditorPosition}
+              title={t.editor.swapToLeft}
+            >
+              <span className="text-[var(--text-secondary)]">⇄</span>
+            </ToolbarButton>
+          )}
         </div>
       </div>
 
