@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback } from 'react'
 import Editor, { OnMount } from '@monaco-editor/react'
 import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
+import { htmlToMarkdown } from '../../utils/clipboard'
 import type * as Monaco from 'monaco-editor'
 
 // Map app theme to Monaco editor theme
@@ -770,15 +771,19 @@ export function MonacoEditor() {
     }
   }, [insertText])
 
-  // Handle paste event for images
+  // Handle paste event for images and HTML
   useEffect(() => {
     const handlePaste = (e: Event) => {
       const clipboardEvent = e as ClipboardEvent
       const items = clipboardEvent.clipboardData?.items
       if (!items) return
 
+      let imageHandled = false
+      let htmlHandled = false
+
       for (const item of items) {
-        if (item.type.startsWith('image/')) {
+        // Handle image paste
+        if (!imageHandled && item.type.startsWith('image/')) {
           e.preventDefault()
           const file = item.getAsFile()
           if (file) {
@@ -790,6 +795,26 @@ export function MonacoEditor() {
               insertText(markdown)
             }
             reader.readAsDataURL(file)
+            imageHandled = true
+            break
+          }
+        }
+
+        // Handle HTML paste (rich text)
+        if (!htmlHandled && (item.type === 'text/html' || item.type === 'text/plain')) {
+          // Only handle HTML if it's not just plain text
+          if (item.type === 'text/html') {
+            e.preventDefault()
+            const reader = new FileReader()
+            reader.onload = (event) => {
+              const html = event.target?.result as string
+              const markdown = htmlToMarkdown(html)
+              if (markdown) {
+                insertText(markdown)
+              }
+            }
+            reader.readAsText(item.getAsFile()!)
+            htmlHandled = true
             break
           }
         }

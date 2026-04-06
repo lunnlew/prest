@@ -1,5 +1,65 @@
 import { useBoundStore } from '../stores'
 
+// Convert HTML to Markdown (basic conversion)
+export function htmlToMarkdown(html: string): string {
+  if (!html) return ''
+
+  let markdown = html
+    // Headers - process from highest to lowest level
+    .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n')
+    .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n')
+    .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n')
+    .replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1\n')
+    .replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1\n')
+    .replace(/<h6[^>]*>(.*?)<\/h6>/gi, '###### $1\n')
+    // Bold
+    .replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**')
+    .replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**')
+    // Italic
+    .replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*')
+    .replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*')
+    // Strikethrough
+    .replace(/<del[^>]*>(.*?)<\/del>/gi, '~~$1~~')
+    .replace(/<s[^>]*>(.*?)<\/s>/gi, '~~$1~~')
+    .replace(/<strike[^>]*>(.*?)<\/strike>/gi, '~~$1~~')
+    // Code blocks
+    .replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, '```\n$1\n```\n')
+    .replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`')
+    // Links
+    .replace(/<a[^>]*href=["']([^"']*)["'][^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+    // Images
+    .replace(/<img[^>]*src=["']([^"']*)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/gi, '![$2]($1)')
+    .replace(/<img[^>]*alt=["']([^"']*)["'][^>]*src=["']([^"']*)["'][^>]*\/?>/gi, '![$1]($2)')
+    .replace(/<img[^>]*src=["']([^"']*)["'][^>]*\/?>/gi, '![]($1)')
+    // Blockquotes
+    .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (_match, content) => {
+      const lines = content.trim().split('\n').map((line: string) => '> ' + line)
+      return lines.join('\n') + '\n'
+    })
+    // Lists
+    .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n')
+    // Horizontal rule
+    .replace(/<hr[^>]*\/?>/gi, '\n---\n')
+    // Paragraphs and line breaks
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<br[^>]*\/?>/gi, '\n')
+    // Remove remaining tags
+    .replace(/<[^>]+>/g, '')
+    // Decode HTML entities
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    // Clean up whitespace
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n[ \t]+/g, '\n')
+
+  return markdown.trim()
+}
+
 // Convert markdown to WeChat public account format
 export function copyWechat() {
   const { content } = useBoundStore.getState()
