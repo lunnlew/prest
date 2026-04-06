@@ -11,6 +11,9 @@ export interface LayoutSlice {
   activeSidebarTab: 'files' | 'search' | 'outline' | 'settings'
   focusMode: boolean  // Hide all UI, only show editor
   typewriterMode: boolean  // Keep cursor vertically centered
+  // Saved visibility state before entering focus mode (to restore on exit)
+  savedSidebarVisible: boolean
+  savedPreviewVisible: boolean
 
   // Actions
   toggleSidebar: () => void
@@ -36,17 +39,29 @@ export const createLayoutSlice: StateCreator<LayoutSlice, [], [], LayoutSlice> =
   activeSidebarTab: 'files',
   focusMode: false,
   typewriterMode: false,
+  savedSidebarVisible: true,
+  savedPreviewVisible: true,
 
   toggleSidebar: () => set((state) => ({ sidebarVisible: !state.sidebarVisible })),
   togglePreview: () => set((state) => ({ previewVisible: !state.previewVisible })),
   toggleEditorPosition: () => set((state) => ({ editorOnLeft: !state.editorOnLeft })),
   toggleFocusMode: () => set((state) => {
-    // When enabling focus mode, also hide sidebar and preview
+    // When enabling focus mode, save current visibility and hide sidebar/preview
     if (!state.focusMode) {
-      return { focusMode: true, sidebarVisible: false, previewVisible: false }
+      return {
+        focusMode: true,
+        sidebarVisible: false,
+        previewVisible: false,
+        savedSidebarVisible: state.sidebarVisible,
+        savedPreviewVisible: state.previewVisible
+      }
     }
-    // When disabling focus mode, restore sidebar and preview
-    return { focusMode: false, sidebarVisible: true, previewVisible: true }
+    // When disabling focus mode, restore previous sidebar/preview visibility
+    return {
+      focusMode: false,
+      sidebarVisible: state.savedSidebarVisible,
+      previewVisible: state.savedPreviewVisible
+    }
   }),
   toggleTypewriterMode: () => set((state) => ({ typewriterMode: !state.typewriterMode })),
   setSidebarVisible: (visible) => set({ sidebarVisible: visible }),

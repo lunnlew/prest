@@ -56,13 +56,34 @@ export function AppLayout() {
   // Collapse/expand preview panels based on visibility
   useEffect(() => {
     if (!previewVisible || showEditorOnly) {
+      // Save current sizes before collapsing
+      const leftSize = leftPanelRef.current?.getSize()
+      const rightSize = rightPanelRef.current?.getSize()
+      if (leftSize && rightSize) {
+        if (editorOnLeft) {
+          setEditorPanelSize(leftSize)
+          setPreviewPanelSize(rightSize)
+        } else {
+          setPreviewPanelSize(leftSize)
+          setEditorPanelSize(rightSize)
+        }
+      }
       leftPanelRef.current?.collapse()
       rightPanelRef.current?.collapse()
     } else {
+      // When expanding, use resize to restore the saved size instead of defaultSize
+      // This ensures we restore the size that was active before collapse
+      if (editorOnLeft) {
+        leftPanelRef.current?.resize(editorPanelSize)
+        rightPanelRef.current?.resize(previewPanelSize)
+      } else {
+        leftPanelRef.current?.resize(previewPanelSize)
+        rightPanelRef.current?.resize(editorPanelSize)
+      }
       leftPanelRef.current?.expand()
       rightPanelRef.current?.expand()
     }
-  }, [previewVisible, showEditorOnly])
+  }, [previewVisible, showEditorOnly, editorOnLeft, editorPanelSize, previewPanelSize])
 
   // Determine panel order based on editorOnLeft
   const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
@@ -77,16 +98,18 @@ export function AppLayout() {
   const rightPanelSize = editorOnLeft ? previewPanelSize : editorPanelSize
 
   const handleLayoutChange = (sizes: number[]) => {
-    // Only save layout when sidebar is visible (2 sizes: sidebar + main)
-    // When sidebar is hidden, sizes would be [100] which would corrupt panelLayout
-    if (sizes.length >= 2) {
+    // Only save layout when sidebar is visible and has reasonable size
+    // When sidebar is collapsed, sizes would be [0, 100] which corrupts panelLayout
+    if (sidebarVisible && sizes.length >= 2 && sizes[0] > 5) {
       setPanelLayout(sizes)
     }
   }
 
   // Handle editor-preview split size changes
   const handleEditorPreviewLayoutChange = (sizes: number[]) => {
-    if (sizes.length >= 2) {
+    // Only save sizes when preview is visible and panels have reasonable sizes
+    // Skip if sizes are too small (panel being collapsed/hidden)
+    if (previewVisible && sizes.length >= 2 && sizes[0] > 5 && sizes[1] > 5) {
       if (editorOnLeft) {
         setEditorPanelSize(sizes[0])
         setPreviewPanelSize(sizes[1])
@@ -114,7 +137,6 @@ export function AppLayout() {
 
       <PanelGroup
         direction="horizontal"
-        autoSaveId="main-layout"
         onLayout={handleLayoutChange}
         className="h-full"
       >
@@ -145,7 +167,6 @@ export function AppLayout() {
           <PanelGroup
             key={`editor-preview-${editorOnLeft}`}
             direction="horizontal"
-            autoSaveId={`editor-preview-layout-${editorOnLeft}`}
             className="h-full"
             onLayout={handleEditorPreviewLayoutChange}
           >
