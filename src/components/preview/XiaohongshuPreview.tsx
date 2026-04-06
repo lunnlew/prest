@@ -5,7 +5,6 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
-import { remarkHighlightMark } from 'remark-highlight-mark'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import type { XHSTemplate, XHSWatermarkPosition, XHSWatermarkSize } from '../../types'
@@ -455,7 +454,7 @@ export function XiaohongshuPreview({
     if (htmlContent) return <div className="xhs-html-content" dangerouslySetInnerHTML={{ __html: htmlContent }} />
     return (
       <Markdown
-        remarkPlugins={[remarkGfm, remarkMath, remarkHighlightMark]}
+        remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[
           rehypeRaw, rehypeKatex,
           [rehypeSanitize, {

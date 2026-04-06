@@ -5,10 +5,8 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
-import { remarkHighlightMark } from 'remark-highlight-mark'
 import remarkDirective from 'remark-directive'
 import remarkDeflist from 'remark-deflist'
-import remarkAbbr from 'remark-abbr'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
@@ -60,10 +58,8 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
         remarkPlugins={[
           remarkGfm,
           remarkMath,
-          remarkHighlightMark,
           remarkDirective,
           remarkDeflist,
-          remarkAbbr,
         ]}
         rehypePlugins={[
           rehypeRaw,
@@ -72,12 +68,11 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
             ...defaultSchema,
             tagNames: [
               ...(defaultSchema.tagNames || []),
-              'div', 'mark', 'sub', 'sup', 'dl', 'dt', 'dd', 'abbr',
+              'div', 'mark', 'sub', 'sup', 'dl', 'dt', 'dd',
             ],
             attributes: {
               ...defaultSchema.attributes,
               div: [['align']],
-              abbr: [['title']],
             },
           }],
         ]}
@@ -216,11 +211,6 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
           dl: ({ children }) => <dl className="preview-dl">{children}</dl>,
           dt: ({ children }) => <dt className="preview-dt">{children}</dt>,
           dd: ({ children }) => <dd className="preview-dd">{children}</dd>,
-
-          // Abbreviation
-          abbr: ({ title, children }) => (
-            <abbr title={title} className="preview-abbr">{children}</abbr>
-          ),
 
           // Subscript and Superscript
           sub: ({ children }) => <sub className="preview-sub">{children}</sub>,
