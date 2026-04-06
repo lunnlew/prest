@@ -79,6 +79,7 @@
 | v0.8.0 | 2026-04-06 | 编辑器-预览区滚动同步（双向）/编辑器滚动-大纲同步选中 |
 | v0.8.1 | 2026-04-06 | 侧边栏标签页选中状态持久化/语言切换即时更新生效 |
 | v0.8.2 | 2026-04-06 | 水印配置独立栏目：位置(7种)/显示范围/透明度/大小，去掉话题标签 |
+| v0.8.3 | 2026-04-06 | Markdown渲染增强：Callout(8种)/脚注/定义列表/缩写/上下标 |
 
 ---
 
@@ -119,7 +120,7 @@
 | 3.2 | EX-002 Mermaid 图表 | ⏳ | 3h | `MarkdownPreview.tsx` |
 | 3.3 | E-016/E-017 代码块行号 & 复制 | ⏳ | 2h | `MarkdownPreview.tsx` |
 | 3.4 | M-003 图片点击放大/灯箱 | ⏳ | 2h | `MarkdownPreview.tsx` |
-| 3.5 | EX-004 Admonition/Callout 块 | ⏳ | 2h | 自定义 remark 插件 |
+| 3.5 | EX-004 Admonition/Callout 块 | ✅ | 2h | `MarkdownPreview.tsx` — remark-directive, 8种样式 |
 | 3.6 | E-019 Front Matter / YAML 元数据 | ⏳ | 2h | 新建 `utils/frontmatter.ts` |
 | 3.7 | EX-006 自动目录生成 | ⏳ | 2h | `MarkdownPreview.tsx` |
 | 3.8 | PERF-002/003/004 性能优化 | ⏳ | 4h | 多处 |

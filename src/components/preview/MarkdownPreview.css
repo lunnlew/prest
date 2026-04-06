@@ -186,3 +186,190 @@
 :not(.dark) .code-block {
   background: #f6f8fa;
 }
+
+/* ===== Enhanced Markdown Elements ===== */
+
+/* Callouts / Admonitions */
+.preview-callout {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+
+.preview-callout .callout-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.preview-callout .callout-icon {
+  font-size: 1.2em;
+}
+
+.preview-callout .callout-content {
+  padding-left: 28px;
+}
+
+.preview-callout .callout-content p {
+  margin: 8px 0;
+}
+
+.preview-callout.callout-note {
+  background: #e7f3ff;
+  border-color: #2196f3;
+}
+
+.preview-callout.callout-info {
+  background: #e7f3ff;
+  border-color: #2196f3;
+}
+
+.preview-callout.callout-tip {
+  background: #e8f5e9;
+  border-color: #4caf50;
+}
+
+.preview-callout.callout-success {
+  background: #e8f5e9;
+  border-color: #4caf50;
+}
+
+.preview-callout.callout-warning {
+  background: #fff3e0;
+  border-color: #ff9800;
+}
+
+.preview-callout.callout-question {
+  background: #fff8e1;
+  border-color: #ffc107;
+}
+
+.preview-callout.callout-danger {
+  background: #ffebee;
+  border-color: #f44336;
+}
+
+.preview-callout.callout-default {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
+/* Dark theme callouts */
+.dark .preview-callout.callout-note,
+.dark .preview-callout.callout-info {
+  background: #1a3a5c;
+}
+
+.dark .preview-callout.callout-tip,
+.dark .preview-callout.callout-success {
+  background: #1a3a2a;
+}
+
+.dark .preview-callout.callout-warning {
+  background: #3a3020;
+}
+
+.dark .preview-callout.callout-danger {
+  background: #3a1a1a;
+}
+
+.dark .preview-callout.callout-question {
+  background: #3a3520;
+}
+
+/* Definition Lists */
+.preview-dl {
+  margin: 16px 0;
+}
+
+.preview-dt {
+  font-weight: 600;
+  margin-top: 12px;
+  color: var(--text-primary);
+}
+
+.preview-dt:first-child {
+  margin-top: 0;
+}
+
+.preview-dd {
+  margin-left: 24px;
+  padding: 4px 0;
+  color: var(--text-secondary);
+}
+
+/* Abbreviation */
+.preview-abbr {
+  border-bottom: 1px dotted var(--text-secondary);
+  cursor: help;
+  text-decoration: none;
+}
+
+/* Subscript and Superscript */
+.preview-sub {
+  vertical-align: sub;
+  font-size: 0.75em;
+}
+
+.preview-sup {
+  vertical-align: super;
+  font-size: 0.75em;
+}
+
+/* Mark/Highlight */
+.preview-mark {
+  background: #fef08a;
+  color: inherit;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.dark .preview-mark {
+  background: #854d0e;
+}
+
+/* Task list items */
+.preview-task-item {
+  list-style: none;
+  margin-left: -24px;
+  padding-left: 24px;
+  position: relative;
+}
+
+.preview-task-item input[type='checkbox'] {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  margin-right: 8px;
+  accent-color: var(--accent-color);
+}
+
+/* Footnotes (GFM) */
+.preview-footnote-ref {
+  font-size: 0.75em;
+  vertical-align: super;
+  color: var(--accent-color);
+  text-decoration: none;
+  padding: 0 2px;
+}
+
+.preview-footnote-ref:hover {
+  text-decoration: underline;
+}
+
+.preview-footnotes {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.875em;
+  color: var(--text-secondary);
+}
+
+/* Emoji */
+.preview-emoji {
+  display: inline;
+  vertical-align: middle;
+}

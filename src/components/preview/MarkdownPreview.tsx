@@ -6,6 +6,9 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import { remarkHighlightMark } from 'remark-highlight-mark'
+import remarkDirective from 'remark-directive'
+import remarkDeflist from 'remark-deflist'
+import remarkAbbr from 'remark-abbr'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
@@ -13,6 +16,18 @@ import './MarkdownPreview.css'
 
 interface MarkdownPreviewProps {
   content: string
+}
+
+// Callout types and their icons/colors
+const CALLOUT_TYPES: Record<string, { icon: string; className: string }> = {
+  note: { icon: '📝', className: 'callout-note' },
+  tip: { icon: '💡', className: 'callout-tip' },
+  warning: { icon: '⚠️', className: 'callout-warning' },
+  danger: { icon: '🚨', className: 'callout-danger' },
+  info: { icon: 'ℹ️', className: 'callout-info' },
+  success: { icon: '✅', className: 'callout-success' },
+  question: { icon: '❓', className: 'callout-question' },
+  default: { icon: '📌', className: 'callout-default' },
 }
 
 export function MarkdownPreview({ content }: MarkdownPreviewProps) {
@@ -46,6 +61,9 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
           remarkGfm,
           remarkMath,
           remarkHighlightMark,
+          remarkDirective,
+          remarkDeflist,
+          remarkAbbr,
         ]}
         rehypePlugins={[
           rehypeRaw,
@@ -54,11 +72,12 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
             ...defaultSchema,
             tagNames: [
               ...(defaultSchema.tagNames || []),
-              'div', 'mark', 'sub', 'sup',
+              'div', 'mark', 'sub', 'sup', 'dl', 'dt', 'dd', 'abbr',
             ],
             attributes: {
               ...defaultSchema.attributes,
               div: [['align']],
+              abbr: [['title']],
             },
           }],
         ]}
@@ -125,10 +144,56 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
             <img src={src} alt={alt} className="preview-image" loading="lazy" />
           ),
 
-          // Custom blockquote
-          blockquote: ({ children }) => (
-            <blockquote className="preview-blockquote">{children}</blockquote>
-          ),
+          // Custom blockquote - handles callouts
+          blockquote: ({ children }) => {
+            // Check if this is a callout
+            const childArray = Array.isArray(children) ? children : [children]
+            const firstChild = childArray[0]
+            const firstElement = (firstChild as React.ReactElement)?.props
+
+            if (firstElement?.className?.startsWith('callout-')) {
+              const calloutType = firstElement.className.replace('callout-', '').split(' ')[0]
+              const callout = CALLOUT_TYPES[calloutType] || CALLOUT_TYPES.default
+              return (
+                <div className={`preview-callout ${callout.className}`}>
+                  <div className="callout-header">
+                    <span className="callout-icon">{callout.icon}</span>
+                    <span className="callout-title">
+                      {calloutType.charAt(0).toUpperCase() + calloutType.slice(1)}
+                    </span>
+                  </div>
+                  <div className="callout-content">
+                    {firstElement.props.children}
+                    {childArray.slice(1)}
+                  </div>
+                </div>
+              )
+            }
+            return <blockquote className="preview-blockquote">{children}</blockquote>
+          },
+
+          // Handle remark-directive containers (:::type)
+          div: ({ className, children, ...props }) => {
+            // Check if this is a callout from remark-directive
+            if (className?.startsWith('callout-')) {
+              const calloutType = className.replace('callout-', '').split(' ')[0]
+              const callout = CALLOUT_TYPES[calloutType] || CALLOUT_TYPES.default
+              return (
+                <div className={`preview-callout ${callout.className}`} {...props}>
+                  <div className="callout-header">
+                    <span className="callout-icon">{callout.icon}</span>
+                    <span className="callout-title">
+                      {calloutType.charAt(0).toUpperCase() + calloutType.slice(1)}
+                    </span>
+                  </div>
+                  <div className="callout-content">
+                    {children}
+                  </div>
+                </div>
+              )
+            }
+            return <div className={className} {...props}>{children}</div>
+          },
 
           // Custom table
           table: ({ children }) => (
@@ -146,6 +211,37 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
 
           // Horizontal rule
           hr: () => <hr className="preview-hr" />,
+
+          // Definition list
+          dl: ({ children }) => <dl className="preview-dl">{children}</dl>,
+          dt: ({ children }) => <dt className="preview-dt">{children}</dt>,
+          dd: ({ children }) => <dd className="preview-dd">{children}</dd>,
+
+          // Abbreviation
+          abbr: ({ title, children }) => (
+            <abbr title={title} className="preview-abbr">{children}</abbr>
+          ),
+
+          // Subscript and Superscript
+          sub: ({ children }) => <sub className="preview-sub">{children}</sub>,
+          sup: ({ children }) => <sup className="preview-sup">{children}</sup>,
+
+          // Mark/Highlight
+          mark: ({ children }) => <mark className="preview-mark">{children}</mark>,
+
+          // Task list item
+          li: ({ children, ...props }) => {
+            // Check if this is a task list item
+            const childArray = Array.isArray(children) ? children : [children]
+            const firstChild = childArray[0]
+            if (firstChild && typeof firstChild === 'object' && 'type' in firstChild) {
+              const element = firstChild as React.ReactElement
+              if (element?.props?.className?.includes('task-list-item')) {
+                return <li className="preview-task-item" {...props}>{children}</li>
+              }
+            }
+            return <li className="preview-li">{children}</li>
+          },
         }}
       >
         {content}
