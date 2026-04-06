@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import Editor, { OnMount } from '@monaco-editor/react'
 import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
@@ -21,10 +21,12 @@ export function MonacoEditor() {
     setEditorInstance,
     settings,
     cursorPosition,
+    insertText,
   } = useBoundStore()
   const { t } = useTranslation()
   const isInternalChange = useRef(false)
   const monacoRef = useRef<typeof Monaco | null>(null)
+  const editorWrapperRef = useRef<HTMLDivElement>(null)
 
   // Sync external cursor position changes (e.g. outline click) to Monaco editor
   useEffect(() => {
@@ -738,6 +740,66 @@ export function MonacoEditor() {
     })
   }
 
+  // Handle image drag & drop
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (e.dataTransfer?.types.includes('Files')) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }, [])
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const files = e.dataTransfer?.files
+    if (!files || files.length === 0) return
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const base64 = event.target?.result as string
+          const markdown = `![${file.name}](${base64})\n`
+          insertText(markdown)
+        }
+        reader.readAsDataURL(file)
+        break // Only handle first image
+      }
+    }
+  }, [insertText])
+
+  // Handle paste event for images
+  useEffect(() => {
+    const handlePaste = (e: Event) => {
+      const clipboardEvent = e as ClipboardEvent
+      const items = clipboardEvent.clipboardData?.items
+      if (!items) return
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault()
+          const file = item.getAsFile()
+          if (file) {
+            const reader = new FileReader()
+            reader.onload = (event) => {
+              const base64 = event.target?.result as string
+              const timestamp = new Date().toISOString().slice(0, 10)
+              const markdown = `![pasted-image-${timestamp}](${base64})\n`
+              insertText(markdown)
+            }
+            reader.readAsDataURL(file)
+            break
+          }
+        }
+      }
+    }
+
+    document.addEventListener('paste', handlePaste)
+    return () => document.removeEventListener('paste', handlePaste)
+  }, [insertText])
+
   const handleChange = (value: string | undefined) => {
     if (value !== undefined) {
       setContent(value)
@@ -745,38 +807,45 @@ export function MonacoEditor() {
   }
 
   return (
-    <Editor
-      height="100%"
-      language="markdown-prest"
-      value={content}
-      theme={themeMap[settings.theme] || 'prest-dark'}
-      onChange={handleChange}
-      onMount={handleEditorDidMount}
-      options={{
-        fontSize: settings.editor.fontSize,
-        fontFamily: settings.editor.fontFamily,
-        lineHeight: settings.editor.lineHeight,
-        wordWrap: settings.editor.wordWrap ? 'on' : 'off',
-        minimap: { enabled: settings.editor.minimap },
-        scrollBeyondLastLine: false,
-        lineNumbers: 'on',
-        renderLineHighlight: 'all',
-        folding: true,
-        tabSize: 2,
-        automaticLayout: true,
-        padding: { top: 16, bottom: 16 },
-        scrollbar: {
-          vertical: 'auto',
-          horizontal: 'auto',
-          verticalScrollbarSize: 12,
-          horizontalScrollbarSize: 12,
-        },
-      }}
-      loading={
-        <div className="flex items-center justify-center h-full text-[var(--text-muted)]">
-          {t.editor.loadingEditor}
-        </div>
-      }
-    />
+    <div
+      ref={editorWrapperRef}
+      className="h-full w-full"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <Editor
+        height="100%"
+        language="markdown-prest"
+        value={content}
+        theme={themeMap[settings.theme] || 'prest-dark'}
+        onChange={handleChange}
+        onMount={handleEditorDidMount}
+        options={{
+          fontSize: settings.editor.fontSize,
+          fontFamily: settings.editor.fontFamily,
+          lineHeight: settings.editor.lineHeight,
+          wordWrap: settings.editor.wordWrap ? 'on' : 'off',
+          minimap: { enabled: settings.editor.minimap },
+          scrollBeyondLastLine: false,
+          lineNumbers: 'on',
+          renderLineHighlight: 'all',
+          folding: true,
+          tabSize: 2,
+          automaticLayout: true,
+          padding: { top: 16, bottom: 16 },
+          scrollbar: {
+            vertical: 'auto',
+            horizontal: 'auto',
+            verticalScrollbarSize: 12,
+            horizontalScrollbarSize: 12,
+          },
+        }}
+        loading={
+          <div className="flex items-center justify-center h-full text-[var(--text-muted)]">
+            {t.editor.loadingEditor}
+          </div>
+        }
+      />
+    </div>
   )
 }
