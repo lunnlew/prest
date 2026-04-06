@@ -10,6 +10,7 @@ import { EmojiPicker } from './EmojiPicker'
 import { ColorPicker } from './ColorPicker'
 import { defaultToolbarGroups, defaultToolbarItems } from '../../stores/settingsSlice'
 import { buttonConfigs } from './buttons'
+import { importFile } from '../../utils/importFile'
 
 interface ToolbarButtonProps {
   onClick: () => void
@@ -136,6 +137,9 @@ const buttonActionHandlers: Record<string, (store: AppStore) => void> = {
   },
   emoji: () => {
     window.dispatchEvent(new CustomEvent('open-emoji-picker'))
+  },
+  importFile: () => {
+    importFile()
   },
 }
 
