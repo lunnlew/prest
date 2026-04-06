@@ -113,7 +113,7 @@ export function AppLayout() {
         )}
 
         {/* Center Editor + Right Preview */}
-        <Panel id="main" defaultSize={effectiveSidebarVisible && !showEditorOnly ? panelLayout[1] : 100} minSize={showEditorOnly ? 100 : 30}>
+        <Panel id="main" defaultSize={effectiveSidebarVisible && !showEditorOnly ? Math.max(panelLayout[1], 30) : 100} minSize={showEditorOnly ? 100 : 30}>
           {showEditorOnly ? (
             // Focus mode: show only editor
             <EditorPanel />
