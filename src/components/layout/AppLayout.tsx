@@ -95,7 +95,7 @@ export function AppLayout() {
         {effectiveSidebarVisible && !showEditorOnly && (
           <Panel
             id="sidebar"
-            defaultSize={panelLayout[0]}
+            defaultSize={Math.min(panelLayout[0], 35)}
             minSize={15}
             maxSize={35}
             className="bg-[var(--bg-secondary)]"
