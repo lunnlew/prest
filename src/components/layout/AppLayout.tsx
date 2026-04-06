@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
+import type { ImperativePanelHandle } from 'react-resizable-panels'
 import { useBoundStore } from '../../stores'
 import { SidebarTabs } from './SidebarTabs'
 import { SidebarPanel } from './SidebarPanel'
@@ -21,6 +22,11 @@ export function AppLayout() {
     setPreviewPanelSize,
   } = useBoundStore()
 
+  // Refs for imperative panel control
+  const sidebarRef = useRef<ImperativePanelHandle>(null)
+  const leftPanelRef = useRef<ImperativePanelHandle>(null)
+  const rightPanelRef = useRef<ImperativePanelHandle>(null)
+
   // Handle Escape key to exit focus mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,10 +44,42 @@ export function AppLayout() {
   // Focus mode: only show editor, hide everything else
   const showEditorOnly = focusMode
 
+  // Collapse/expand sidebar based on visibility
+  useEffect(() => {
+    if (!sidebarVisible || showEditorOnly) {
+      sidebarRef.current?.collapse()
+    } else {
+      sidebarRef.current?.expand()
+    }
+  }, [sidebarVisible, showEditorOnly])
+
+  // Collapse/expand preview panels based on visibility
+  useEffect(() => {
+    if (!previewVisible || showEditorOnly) {
+      leftPanelRef.current?.collapse()
+      rightPanelRef.current?.collapse()
+    } else {
+      leftPanelRef.current?.expand()
+      rightPanelRef.current?.expand()
+    }
+  }, [previewVisible, showEditorOnly])
+
+  // Determine panel order based on editorOnLeft
+  const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
+  const rightPanel = editorOnLeft ? <PreviewPanel /> : <EditorPanel />
+  const leftPanelId = editorOnLeft ? 'editor' : 'preview'
+  const rightPanelId = editorOnLeft ? 'preview' : 'editor'
+  const leftPanelMinSize = editorOnLeft ? 25 : 20
+  const rightPanelMinSize = editorOnLeft ? 20 : 25
+  const leftPanelMaxSize = editorOnLeft ? undefined : 60
+  const rightPanelMaxSize = editorOnLeft ? 60 : undefined
+  const leftPanelSize = editorOnLeft ? editorPanelSize : previewPanelSize
+  const rightPanelSize = editorOnLeft ? previewPanelSize : editorPanelSize
+
   const handleLayoutChange = (sizes: number[]) => {
     // Only save layout when sidebar is visible (2 sizes: sidebar + main)
     // When sidebar is hidden, sizes would be [100] which would corrupt panelLayout
-    if (sidebarVisible && sizes.length >= 2) {
+    if (sizes.length >= 2) {
       setPanelLayout(sizes)
     }
   }
@@ -58,18 +96,6 @@ export function AppLayout() {
       }
     }
   }
-
-  // Determine panel order based on editorOnLeft
-  const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
-  const rightPanel = editorOnLeft ? <PreviewPanel /> : <EditorPanel />
-  const leftPanelId = editorOnLeft ? 'editor' : 'preview'
-  const rightPanelId = editorOnLeft ? 'preview' : 'editor'
-  const leftPanelMinSize = editorOnLeft ? 25 : 20
-  const rightPanelMinSize = editorOnLeft ? 20 : 25
-  const leftPanelMaxSize = editorOnLeft ? undefined : 60
-  const rightPanelMaxSize = editorOnLeft ? 60 : undefined
-  const leftPanelSize = editorOnLeft ? editorPanelSize : previewPanelSize
-  const rightPanelSize = editorOnLeft ? previewPanelSize : editorPanelSize
 
   return (
     <div className="h-full w-full bg-[var(--bg-primary)] flex">
@@ -92,33 +118,31 @@ export function AppLayout() {
         onLayout={handleLayoutChange}
         className="h-full"
       >
-        {/* Left Sidebar Content - 可隐藏 */}
-        {sidebarVisible && !showEditorOnly && (
-          <Panel
-            id="sidebar"
-            defaultSize={panelLayout[0]}
-            minSize={15}
-            maxSize={35}
-            className="bg-[var(--bg-secondary)]"
-          >
-            <SidebarPanel />
-          </Panel>
-        )}
+        {/* Left Sidebar - collapsible */}
+        <Panel
+          id="sidebar"
+          ref={sidebarRef}
+          defaultSize={panelLayout[0]}
+          minSize={15}
+          maxSize={35}
+          collapsible
+          className="bg-[var(--bg-secondary)]"
+        >
+          <SidebarPanel />
+        </Panel>
 
         {/* Resize Handle between Sidebar and Editor */}
-        {sidebarVisible && !showEditorOnly && (
-          <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 transition-all group">
-            <ResizeHandle direction="vertical" />
-          </PanelResizeHandle>
-        )}
+        <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 transition-all group">
+          <ResizeHandle direction="vertical" />
+        </PanelResizeHandle>
 
         {/* Center Editor + Right Preview */}
-        <Panel id="main" defaultSize={sidebarVisible && !showEditorOnly ? panelLayout[1] : 100} minSize={showEditorOnly ? 100 : 30}>
-          {showEditorOnly ? (
-            // Focus mode: show only editor
-            <EditorPanel />
-          ) : (
-            <PanelGroup
+        <Panel
+          id="main"
+          defaultSize={panelLayout[1]}
+          minSize={showEditorOnly ? 100 : 30}
+        >
+          <PanelGroup
             key={`editor-preview-${editorOnLeft}`}
             direction="horizontal"
             autoSaveId={`editor-preview-layout-${editorOnLeft}`}
@@ -126,39 +150,36 @@ export function AppLayout() {
             onLayout={handleEditorPreviewLayoutChange}
           >
             {/* Left Panel (Editor or Preview) */}
-            {previewVisible && (
-              <Panel
-                id={leftPanelId}
-                defaultSize={leftPanelSize}
-                minSize={leftPanelMinSize}
-                maxSize={leftPanelMaxSize}
-                className={leftPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
-              >
-                {leftPanel}
-              </Panel>
-            )}
+            <Panel
+              id={leftPanelId}
+              ref={leftPanelRef}
+              defaultSize={leftPanelSize}
+              minSize={leftPanelMinSize}
+              maxSize={leftPanelMaxSize}
+              collapsible
+              className={leftPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
+            >
+              {leftPanel}
+            </Panel>
 
             {/* Resize Handle between Editor and Preview */}
-            {previewVisible && (
-              <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 transition-all group">
-                <ResizeHandle direction="vertical" />
-              </PanelResizeHandle>
-            )}
+            <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 transition-all group">
+              <ResizeHandle direction="vertical" />
+            </PanelResizeHandle>
 
             {/* Right Panel (Preview or Editor) */}
-            {previewVisible && (
-              <Panel
-                id={rightPanelId}
-                defaultSize={rightPanelSize}
-                minSize={rightPanelMinSize}
-                maxSize={rightPanelMaxSize}
-                className={rightPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
-              >
-                {rightPanel}
-              </Panel>
-            )}
+            <Panel
+              id={rightPanelId}
+              ref={rightPanelRef}
+              defaultSize={rightPanelSize}
+              minSize={rightPanelMinSize}
+              maxSize={rightPanelMaxSize}
+              collapsible
+              className={rightPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
+            >
+              {rightPanel}
+            </Panel>
           </PanelGroup>
-          )}
         </Panel>
       </PanelGroup>
     </div>
