@@ -321,6 +321,36 @@ export function EditorToolbar() {
                 )
               }
 
+              // Special handling for view mode buttons (these use custom actions, not format)
+              if (buttonId === 'focusMode' || buttonId === 'typewriterMode' || buttonId === 'fullscreen') {
+                return (
+                  <DropdownItem
+                    key={buttonId}
+                    onClick={() => {
+                      handleCustomAction(buttonId)
+                      setOpenDropdown(null)
+                    }}
+                    icon={config.icon}
+                    displayName={config.getDisplayName(t)}
+                  />
+                )
+              }
+
+              // Special handling for copy buttons (these use custom actions, not format)
+              if (buttonId === 'copyWechat' || buttonId === 'copyWeibo') {
+                return (
+                  <DropdownItem
+                    key={buttonId}
+                    onClick={() => {
+                      handleCustomAction(buttonId)
+                      setOpenDropdown(null)
+                    }}
+                    icon={config.icon}
+                    displayName={config.getDisplayName(t)}
+                  />
+                )
+              }
+
               // Custom action handlers take priority (e.g., codeBlock needs dialog)
               if (buttonActionHandlers[buttonId]) {
                 return (
