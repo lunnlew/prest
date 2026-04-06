@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import { useBoundStore } from '../../stores'
 import { SidebarTabs } from './SidebarTabs'
@@ -7,14 +8,27 @@ import { PreviewPanel } from './PreviewPanel'
 import { ResizeHandle } from './ResizeHandle'
 
 export function AppLayout() {
+  // Handle Escape key to exit focus mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const store = useBoundStore.getState()
+        if (store.focusMode) {
+          store.toggleFocusMode()
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
   const {
     panelLayout,
     sidebarVisible,
     previewVisible,
     editorOnLeft,
-    focusMode,
     editorPanelSize,
     previewPanelSize,
+    focusMode,
     setPanelLayout,
     setEditorPanelSize,
     setPreviewPanelSize,
@@ -39,6 +53,10 @@ export function AppLayout() {
 
   // Focus mode: only show editor, hide everything else
   const showEditorOnly = focusMode
+
+  // Safeguard: if not in focus mode, ensure sidebar and preview are visible for editor to show
+  const effectivePreviewVisible = focusMode ? previewVisible : true
+  const effectiveSidebarVisible = focusMode ? sidebarVisible : true
 
   // Determine panel order based on editorOnLeft
   const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
@@ -74,7 +92,7 @@ export function AppLayout() {
         className="h-full"
       >
         {/* Left Sidebar Content - 可隐藏 */}
-        {sidebarVisible && !showEditorOnly && (
+        {effectiveSidebarVisible && !showEditorOnly && (
           <Panel
             id="sidebar"
             defaultSize={panelLayout[0]}
@@ -87,14 +105,14 @@ export function AppLayout() {
         )}
 
         {/* Resize Handle between Sidebar and Editor */}
-        {sidebarVisible && !showEditorOnly && (
+        {effectiveSidebarVisible && !showEditorOnly && (
           <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 transition-all group">
             <ResizeHandle direction="vertical" />
           </PanelResizeHandle>
         )}
 
         {/* Center Editor + Right Preview */}
-        <Panel id="main" defaultSize={sidebarVisible && !showEditorOnly ? panelLayout[1] : 100} minSize={showEditorOnly ? 100 : 30}>
+        <Panel id="main" defaultSize={effectiveSidebarVisible && !showEditorOnly ? panelLayout[1] : 100} minSize={showEditorOnly ? 100 : 30}>
           {showEditorOnly ? (
             // Focus mode: show only editor
             <EditorPanel />
@@ -108,7 +126,7 @@ export function AppLayout() {
               onLayout={handleEditorPreviewLayoutChange}
             >
               {/* Left Panel (Editor or Preview) */}
-              {previewVisible && (
+              {effectivePreviewVisible && (
                 <Panel
                   id={leftPanelId}
                   defaultSize={leftPanelSize}
@@ -121,14 +139,14 @@ export function AppLayout() {
               )}
 
               {/* Resize Handle between Editor and Preview */}
-              {previewVisible && (
+              {effectivePreviewVisible && (
                 <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 transition-all group">
                   <ResizeHandle direction="vertical" />
                 </PanelResizeHandle>
               )}
 
               {/* Right Panel (Preview or Editor) */}
-              {previewVisible && (
+              {effectivePreviewVisible && (
                 <Panel
                   id={rightPanelId}
                   defaultSize={rightPanelSize}

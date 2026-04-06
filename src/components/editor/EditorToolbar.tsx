@@ -223,9 +223,7 @@ export function EditorToolbar() {
   }
 
   const handleCustomAction = (buttonId: string) => {
-    console.log('handleCustomAction called:', buttonId)
     const store = useBoundStore.getState()
-    console.log('buttonActionHandlers[buttonId]:', buttonActionHandlers[buttonId])
     buttonActionHandlers[buttonId]?.(store)
   }
 

@@ -356,6 +356,11 @@ export function MonacoEditor() {
         line: e.position.lineNumber,
         column: e.position.column,
       })
+
+      // Typewriter mode: keep cursor line centered in viewport
+      if (useBoundStore.getState().typewriterMode) {
+        editor.revealLineInCenter(e.position.lineNumber)
+      }
     })
 
     // Track editor scroll for sync scroll feature
