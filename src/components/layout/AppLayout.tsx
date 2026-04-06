@@ -39,7 +39,11 @@ export function AppLayout() {
   const showEditorOnly = focusMode
 
   const handleLayoutChange = (sizes: number[]) => {
-    setPanelLayout(sizes)
+    // Only save layout when sidebar is visible (2 sizes: sidebar + main)
+    // When sidebar is hidden, sizes would be [100] which would corrupt panelLayout
+    if (sidebarVisible && sizes.length >= 2) {
+      setPanelLayout(sizes)
+    }
   }
 
   // Handle editor-preview split size changes
