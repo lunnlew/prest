@@ -36,17 +36,17 @@
 
 | 优先级 | 总数 | 完成 | 部分完成 | 待开始 |
 |--------|------|------|----------|--------|
-| P0 | 21 | 21 | 0 | 0 |
-| P1 | 18 | 18 | 0 | 0 |
-| P2 | 4 | 4 | 0 | 0 |
-| P3 (AI) | 14 | 14 | 0 | 0 |
-| **总计** | **57** | **57** | **0** | **0** |
+| P0 | 7 | 6 | 0 | 1 |
+| P1 | 10 | 6 | 0 | 4 |
+| P2 | 10 | 2 | 0 | 8 |
+| P3 (AI) | 19 | 19 | 0 | 0 |
+| **总计** | **46** | **33** | **0** | **13** |
 
-- **P0 功能完成率:** 100% (21/21)
-- **P1 功能完成率:** 100% (18/18)
-- **P2 功能完成率:** 100% (4/4)
-- **P3 (AI) 功能完成率:** 100% (14/14)
-- **总体完成率:** 100% (57/57)
+- **P0 功能完成率:** 86% (6/7)
+- **P1 功能完成率:** 60% (6/10)
+- **P2 功能完成率:** 20% (2/10)
+- **P3 (AI) 功能完成率:** 100% (19/19)
+- **总体完成率:** 72% (33/46)
 
 ### 文件统计
 
@@ -90,6 +90,7 @@
 | v0.8.7 | 2026-04-06 | 专注模式/切换预览区修复：面板折叠时保存尺寸、展开时恢复；统一 syncScroll 状态到 settings；修复 Monaco 搜索框文字透明问题 |
 | v0.9.0 | 2026-04-06 | AI 功能集成：AI 对话浮动面板（编辑器下方）、自定义 API 配置（兼容 OpenAI 格式）、AI 配置面板（设置页面） |
 | v0.9.1 | 2026-04-07 | AI 增强：开关控制、高度可调、消息持久化、快捷命令、编辑器右键菜单、Insert/Replace 功能、流式响应 |
+| v0.10.0 | 2026-04-07 | 功能完善：自动保存逻辑完整实现、beforeunload保存、图片拖拽粘贴上传、富文本HTML粘贴转换、HTML/PDF导出、本地文件导入 |
 
 ---
 
@@ -102,8 +103,8 @@
 | 1.1 | SEC-001 XSS sanitize | ✅ | 2h | `MarkdownPreview.tsx`, `package.json` |
 | 1.2 | FIX-002 高亮文本预览渲染 | ✅ | 1h | `MarkdownPreview.tsx` |
 | 1.3 | X-001 下载当前 .md 文件 | ✅ | 1h | `EditorToolbar.tsx`, `tools.tsx` |
-| 1.4 | ARC-002 自动保存逻辑完整实现 | ⏳ | 2h | `settingsSlice.ts`, `MonacoEditor.tsx` |
-| 1.5 | FIX-004 未保存状态指示器 | ⏳ | 0.5h | `EditorStatusBar.tsx` |
+| 1.4 | ARC-002 自动保存逻辑完整实现 | ✅ | 2h | `settingsSlice.ts`, `MonacoEditor.tsx` — beforeunload/loadContent/自动保存debounce |
+| 1.5 | FIX-004 未保存状态指示器 | ✅ | 0.5h | `EditorStatusBar.tsx` — 黄色圆点显示unsaved状态 |
 | 1.6 | ARC-001 真实文件系统对接 (IndexedDB) | ⏳ | 4h | `FileExplorer.tsx`, 新建 `storage/` |
 | 1.7 | EX-001 数学公式 (KaTeX) | ✅ | 3h | `package.json`, `MarkdownPreview.tsx` |
 
@@ -111,10 +112,10 @@
 
 | 序号 | 任务 | 状态 | 预估工作量 | 相关文件 |
 |------|------|------|-----------|----------|
-| 2.1 | M-001/M-002 图片拖拽 & 粘贴上传 | ⏳ | 3h | `MonacoEditor.tsx` |
-| 2.2 | UX-002 富文本粘贴 (HTML→Markdown) | ⏳ | 2h | 新建 `utils/paste.ts` |
-| 2.3 | X-002/X-003 导出 HTML/PDF | ⏳ | 3h | 新建 `utils/export.ts` |
-| 2.4 | X-004 导入本地文件 | ⏳ | 1h | `FileExplorer.tsx` |
+| 2.1 | M-001/M-002 图片拖拽 & 粘贴上传 | ✅ | 3h | `MonacoEditor.tsx` — drag & drop + paste事件, base64插入 |
+| 2.2 | UX-002 富文本粘贴 (HTML→Markdown) | ✅ | 2h | `utils/clipboard.ts` — htmlToMarkdown函数, 支持headers/bold/italic/code/links/images |
+| 2.3 | X-002/X-003 导出 HTML/PDF | ✅ | 3h | `utils/export.ts` — exportHtml/exportPdf函数, 工具栏按钮 |
+| 2.4 | X-004 导入本地文件 | ✅ | 1h | `utils/importFile.ts` — importFile函数, 工具栏按钮 |
 | 2.5 | FIX-001 同步滚动精确映射 | ✅ | 3h | `MonacoEditor.tsx`, `OutlineView.tsx`, `PreviewPanel.tsx` — 编辑器-预览双向同步 + 大纲滚动联动 |
 | 2.6 | PERF-001 大文档虚拟渲染 | ⏳ | 4h | `MarkdownPreview.tsx` |
 | 2.7 | SEC-002 CSP 安全策略 | ⏳ | 1h | `index.html`, `vite.config.ts` |
