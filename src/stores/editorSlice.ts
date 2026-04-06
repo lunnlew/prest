@@ -79,7 +79,8 @@ export interface EditorSlice {
   editorInstance: EditorInstance
 
   // Actions
-  setContent: (content: string) => void
+  setContent: (content: string, markDirty?: boolean) => void
+  loadContent: (content: string) => void  // Load content without marking dirty
   setCursorPosition: (position: CursorPosition) => void
   setSelection: (selection: Selection | null) => void
   setEditorInstance: (editor: EditorInstance) => void
@@ -130,12 +131,20 @@ console.log(greeting)
   currentFile: null,
   editorInstance: null,
 
-  setContent: (content) =>
+  setContent: (content, markDirty = true) =>
     set((state) => ({
       content,
-      undoStack: [...state.undoStack.slice(-50), state.content], // Keep last 50
+      undoStack: markDirty ? [...state.undoStack.slice(-50), state.content] : state.undoStack,
       redoStack: [],
-      isDirty: true,
+      isDirty: markDirty,
+    })),
+
+  loadContent: (content) =>
+    set(() => ({
+      content,
+      undoStack: [],
+      redoStack: [],
+      isDirty: false,
     })),
 
   setCursorPosition: (position) => set({ cursorPosition: position }),

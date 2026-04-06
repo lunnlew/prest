@@ -27,7 +27,7 @@ type DropTarget = 'above' | 'on' | 'below' | null
 function FileTreeItem(props: FileTreeItemProps) {
   const { node, depth, onContextMenu, onRename, renamingId, renameValue, onRenameChange, onRenameConfirm, onRenameCancel } = props
   const inputRef = useRef<HTMLInputElement>(null)
-  const { expandedFolders, toggleFolder, currentFile, setCurrentFile, setContent, content, saveFileContent, moveFile } = useBoundStore()
+  const { expandedFolders, toggleFolder, currentFile, setCurrentFile, loadContent, content, saveFileContent, moveFile } = useBoundStore()
 
   const isExpanded = expandedFolders.has(node.id)
   const isCurrentFile = currentFile === node.id
@@ -97,7 +97,7 @@ function FileTreeItem(props: FileTreeItemProps) {
         saveFileContent(currentFile, content)
       }
       setCurrentFile(node.id)
-      setContent(node.content ?? '')
+      loadContent(node.content ?? '')
     }
   }
 

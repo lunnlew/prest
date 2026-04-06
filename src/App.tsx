@@ -54,6 +54,25 @@ function App() {
     save()
   }, [currentFile, content, saveFileContent, save])
 
+  // Save before leaving the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (autoSave && currentFile) {
+        saveFileContent(currentFile, content)
+        save()
+      }
+      // For dirty state without autoSave, show warning
+      const isDirty = useBoundStore.getState().isDirty
+      if (isDirty && !autoSave) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [autoSave, currentFile, content, saveFileContent, save])
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
