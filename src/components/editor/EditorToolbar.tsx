@@ -183,6 +183,8 @@ export function EditorToolbar() {
     undo,
     redo,
     settings,
+    typewriterMode,
+    focusMode,
   } = useBoundStore()
   const { t } = useTranslation()
 
@@ -325,6 +327,16 @@ export function EditorToolbar() {
 
               // Special handling for view mode buttons (these use custom actions, not format)
               if (buttonId === 'focusMode' || buttonId === 'typewriterMode' || buttonId === 'fullscreen') {
+                // Show ON/OFF state for these buttons
+                let isActive = false
+                let stateLabel = ''
+                if (buttonId === 'typewriterMode') {
+                  isActive = typewriterMode
+                  stateLabel = isActive ? ' ON' : ' OFF'
+                } else if (buttonId === 'focusMode') {
+                  isActive = focusMode
+                  stateLabel = isActive ? ' ON' : ' OFF'
+                }
                 return (
                   <DropdownItem
                     key={buttonId}
@@ -333,7 +345,7 @@ export function EditorToolbar() {
                       setOpenDropdown(null)
                     }}
                     icon={config.icon}
-                    displayName={config.getDisplayName(t)}
+                    displayName={config.getDisplayName(t) + stateLabel}
                   />
                 )
               }

@@ -2,7 +2,7 @@ import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 
 export function EditorStatusBar() {
-  const { content, cursorPosition, isDirty, settings } = useBoundStore()
+  const { content, cursorPosition, isDirty, settings, typewriterMode, focusMode } = useBoundStore()
   const { t } = useTranslation()
 
   if (!t) return null
@@ -33,6 +33,14 @@ export function EditorStatusBar() {
             {t.settings.saved}
           </span>
         ) : null}
+
+        {/* Mode indicators */}
+        {typewriterMode && (
+          <span className="text-blue-400" title={t.editor.typewriterMode}>📝 {t.editor.typewriterMode}</span>
+        )}
+        {focusMode && (
+          <span className="text-purple-400" title={t.editor.focusMode}>◎ {t.editor.focusMode}</span>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
