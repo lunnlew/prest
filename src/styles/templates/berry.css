@@ -1,0 +1,11 @@
+/* ---------- 模板: Berry 浆果 ---------- */
+.xhs-template-berry {
+  --xhs-template-bg: #8E4585;
+  --xhs-template-card-bg: #FFF0F5;
+  --xhs-template-card-shadow: 0 4px 20px rgba(142,69,133,0.25);
+  --xhs-template-title: #4A1942;
+  --xhs-template-text: #2D0F29;
+  --xhs-template-accent: #C71585;
+  --xhs-template-border: #F8BBD9;
+  --xhs-template-meta: #8E4585;
+}

@@ -1,0 +1,11 @@
+/* ---------- 模板: Ocean 海洋 ---------- */
+.xhs-template-ocean {
+  --xhs-template-bg: #0077B6;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(0,119,182,0.2);
+  --xhs-template-title: #023E8A;
+  --xhs-template-text: #03045E;
+  --xhs-template-accent: #00B4D8;
+  --xhs-template-border: #90E0EF;
+  --xhs-template-meta: #0077B6;
+}

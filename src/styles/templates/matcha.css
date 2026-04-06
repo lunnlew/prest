@@ -1,0 +1,11 @@
+/* ---------- 模板: Matcha 抹茶 ---------- */
+.xhs-template-matcha {
+  --xhs-template-bg: #E8F5E9;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(76,175,80,0.15);
+  --xhs-template-title: #2E4A2E;
+  --xhs-template-text: #3D5A3D;
+  --xhs-template-accent: #7CB342;
+  --xhs-template-border: #C8E6C9;
+  --xhs-template-meta: #558B2F;
+}

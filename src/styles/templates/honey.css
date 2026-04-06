@@ -1,0 +1,11 @@
+/* ---------- 模板: Honey 蜂蜜 ---------- */
+.xhs-template-honey {
+  --xhs-template-bg: #F4A900;
+  --xhs-template-card-bg: #FFF8DC;
+  --xhs-template-card-shadow: 0 4px 20px rgba(244,169,0,0.25);
+  --xhs-template-title: #8B4513;
+  --xhs-template-text: #5D3A1A;
+  --xhs-template-accent: #D2691E;
+  --xhs-template-border: #FFE4B5;
+  --xhs-template-meta: #B8860B;
+}

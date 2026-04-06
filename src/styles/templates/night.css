@@ -1,0 +1,11 @@
+/* ---------- 模板: Night 夜空 ---------- */
+.xhs-template-night {
+  --xhs-template-bg: #0F1729;
+  --xhs-template-card-bg: #1A2744;
+  --xhs-template-card-shadow: 0 4px 20px rgba(15,23,41,0.4);
+  --xhs-template-title: #E2E8F0;
+  --xhs-template-text: #CBD5E1;
+  --xhs-template-accent: #818CF8;
+  --xhs-template-border: #334155;
+  --xhs-template-meta: #64748B;
+}

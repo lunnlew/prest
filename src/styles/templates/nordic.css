@@ -1,0 +1,90 @@
+/* ---------- 模板: Nordic 北欧 ---------- */
+.xhs-template-nordic {
+  --xhs-template-bg: #f7f8fa;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  --xhs-template-title: #1a1a2e;
+  --xhs-template-text: #3a3a5a;
+  --xhs-template-accent: #3a5a8a;
+  --xhs-template-border: #e2e6ee;
+  --xhs-template-meta: #6a7a9a;
+}
+
+.xhs-template-nordic.xhs-preview {
+  padding: 20px 18px;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-h1 {
+  font-size: 1.7em;
+  font-weight: 700;
+  color: var(--xhs-title-color);
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+  text-align: left;
+  padding: 14px 16px 10px;
+  border-bottom: 2px solid var(--xhs-accent);
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-h2 {
+  font-size: 1.15em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 20px 0 10px 0;
+  line-height: 1.5;
+  padding: 6px 12px;
+  border-left: 3px solid var(--xhs-accent);
+}
+
+.xhs-template-nordic.xhs-preview .xhs-h3 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 16px 0 8px 0;
+  line-height: 1.55;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-card {
+  background: var(--xhs-card-bg);
+  border-radius: 4px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  border: 1px solid var(--xhs-border);
+  box-shadow: none;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-paragraph {
+  font-size: 0.9em;
+  line-height: 1.8;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-blockquote {
+  background: rgba(74, 111, 165, 0.05);
+  border-left: 3px solid var(--xhs-accent);
+  border-radius: 0 4px 4px 0;
+  padding: 10px 14px;
+  box-shadow: none;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-list > li::before {
+  content: '—';
+  color: var(--xhs-accent);
+  font-weight: bold;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-list > li {
+  padding-left: 22px;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-list-ordered > li::before {
+  background: var(--xhs-accent);
+  border-radius: 2px;
+}
+
+.xhs-template-nordic.xhs-preview .xhs-footer-tag {
+  border-radius: 3px;
+  border-color: var(--xhs-border);
+  color: var(--xhs-accent);
+}
+

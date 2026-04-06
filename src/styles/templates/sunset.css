@@ -1,0 +1,11 @@
+/* ---------- 模板: Sunset 日落 ---------- */
+.xhs-template-sunset {
+  --xhs-template-bg: #FF6B35;
+  --xhs-template-card-bg: #FFF5F0;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255,107,53,0.2);
+  --xhs-template-title: #8B2500;
+  --xhs-template-text: #5C1A00;
+  --xhs-template-accent: #FF4500;
+  --xhs-template-border: #FFD4C4;
+  --xhs-template-meta: #CC5500;
+}

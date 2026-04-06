@@ -1,3 +1,4 @@
+import { useEffect, useRef, useMemo } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -7,13 +8,16 @@ import rehypeKatex from 'rehype-katex'
 import { remarkHighlightMark } from 'remark-highlight-mark'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import '../../styles/xiaohongshu.css'
 import type { XHSTemplate } from '../../types'
+import { XHS_TEMPLATE_META, loadTemplateFullCSS } from '../../config/xhsTemplates'
+import { TEMPLATE_RENDERERS, type RendererType } from '../../styles/rendererFactory'
+
+/** 预加载所有模板 CSS（供 vite 打包） */
+const _loaded = import.meta.glob('../../styles/templates/*.css')
+void Object.values(_loaded).map((m) => m())
 
 interface XiaohongshuPreviewProps {
-  /** Markdown content to render (used when `html` is not provided) */
   content?: string
-  /** Raw HTML string to render directly (bypasses markdown parsing) */
   html?: string
   template: XHSTemplate
   watermark?: string
@@ -23,108 +27,29 @@ interface XiaohongshuPreviewProps {
   totalPages?: number
 }
 
-const templateFonts: Record<XHSTemplate, { title: string; body: string }> = {
-  cream: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
-  minimal: { title: 'bold 2em -apple-system, "Helvetica Neue", sans-serif', body: '0.95em -apple-system, "Helvetica Neue", sans-serif' },
-  gradient: { title: 'bold 2.2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
-  pink: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
-  mint: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
-  lavender: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
-  peach: { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' },
-}
+interface FontConfig { title: string; body: string }
 
-function BlockWrap({
-  tag = 'div',
-  className,
-  children,
-  ...rest
-}: {
-  tag?: string
-  className: string
-  children?: React.ReactNode
-  [key: string]: unknown
+function BlockWrap({ tag = 'div', className, children, ...rest }: {
+  tag?: string; className: string; children?: React.ReactNode; [key: string]: unknown
 }) {
   const Tag = tag as keyof JSX.IntrinsicElements
-  return (
-    <Tag className={className} {...rest}>
-      {children}
-    </Tag>
-  )
+  return <Tag className={className} {...rest}>{children}</Tag>
 }
 
-function createRenderers(
-  fontConfig: { title: string; body: string },
-  counter: { current: number },
-) {
+function createBaseRenderers(counter: { current: number }) {
   const nextIdx = () => counter.current++
-
   return {
-    h1: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-card xhs-h1" data-xhs-block={nextIdx()}>
-        <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
-      </BlockWrap>
-    ),
-    h2: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h2" data-xhs-block={nextIdx()}>
-        <span>{children}</span>
-      </BlockWrap>
-    ),
-    h3: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}>
-        <span>{children}</span>
-      </BlockWrap>
-    ),
-    h4: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}>
-        <span>{children}</span>
-      </BlockWrap>
-    ),
-    h5: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}>
-        <span>{children}</span>
-      </BlockWrap>
-    ),
-    h6: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}>
-        <span>{children}</span>
-      </BlockWrap>
-    ),
-    p: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-card" data-xhs-block={nextIdx()}>
-        <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>
-          {children}
-        </p>
-      </BlockWrap>
-    ),
-    blockquote: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-blockquote" tag="blockquote" data-xhs-block={nextIdx()}>
-        {children}
-      </BlockWrap>
-    ),
-    ul: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}>
-        <ul>{children}</ul>
-      </BlockWrap>
-    ),
-    ol: ({ children }: { children?: React.ReactNode }) => (
-      <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}>
-        <ol>{children}</ol>
-      </BlockWrap>
-    ),
-    hr: () => (
-      <BlockWrap className="xhs-hr" tag="hr" data-xhs-block={nextIdx()} />
-    ),
     code: ({ className: codeCls, children }: { className?: string; children?: React.ReactNode }) => {
       const match = /language-(\w+)/.exec(codeCls || '')
-      if (!match) {
-        return <code className="xhs-inline-code">
-          <span>{children}</span>
-        </code>
-      }
+      const language = match ? match[1] : 'text'
+      const code = String(children).replace(/\n$/, '')
+      // 判断是否看起来像内联代码（单行且不太长）
+      const isInline = !match && !code.includes('\n') && code.length < 80
+      if (isInline) return <code className="xhs-inline-code"><span>{children}</span></code>
       return (
         <BlockWrap className="xhs-code-block" data-xhs-block={nextIdx()}>
-          <SyntaxHighlighter style={oneDark} language={match[1]} PreTag="div">
-            {String(children).replace(/\n$/, '')}
+          <SyntaxHighlighter style={oneDark} language={language} PreTag="div">
+            {code}
           </SyntaxHighlighter>
         </BlockWrap>
       )
@@ -138,54 +63,402 @@ function createRenderers(
       </BlockWrap>
     ),
     a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
-      <a href={href} className="xhs-link" target="_blank" rel="noopener noreferrer">
-        {children}
-      </a>
+      <a href={href} className="xhs-link" target="_blank" rel="noopener noreferrer">{children}</a>
     ),
+    hr: () => <BlockWrap className="xhs-hr" tag="hr" data-xhs-block={nextIdx()} />,
   }
 }
 
+/** 12种不同结构的渲染器 */
+function createRenderersByType(type: RendererType, fontConfig: FontConfig, counter: { current: number }) {
+  const base = createBaseRenderers(counter)
+  const nextIdx = () => counter.current++
+
+  // ========== 1. card: 经典卡片式 ==========
+  if (type === 'card') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-h1" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h2" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 2. bare: 无卡片简洁 ==========
+  if (type === 'bare') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-bare" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h2" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-paragraph" data-xhs-block={nextIdx()}>
+          <p style={{ fontFamily: fontConfig.body, margin: 0 }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 3. magazine: 杂志风 ==========
+  if (type === 'magazine') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-magazine" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-magazine" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-paragraph xhs-paragraph-magazine" data-xhs-block={nextIdx()}>
+          <p style={{ fontFamily: fontConfig.body, margin: 0 }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-magazine" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 4. side: 公众号侧边标题 ==========
+  if (type === 'side') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-side" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-side" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 5. classic: 传统中国风 ==========
+  if (type === 'classic') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-classic" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-classic" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h3 xhs-h3-classic" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-card-classic" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-classic" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 6. scrapbook: 手账风 ==========
+  if (type === 'scrapbook') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-scrapbook" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-scrapbook" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h3 xhs-h3-scrapbook" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-card-scrapbook" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-scrapbook" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 7. fullpage: 全屏沉浸 ==========
+  if (type === 'fullpage') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-fullpage" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-fullpage" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-card-fullpage" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-fullpage" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 8. editorial: 编辑排版 ==========
+  if (type === 'editorial') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-editorial" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-editorial" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-paragraph xhs-paragraph-editorial" data-xhs-block={nextIdx()}>
+          <p style={{ fontFamily: fontConfig.body, margin: 0 }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-editorial" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 9. quote: 引用突出 ==========
+  if (type === 'quote') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-quote" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-quote" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-quote" tag="blockquote" data-xhs-block={nextIdx()}>
+          <p style={{ fontFamily: fontConfig.body, margin: 0 }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-quote" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list xhs-list-quote" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered xhs-list-ordered-quote" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 10. timeline: 时间线 ==========
+  if (type === 'timeline') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-timeline" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-timeline" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-card-timeline" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-timeline" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list xhs-list-timeline" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered xhs-list-ordered-timeline" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 11. split: 左右分栏 ==========
+  if (type === 'split') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-split" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-split" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-card-split" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-split" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // ========== 12. banner: 横版Banner ==========
+  if (type === 'banner') {
+    return {
+      ...base,
+      h1: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h1 xhs-h1-banner" data-xhs-block={nextIdx()}>
+          <h1 style={{ fontFamily: fontConfig.title, marginBottom: 0 }}>{children}</h1>
+        </BlockWrap>
+      ),
+      h2: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-h2 xhs-h2-banner" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>
+      ),
+      h3: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h3" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h4: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h4" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h5: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h5" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      h6: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-h6" data-xhs-block={nextIdx()}><span>{children}</span></BlockWrap>,
+      p: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-card xhs-card-banner" data-xhs-block={nextIdx()}>
+          <p className="xhs-paragraph" style={{ fontFamily: fontConfig.body }}>{children}</p>
+        </BlockWrap>
+      ),
+      blockquote: ({ children }: { children?: React.ReactNode }) => (
+        <BlockWrap className="xhs-blockquote xhs-blockquote-banner" tag="blockquote" data-xhs-block={nextIdx()}>{children}</BlockWrap>
+      ),
+      ul: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list" data-xhs-block={nextIdx()}><ul>{children}</ul></BlockWrap>,
+      ol: ({ children }: { children?: React.ReactNode }) => <BlockWrap className="xhs-list-ordered" data-xhs-block={nextIdx()}><ol>{children}</ol></BlockWrap>,
+    }
+  }
+
+  // 默认: card
+  return createRenderersByType('card', fontConfig, counter)
+}
+
 export function XiaohongshuPreview({
-  content,
-  html: htmlContent,
-  template,
-  watermark = '',
-  tags = [],
-  showPageNumber = false,
-  currentPage = 1,
-  totalPages = 1,
+  content, html: htmlContent, template, watermark = '', tags = [],
+  showPageNumber = false, currentPage = 1, totalPages = 1,
 }: XiaohongshuPreviewProps) {
-  const fontConfig = templateFonts[template] || { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' }
-  const counter = { current: 0 }
-  const renderers = createRenderers(fontConfig, counter)
+  const prevTemplate = useRef<XHSTemplate>(template)
+
+  useEffect(() => {
+    if (prevTemplate.current !== template) {
+      prevTemplate.current = template
+    }
+    loadTemplateFullCSS(template)
+  }, [template])
+
+  const meta = XHS_TEMPLATE_META[template]
+  const fontConfig: FontConfig = meta
+    ? { title: meta.fontTitle, body: meta.fontBody }
+    : { title: 'bold 2em "PingFang SC", "Microsoft YaHei", sans-serif', body: '0.95em "PingFang SC", "Microsoft YaHei", sans-serif' }
+
+  const rendererType = TEMPLATE_RENDERERS[template] ?? 'card'
+  const counter = useMemo(() => ({ current: 0 }), [content])
+  const renderers = useMemo(() => createRenderersByType(rendererType, fontConfig, counter), [rendererType, fontConfig, counter])
 
   const renderBody = () => {
-    // When html is provided, render it directly via dangerouslySetInnerHTML.
-    // This is used by the paginated export flow where each page gets only its
-    // own block elements' HTML, avoiding markdown re-parsing and DOM mismatch.
-    if (htmlContent) {
-      return (
-        <div
-          className="xhs-html-content"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        />
-      )
-    }
-
-    // Default path: parse markdown and render via react-markdown
+    if (htmlContent) return <div className="xhs-html-content" dangerouslySetInnerHTML={{ __html: htmlContent }} />
     return (
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath, remarkHighlightMark]}
         rehypePlugins={[
-          rehypeRaw,
-          rehypeKatex,
+          rehypeRaw, rehypeKatex,
           [rehypeSanitize, {
             ...defaultSchema,
             tagNames: [...(defaultSchema.tagNames || []), 'div', 'mark', 'sub', 'sup'],
-            attributes: {
-              ...defaultSchema.attributes,
-              div: [['align'], ['data-xhs-block'], ['style']],
-            },
+            attributes: { ...defaultSchema.attributes, div: [['align'], ['data-xhs-block'], ['style']] },
           }],
         ]}
         components={renderers}
@@ -198,22 +471,15 @@ export function XiaohongshuPreview({
   return (
     <div className={`xhs-preview xhs-template-${template}`}>
       {renderBody()}
-
       {(tags.length > 0 || watermark || showPageNumber) && (
         <div className="xhs-footer" data-xhs-footer>
           {tags.length > 0 && (
             <div className={`xhs-footer-tags ${!showPageNumber ? 'xhs-footer-tags--last' : ''}`}>
-              {tags.map((tag, i) => (
-                <span key={i} className="xhs-footer-tag">#{tag}</span>
-              ))}
+              {tags.map((tag, i) => <span key={i} className="xhs-footer-tag">#{tag}</span>)}
             </div>
           )}
-          {watermark && (
-            <div className={`xhs-footer-watermark ${!showPageNumber ? 'xhs-footer-watermark--last' : ''}`}>{watermark}</div>
-          )}
-          {showPageNumber && (
-            <div className="xhs-footer-page">{currentPage} / {totalPages}</div>
-          )}
+          {watermark && <div className={`xhs-footer-watermark ${!showPageNumber ? 'xhs-footer-watermark--last' : ''}`}>{watermark}</div>}
+          {showPageNumber && <div className="xhs-footer-page">{currentPage} / {totalPages}</div>}
         </div>
       )}
     </div>

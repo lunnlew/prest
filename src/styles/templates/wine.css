@@ -1,0 +1,11 @@
+/* ---------- 模板: Wine 红酒 ---------- */
+.xhs-template-wine {
+  --xhs-template-bg: #722F37;
+  --xhs-template-card-bg: #FFF0F3;
+  --xhs-template-card-shadow: 0 4px 20px rgba(114,47,55,0.25);
+  --xhs-template-title: #4A1C24;
+  --xhs-template-text: #2D1118;
+  --xhs-template-accent: #9B2335;
+  --xhs-template-border: #E8C4C8;
+  --xhs-template-meta: #722F37;
+}

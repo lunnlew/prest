@@ -1,0 +1,11 @@
+/* ---------- 模板: Lemon 柠檬 ---------- */
+.xhs-template-lemon {
+  --xhs-template-bg: #FFF44F;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255,244,79,0.3);
+  --xhs-template-title: #5C4800;
+  --xhs-template-text: #3D3000;
+  --xhs-template-accent: #9ACD32;
+  --xhs-template-border: #E6EE9C;
+  --xhs-template-meta: #7B8D00;
+}

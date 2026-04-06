@@ -1,0 +1,11 @@
+/* ---------- 模板: Lavender 薰衣草紫 ---------- */
+.xhs-template-lavender {
+  --xhs-template-bg: #f8f0ff;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(147, 112, 219, 0.12);
+  --xhs-template-title: #3a2a4a;
+  --xhs-template-text: #5a4a6a;
+  --xhs-template-accent: #8b2671;
+  --xhs-template-border: #e6e0f0;
+  --xhs-template-meta: #8a7a9a;
+}

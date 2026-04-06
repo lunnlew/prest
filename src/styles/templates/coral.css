@@ -1,0 +1,11 @@
+/* ---------- 模板: Coral 珊瑚 ---------- */
+.xhs-template-coral {
+  --xhs-template-bg: #FF7F50;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255,127,80,0.25);
+  --xhs-template-title: #8B2500;
+  --xhs-template-text: #5C1A00;
+  --xhs-template-accent: #FF6347;
+  --xhs-template-border: #FFD4C4;
+  --xhs-template-meta: #E55100;
+}

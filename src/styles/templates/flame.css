@@ -1,0 +1,86 @@
+/* ---------- 模板: Flame 烈焰 ---------- */
+.xhs-template-flame {
+  --xhs-template-bg: #1c1010;
+  --xhs-template-card-bg: #241414;
+  --xhs-template-card-shadow: 0 6px 28px rgba(249, 115, 22, 0.15);
+  --xhs-template-title: #a78bfa;
+  --xhs-template-text: #7c6a7c;
+  --xhs-template-accent: #f97050;
+  --xhs-template-border: #2a1a1a;
+  --xhs-template-meta: #6b556b;
+}
+
+.xhs-template-flame.xhs-preview {
+  padding: 22px 20px;
+}
+
+.xhs-template-flame.xhs-preview .xhs-h1 {
+  font-size: 2em;
+  font-weight: 900;
+  color: var(--xhs-title-color);
+  margin: 0 0 8px 0;
+  line-height: 1.25;
+  text-align: center;
+  padding: 22px 0 18px;
+  border-bottom: 3px solid var(--xhs-accent);
+  margin-bottom: 22px;
+  text-shadow: 0 2px 12px rgba(249, 112, 80, 0.3);
+  letter-spacing: 0.06em;
+}
+
+.xhs-template-flame.xhs-preview .xhs-h2 {
+  font-size: 1.35em;
+  font-weight: 700;
+  color: var(--xhs-title-color);
+  margin: 26px 0 12px 0;
+  line-height: 1.4;
+  padding: 10px 14px;
+  border-left: 5px solid var(--xhs-accent);
+  background: rgba(249, 112, 80, 0.06);
+}
+
+.xhs-template-flame.xhs-preview .xhs-h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 20px 0 10px 0;
+  line-height: 1.5;
+}
+
+.xhs-template-flame.xhs-preview .xhs-card {
+  background: var(--xhs-card-bg);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--xhs-border);
+  box-shadow: none;
+}
+
+.xhs-template-flame.xhs-preview .xhs-paragraph {
+  font-size: 0.95em;
+  line-height: 1.78;
+  color: var(--xhs-text-color);
+}
+
+.xhs-template-flame.xhs-preview .xhs-blockquote {
+  background: rgba(249, 112, 80, 0.06);
+  border-left: 4px solid var(--xhs-accent);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  box-shadow: none;
+}
+
+.xhs-template-flame.xhs-preview .xhs-list > li::before {
+  content: '🔥';
+  font-size: 0.8em;
+}
+
+.xhs-template-flame.xhs-preview .xhs-list > li {
+  padding-left: 28px;
+}
+
+.xhs-template-flame.xhs-preview .xhs-footer-tag {
+  background: rgba(249, 112, 80, 0.1);
+  border-color: var(--xhs-border);
+  color: var(--xhs-accent);
+}

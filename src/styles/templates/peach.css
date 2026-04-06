@@ -1,0 +1,11 @@
+/* ---------- 模板: Peach 蜜桃色 ---------- */
+.xhs-template-peach {
+  --xhs-template-bg: #FFF5EE;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255, 218, 185, 0.2);
+  --xhs-template-title: #5a3a2a;
+  --xhs-template-text: #7a5a4a;
+  --xhs-template-accent: #e89060;
+  --xhs-template-border: #ffe5d9;
+  --xhs-template-meta: #a08070;
+}

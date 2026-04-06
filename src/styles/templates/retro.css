@@ -1,0 +1,151 @@
+/* ---------- 模板: Retro 复古印章 ----------
+   素材装饰：牛皮纸纹理、印章装饰、装饰边框
+   ----------------------------------------------------------- */
+.xhs-template-retro {
+  --xhs-template-bg: #f5e6c8;
+  --xhs-template-card-bg: #fffdf5;
+  --xhs-template-card-shadow: none;
+  --xhs-template-title: #5c3d2e;
+  --xhs-template-text: #4a3728;
+  --xhs-template-accent: #8B4513;
+  --xhs-template-border: #d4b896;
+  --xhs-template-meta: #a08060;
+  --xhs-template-stamp: #c41e3a;
+}
+
+/* 牛皮纸纹理背景（CSS模拟） */
+.xhs-template-retro.xhs-preview {
+  padding: 24px 20px;
+  background-color: #f5e6c8;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 69, 19, 0.03) 2px,
+      rgba(139, 69, 19, 0.03) 4px
+    );
+  border: 8px solid #d4b896;
+  box-shadow: inset 0 0 20px rgba(139, 69, 19, 0.1);
+}
+
+/* 标题：居中印章风格 */
+.xhs-template-retro.xhs-preview .xhs-h1 {
+  font-size: 1.7em;
+  font-weight: 900;
+  color: var(--xhs-template-stamp);
+  margin: 0 0 18px;
+  padding: 16px 24px;
+  line-height: 1.3;
+  text-align: center;
+  border: 4px double var(--xhs-template-stamp);
+  border-radius: 50%;
+  width: 80%;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 0 0 2px #f5e6c8, 0 0 0 4px var(--xhs-template-stamp);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* H2: 装饰分割线 */
+.xhs-template-retro.xhs-preview .xhs-h2 {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--xhs-accent);
+  margin: 24px 0 14px;
+  padding: 8px 0;
+  line-height: 1;
+  border: none;
+  border-top: 2px solid var(--xhs-border);
+  border-bottom: 2px solid var(--xhs-border);
+  background: transparent;
+  text-align: center;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.xhs-template-retro.xhs-preview .xhs-h3 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 16px 0 8px;
+  padding: 0;
+  border: none;
+  line-height: 1.5;
+}
+
+/* 卡片：古典风格 */
+.xhs-template-retro.xhs-preview .xhs-card {
+  background: var(--xhs-card-bg);
+  border-radius: 0;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  border: 1px solid var(--xhs-border);
+  box-shadow: none;
+  border-left: 3px solid var(--xhs-accent);
+}
+
+.xhs-template-retro.xhs-preview .xhs-paragraph {
+  font-size: 0.92em;
+  line-height: 1.85;
+  color: var(--xhs-text-color);
+  text-align: justify;
+}
+
+/* 引用：古典框 */
+.xhs-template-retro.xhs-preview .xhs-blockquote {
+  background: rgba(139, 69, 19, 0.05);
+  border: 2px solid var(--xhs-border);
+  border-radius: 0;
+  border-left: 4px solid var(--xhs-accent);
+  padding: 14px 18px;
+  margin: 16px 0;
+  box-shadow: none;
+  position: relative;
+}
+
+.xhs-template-retro.xhs-preview .xhs-blockquote::before {
+  content: '❝';
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  font-size: 2em;
+  color: var(--xhs-accent);
+  background: var(--xhs-card-bg);
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.xhs-template-retro.xhs-preview .xhs-blockquote p {
+  font-style: normal;
+  color: var(--xhs-text-color);
+  line-height: 1.75;
+}
+
+/* 列表 */
+.xhs-template-retro.xhs-preview .xhs-list > li::before {
+  content: '◆';
+  color: var(--xhs-accent);
+  font-size: 0.6em;
+}
+
+/* Footer */
+.xhs-template-retro.xhs-preview .xhs-footer {
+  padding: 18px 0 12px;
+  border-top: 3px double var(--xhs-border);
+  text-align: center;
+}
+
+.xhs-template-retro.xhs-preview .xhs-footer-tag {
+  background: transparent;
+  color: var(--xhs-accent);
+  border: 2px solid var(--xhs-accent);
+  border-radius: 0;
+  padding: 4px 14px;
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}

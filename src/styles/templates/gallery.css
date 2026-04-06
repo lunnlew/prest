@@ -1,0 +1,136 @@
+/* ---------- 模板: Gallery 画廊风 ----------
+   核心差异：大量留白、内容紧凑居中、图片全宽、文字极简
+   ----------------------------------------------------------- */
+.xhs-template-gallery {
+  --xhs-template-bg: #0c0c0e;
+  --xhs-template-card-bg: #111113;
+  --xhs-template-card-shadow: none;
+  --xhs-template-title: #71717a;
+  --xhs-template-text: #52525b;
+  --xhs-template-accent: #eab308;
+  --xhs-template-border: #1c1c1e;
+  --xhs-template-meta: #3f3f46;
+}
+
+.xhs-template-gallery.xhs-preview {
+  padding: 0;
+  max-width: 100%;
+  background: #0c0c0e;
+}
+
+/* 标题：大字居中，占满上部分 */
+.xhs-template-gallery.xhs-preview .xhs-h1 {
+  font-size: 2.2em;
+  font-weight: 900;
+  color: var(--xhs-title-color);
+  margin: 0;
+  padding: 48px 24px 24px;
+  line-height: 1.15;
+  text-align: center;
+  border: none;
+  background: transparent;
+  letter-spacing: -0.02em;
+}
+
+/* H2: 细线上标 */
+.xhs-template-gallery.xhs-preview .xhs-h2 {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--xhs-accent);
+  margin: 32px 24px 14px;
+  padding: 0 0 8px;
+  line-height: 1;
+  border: none;
+  border-bottom: 1px solid var(--xhs-border);
+  background: transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  text-align: left;
+}
+
+.xhs-template-gallery.xhs-preview .xhs-h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 14px 24px 8px;
+  padding: 0;
+  line-height: 1.5;
+  border: none;
+}
+
+/* 段落：居中紧凑 */
+.xhs-template-gallery.xhs-preview .xhs-card {
+  background: transparent;
+  border-radius: 0;
+  padding: 0 24px;
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.xhs-template-gallery.xhs-preview .xhs-paragraph {
+  font-size: 0.88em;
+  line-height: 1.8;
+  color: var(--xhs-text-color);
+  text-align: center;
+}
+
+/* 引用：无边框，居中文本 */
+.xhs-template-gallery.xhs-preview .xhs-blockquote {
+  background: transparent;
+  border: none;
+  border-left: none;
+  border-top: 1px solid var(--xhs-border);
+  border-bottom: 1px solid var(--xhs-border);
+  border-radius: 0;
+  padding: 20px 24px;
+  margin: 16px 0;
+  box-shadow: none;
+}
+
+.xhs-template-gallery.xhs-preview .xhs-blockquote p {
+  font-style: italic;
+  color: var(--xhs-accent);
+  text-align: center;
+  font-size: 1em;
+  line-height: 1.7;
+}
+
+/* 列表：紧凑居中 */
+.xhs-template-gallery.xhs-preview .xhs-list {
+  margin: 8px 0;
+  padding-left: 0;
+}
+
+.xhs-template-gallery.xhs-preview .xhs-list > li {
+  padding-left: 0;
+  margin-bottom: 6px;
+  line-height: 1.7;
+  font-size: 0.88em;
+  text-align: center;
+  color: var(--xhs-text-color);
+  list-style: none;
+}
+
+.xhs-template-gallery.xhs-preview .xhs-list > li::before {
+  content: '·';
+  color: var(--xhs-accent);
+  margin-right: 8px;
+}
+
+/* Footer */
+.xhs-template-gallery.xhs-preview .xhs-footer {
+  padding: 40px 24px 24px;
+  border-top: 1px solid var(--xhs-border);
+  text-align: center;
+}
+
+.xhs-template-gallery.xhs-preview .xhs-footer-tag {
+  background: transparent;
+  color: var(--xhs-accent);
+  border: 1px solid var(--xhs-border);
+  border-radius: 0;
+  padding: 3px 12px;
+  font-size: 0.75em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

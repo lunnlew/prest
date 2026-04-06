@@ -1,0 +1,155 @@
+/* ---------- 模板: Wechat 公众号风 ----------
+   核心差异：标题超大加粗、段落无卡片靠左、内容区块用空行分隔
+   ----------------------------------------------------------- */
+.xhs-template-wechat {
+  --xhs-template-bg: #ffffff;
+  --xhs-template-card-bg: #fafafa;
+  --xhs-template-card-shadow: none;
+  --xhs-template-title: #1a1a1a;
+  --xhs-template-text: #333333;
+  --xhs-template-accent: #07c160;
+  --xhs-template-border: #e8e8e8;
+  --xhs-template-meta: #999999;
+}
+
+.xhs-template-wechat.xhs-preview {
+  padding: 20px 20px;
+  max-width: 100%;
+}
+
+/* 标题：公众号大标题 */
+.xhs-template-wechat.xhs-preview .xhs-h1 {
+  font-size: 1.65em;
+  font-weight: 700;
+  color: var(--xhs-title-color);
+  margin: 0 0 18px;
+  padding: 0 0 18px;
+  line-height: 1.4;
+  text-align: left;
+  border: none;
+  border-bottom: 2px solid var(--xhs-accent);
+  letter-spacing: 0.02em;
+}
+
+/* H2: 数字编号风格 */
+.xhs-template-wechat.xhs-preview .xhs-h2 {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--xhs-title-color);
+  margin: 28px 0 12px;
+  padding: 0;
+  line-height: 1.4;
+  border: none;
+  border-left: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.1em;
+  background: var(--xhs-accent);
+  border-radius: 2px;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-h3 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 18px 0 8px;
+  padding: 0;
+  border: none;
+  line-height: 1.5;
+}
+
+/* 段落：公众号风格，无卡片背景，靠左排版 */
+.xhs-template-wechat.xhs-preview .xhs-card {
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 14px;
+  box-shadow: none;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-paragraph {
+  font-size: 0.95em;
+  line-height: 1.9;
+  color: var(--xhs-text-color);
+  text-align: justify;
+}
+
+/* 引用：左侧绿色竖线 */
+.xhs-template-wechat.xhs-preview .xhs-blockquote {
+  background: rgba(7, 193, 96, 0.05);
+  border: none;
+  border-left: 3px solid var(--xhs-accent);
+  border-radius: 0;
+  padding: 10px 16px;
+  margin: 14px 0;
+  box-shadow: none;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-blockquote p {
+  font-style: normal;
+  color: var(--xhs-text-color);
+  line-height: 1.8;
+}
+
+/* 列表 */
+.xhs-template-wechat.xhs-preview .xhs-list {
+  margin: 10px 0;
+  padding-left: 0;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-list > li {
+  padding-left: 22px;
+  margin-bottom: 8px;
+  line-height: 1.8;
+  font-size: 0.95em;
+  position: relative;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-list > li::before {
+  content: '▌';
+  position: absolute;
+  left: 4px;
+  color: var(--xhs-accent);
+}
+
+/* 有序列表：数字圆点 */
+.xhs-template-wechat.xhs-preview .xhs-list-ordered {
+  counter-reset: none;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-list-ordered > li::before {
+  content: none;
+  background: transparent;
+  color: var(--xhs-accent);
+  font-weight: 700;
+  font-size: 0.9em;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  display: inline;
+  margin-right: 8px;
+}
+
+/* Footer */
+.xhs-template-wechat.xhs-preview .xhs-footer {
+  padding: 24px 0 16px;
+  border-top: 1px solid var(--xhs-border);
+  text-align: left;
+}
+
+.xhs-template-wechat.xhs-preview .xhs-footer-tag {
+  background: rgba(7, 193, 96, 0.08);
+  color: var(--xhs-accent);
+  border: 1px solid rgba(7, 193, 96, 0.2);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 0.8em;
+}

@@ -1,0 +1,11 @@
+/* ---------- 模板: Pink 马卡龙粉色 ---------- */
+.xhs-template-pink {
+  --xhs-template-bg: #FFF0F5;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(219, 112, 147, 0.15);
+  --xhs-template-title: #5a2a3a;
+  --xhs-template-text: #7a4a5a;
+  --xhs-template-accent: #db7070;
+  --xhs-template-border: #ffe4e9;
+  --xhs-template-meta: #a08090;
+}

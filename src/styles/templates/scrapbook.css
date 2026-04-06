@@ -1,0 +1,140 @@
+/* ---------- 模板: Scrapbook 手账风 ----------
+   核心差异：标题融入内容块、分区用彩色背景条分隔
+   ----------------------------------------------------------- */
+.xhs-template-scrapbook {
+  --xhs-template-bg: #FDF6EC;
+  --xhs-template-card-bg: #FFFDF9;
+  --xhs-template-card-shadow: none;
+  --xhs-template-title: #8B4513;
+  --xhs-template-text: #5D4037;
+  --xhs-template-accent: #E91E8C;
+  --xhs-template-border: #F5DEB3;
+  --xhs-template-meta: #A0522D;
+  --xhs-template-zone1: #FFE4EC;
+  --xhs-template-zone2: #E8F5E9;
+  --xhs-template-zone3: #FFF8E1;
+}
+
+.xhs-template-scrapbook.xhs-preview {
+  padding: 16px 16px;
+}
+
+/* H1: 融入段落，用装饰线分隔 */
+.xhs-template-scrapbook.xhs-preview .xhs-h1 {
+  font-size: 1.5em;
+  font-weight: 800;
+  color: var(--xhs-accent);
+  margin: 0 -8px 12px;
+  padding: 14px 16px 10px;
+  line-height: 1.4;
+  text-align: center;
+  border-bottom: 3px dashed var(--xhs-border);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  background: transparent;
+  letter-spacing: 0.05em;
+}
+
+/* H2: 变成彩色小标题条 */
+.xhs-template-scrapbook.xhs-preview .xhs-h2 {
+  font-size: 1em;
+  font-weight: 700;
+  color: #fff;
+  background: var(--xhs-accent);
+  margin: 16px -4px 10px;
+  padding: 6px 14px;
+  line-height: 1.4;
+  border-left: none;
+  border-radius: 4px 16px 4px 4px;
+  border: none;
+}
+
+/* H3: 左边彩色竖线 */
+.xhs-template-scrapbook.xhs-preview .xhs-h3 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 14px 0 8px;
+  padding: 4px 0 4px 14px;
+  border-bottom: none;
+  border-left: 4px solid var(--xhs-accent);
+  line-height: 1.4;
+}
+
+/* 卡片：融入背景，用左边框颜色区分重要程度 */
+.xhs-template-scrapbook.xhs-preview .xhs-card {
+  background: var(--xhs-card-bg);
+  border-radius: 12px 4px 12px 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--xhs-border);
+  box-shadow: none;
+  border-left: 4px solid var(--xhs-zone1);
+}
+
+.xhs-template-scrapbook.xhs-preview .xhs-paragraph {
+  font-size: 0.9em;
+  line-height: 1.85;
+  color: var(--xhs-text-color);
+}
+
+/* 引用：虚线框 */
+.xhs-template-scrapbook.xhs-preview .xhs-blockquote {
+  background: rgba(233, 30, 140, 0.05);
+  border: 2px dashed var(--xhs-accent);
+  border-radius: 8px;
+  border-left: 2px dashed var(--xhs-accent);
+  padding: 12px 16px;
+  margin: 12px 0;
+  box-shadow: none;
+}
+
+.xhs-template-scrapbook.xhs-preview .xhs-blockquote p {
+  font-style: normal;
+  color: var(--xhs-text-color);
+  line-height: 1.75;
+}
+
+/* 列表：左侧竖线风格 */
+.xhs-template-scrapbook.xhs-preview .xhs-list {
+  margin: 10px 0;
+  padding-left: 0;
+}
+
+.xhs-template-scrapbook.xhs-preview .xhs-list > li {
+  padding-left: 22px;
+  margin-bottom: 8px;
+  line-height: 1.75;
+  font-size: 0.9em;
+  position: relative;
+}
+
+.xhs-template-scrapbook.xhs-preview .xhs-list > li::before {
+  content: '✿';
+  position: absolute;
+  left: 0;
+  color: var(--xhs-accent);
+  font-size: 0.75em;
+}
+
+/* Footer: 贴纸风格 */
+.xhs-template-scrapbook.xhs-preview .xhs-footer {
+  padding: 14px 0 10px;
+  border-top: 2px dashed var(--xhs-border);
+}
+
+.xhs-template-scrapbook.xhs-preview .xhs-footer-tag {
+  background: var(--xhs-accent);
+  color: #fff;
+  border: none;
+  border-radius: 20px 4px 20px 4px;
+  padding: 4px 14px;
+  font-size: 0.8em;
+  transform: rotate(-2deg);
+  display: inline-block;
+}
+
+.xhs-template-scrapbook.xhs-preview .xhs-footer-tag:nth-child(odd) {
+  transform: rotate(1deg);
+}

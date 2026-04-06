@@ -1,0 +1,11 @@
+/* ---------- 模板: Sky 天空 ---------- */
+.xhs-template-sky {
+  --xhs-template-bg: #87CEEB;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(135,206,235,0.25);
+  --xhs-template-title: #1E3A5F;
+  --xhs-template-text: #2C4A6E;
+  --xhs-template-accent: #4169E1;
+  --xhs-template-border: #B0E0E6;
+  --xhs-template-meta: #4682B4;
+}

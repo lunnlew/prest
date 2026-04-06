@@ -1,0 +1,11 @@
+/* ---------- 模板: Autumn 秋叶 ---------- */
+.xhs-template-autumn {
+  --xhs-template-bg: #D2691E;
+  --xhs-template-card-bg: #FFF8DC;
+  --xhs-template-card-shadow: 0 4px 20px rgba(210,105,30,0.25);
+  --xhs-template-title: #5D3A1A;
+  --xhs-template-text: #3D2510;
+  --xhs-template-accent: #B8860B;
+  --xhs-template-border: #F5DEB3;
+  --xhs-template-meta: #A0522D;
+}

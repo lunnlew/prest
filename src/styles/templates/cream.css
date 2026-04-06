@@ -1,0 +1,11 @@
+/* ---------- 模板: Cream 奶油 ---------- */
+.xhs-template-cream {
+  --xhs-template-bg: #FFF8F0;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(255,107,107,0.1);
+  --xhs-template-title: #3a2a1a;
+  --xhs-template-text: #5a4a3a;
+  --xhs-template-accent: #e07860;
+  --xhs-template-border: #ffe8e0;
+  --xhs-template-meta: #9a8a7a;
+}

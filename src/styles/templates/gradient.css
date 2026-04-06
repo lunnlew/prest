@@ -1,0 +1,11 @@
+/* ---------- 模板: Gradient 渐变 ---------- */
+.xhs-template-gradient {
+  --xhs-template-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --xhs-template-card-bg: rgba(255, 255, 255, 0.95);
+  --xhs-template-card-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  --xhs-template-title: #1a1a2e;
+  --xhs-template-text: #2a2a4a;
+  --xhs-template-accent: #764ba2;
+  --xhs-template-border: rgba(118, 75, 162, 0.2);
+  --xhs-template-meta: #6a5a8a;
+}

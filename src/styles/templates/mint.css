@@ -1,0 +1,11 @@
+/* ---------- 模板: Mint 薄荷清新绿 ---------- */
+.xhs-template-mint {
+  --xhs-template-bg: #F0FFF4;
+  --xhs-template-card-bg: #FFFFFF;
+  --xhs-template-card-shadow: 0 4px 20px rgba(46, 213, 115, 0.15);
+  --xhs-template-title: #1a3a2a;
+  --xhs-template-text: #2d5a42;
+  --xhs-template-accent: #20a162;
+  --xhs-template-border: #C6E6C9;
+  --xhs-template-meta: #5a8a6a;
+}

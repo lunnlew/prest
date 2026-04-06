@@ -1,0 +1,11 @@
+/* ---------- 模板: Aurora 极光 ---------- */
+.xhs-template-aurora {
+  --xhs-template-bg: #2D1B4E;
+  --xhs-template-card-bg: #3D2A5C;
+  --xhs-template-card-shadow: 0 4px 20px rgba(45,27,78,0.3);
+  --xhs-template-title: #E8D5FF;
+  --xhs-template-text: #C9B8E8;
+  --xhs-template-accent: #7FFFAA;
+  --xhs-template-border: #5D4A7C;
+  --xhs-template-meta: #9B8ACB;
+}

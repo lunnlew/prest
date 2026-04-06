@@ -1,0 +1,131 @@
+/* ---------- 模板: Notebook 手账网格 ----------
+   素材装饰：网格纹理背景、印章装饰、手绘风分割线
+   ----------------------------------------------------------- */
+.xhs-template-notebook {
+  --xhs-template-bg: #e8f4ea;
+  --xhs-template-card-bg: #ffffff;
+  --xhs-template-card-shadow: none;
+  --xhs-template-title: #2c5f2d;
+  --xhs-template-text: #3a3a3a;
+  --xhs-template-accent: #e63946;
+  --xhs-template-border: #b7d4b7;
+  --xhs-template-meta: #6b8e6b;
+  --xhs-template-stamp: #c1121f;
+}
+
+/* 网格纹理背景 */
+.xhs-template-notebook.xhs-preview {
+  padding: 20px 20px;
+  background-color: #e8f4ea;
+  background-image:
+    linear-gradient(rgba(180, 200, 180, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 200, 180, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* 标题：印章风格 */
+.xhs-template-notebook.xhs-preview .xhs-h1 {
+  font-size: 1.6em;
+  font-weight: 800;
+  color: #fff;
+  background: var(--xhs-template-stamp);
+  margin: 0 0 16px;
+  padding: 12px 20px;
+  line-height: 1.4;
+  text-align: center;
+  border: 3px double #fff;
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+  transform: rotate(-1deg);
+  letter-spacing: 0.05em;
+}
+
+/* H2: 手绘风波浪分割线 */
+.xhs-template-notebook.xhs-preview .xhs-h2 {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--xhs-accent);
+  margin: 20px 0 12px;
+  padding: 6px 0;
+  line-height: 1;
+  border: none;
+  border-top: 2px dashed var(--xhs-border);
+  border-bottom: 2px dashed var(--xhs-border);
+  background: transparent;
+  text-align: center;
+  letter-spacing: 0.2em;
+}
+
+/* H3 */
+.xhs-template-notebook.xhs-preview .xhs-h3 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--xhs-title-color);
+  margin: 16px 0 8px;
+  padding: 0;
+  border: none;
+  line-height: 1.5;
+}
+
+/* 便签式卡片，带左侧印章色条 */
+.xhs-template-notebook.xhs-preview .xhs-card {
+  background: #fffef0;
+  border-radius: 2px 8px 8px 2px;
+  padding: 12px 14px 12px 18px;
+  margin-bottom: 12px;
+  border: 1px solid var(--xhs-border);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.08);
+  position: relative;
+  border-left: 4px solid var(--xhs-accent);
+}
+
+.xhs-template-notebook.xhs-preview .xhs-paragraph {
+  font-size: 0.9em;
+  line-height: 1.8;
+  color: var(--xhs-text-color);
+}
+
+/* 引用：手绘框 */
+.xhs-template-notebook.xhs-preview .xhs-blockquote {
+  background: #fffef0;
+  border: 2px solid var(--xhs-accent);
+  border-radius: 8px;
+  border-style: dashed;
+  padding: 12px 16px;
+  margin: 14px 0;
+  box-shadow: none;
+}
+
+.xhs-template-notebook.xhs-preview .xhs-blockquote p {
+  font-style: normal;
+  color: var(--xhs-text-color);
+  line-height: 1.75;
+}
+
+/* 列表 */
+.xhs-template-notebook.xhs-preview .xhs-list > li::before {
+  content: '✎';
+  color: var(--xhs-accent);
+  font-size: 0.8em;
+}
+
+/* Footer: 印章日期风格 */
+.xhs-template-notebook.xhs-preview .xhs-footer {
+  padding: 16px 0 12px;
+  border-top: 2px solid var(--xhs-border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.xhs-template-notebook.xhs-preview .xhs-footer-tag {
+  background: var(--xhs-stamp);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  padding: 3px 12px;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+  transform: rotate(2deg);
+}

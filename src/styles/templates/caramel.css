@@ -1,0 +1,11 @@
+/* ---------- 模板: Caramel 焦糖 ---------- */
+.xhs-template-caramel {
+  --xhs-template-bg: #FFD699;
+  --xhs-template-card-bg: #FFF5E6;
+  --xhs-template-card-shadow: 0 4px 20px rgba(210,105,30,0.2);
+  --xhs-template-title: #5D3A1A;
+  --xhs-template-text: #3D2510;
+  --xhs-template-accent: #8B4513;
+  --xhs-template-border: #FFE4C4;
+  --xhs-template-meta: #CD853F;
+}
