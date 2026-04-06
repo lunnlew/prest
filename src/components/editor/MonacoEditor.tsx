@@ -358,6 +358,26 @@ export function MonacoEditor() {
       })
     })
 
+    // Track editor scroll for sync scroll feature
+    editor.onDidScrollChange((e) => {
+      const layoutInfo = editor.getLayoutInfo()
+      const scrollTop = e.scrollTop
+      const scrollHeight = editor.getScrollHeight()
+      const clientHeight = layoutInfo.height
+
+      // Calculate scroll ratio
+      const maxScroll = scrollHeight - clientHeight
+      if (maxScroll > 0) {
+        const ratio = Math.min(1, Math.max(0, scrollTop / maxScroll))
+        useBoundStore.getState().setEditorScrollRatio(ratio)
+
+        // Calculate visible top line for outline sync
+        const totalLines = editor.getModel()?.getLineCount() || 1
+        const visibleTopLine = Math.max(1, Math.min(totalLines, Math.ceil(ratio * totalLines)))
+        useBoundStore.getState().setEditorVisibleTopLine(visibleTopLine)
+      }
+    })
+
     // Register keyboard shortcuts
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, () => {
       // Toggle bold

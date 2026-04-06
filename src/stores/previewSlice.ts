@@ -5,6 +5,8 @@ export interface PreviewSlice {
   // State
   scrollPosition: number
   syncScroll: boolean
+  editorScrollRatio: number  // Editor scroll position ratio (0-1)
+  editorVisibleTopLine: number  // Editor visible top line for outline sync
   layoutResults: Map<string, LayoutResult>
   previewWidth: number
   platformPreview: PlatformPreviewId
@@ -13,6 +15,8 @@ export interface PreviewSlice {
   setScrollPosition: (position: number) => void
   toggleSyncScroll: () => void
   setSyncScroll: (enabled: boolean) => void
+  setEditorScrollRatio: (ratio: number) => void
+  setEditorVisibleTopLine: (line: number) => void
   updateLayoutResult: (key: string, result: LayoutResult) => void
   setPreviewWidth: (width: number) => void
   clearLayoutResults: () => void
@@ -23,6 +27,8 @@ export interface PreviewSlice {
 export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice> = (set, get) => ({
   scrollPosition: 0,
   syncScroll: true,
+  editorScrollRatio: 0,
+  editorVisibleTopLine: 1,
   layoutResults: new Map(),
   previewWidth: 400,
   platformPreview: 'default',
@@ -32,6 +38,10 @@ export const createPreviewSlice: StateCreator<PreviewSlice, [], [], PreviewSlice
   toggleSyncScroll: () => set((state) => ({ syncScroll: !state.syncScroll })),
 
   setSyncScroll: (enabled) => set({ syncScroll: enabled }),
+
+  setEditorScrollRatio: (ratio) => set({ editorScrollRatio: ratio }),
+
+  setEditorVisibleTopLine: (line) => set({ editorVisibleTopLine: line }),
 
   updateLayoutResult: (key, result) => {
     const results = new Map(get().layoutResults)

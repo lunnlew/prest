@@ -14,6 +14,7 @@ export function useTranslation() {
     // 检查是否已加载
     const cached = getLoadedLocale(locale)
     if (cached) {
+      setMessages(cached)  // 更新 messages 状态
       setLoading(false)
       return
     }

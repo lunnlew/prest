@@ -36,14 +36,14 @@
 | 优先级 | 总数 | 完成 | 部分完成 | 待开始 |
 |--------|------|------|----------|--------|
 | P0 | 21 | 21 | 0 | 0 |
-| P1 | 18 | 17 | 1 | 0 |
+| P1 | 18 | 18 | 0 | 0 |
 | P2 | 4 | 4 | 0 | 0 |
-| **总计** | **43** | **42** | **1** | **0** |
+| **总计** | **43** | **43** | **0** | **0** |
 
 - **P0 功能完成率:** 100% (21/21)
-- **P1 功能完成率:** 94.4% (17/18，1 个部分完成)
+- **P1 功能完成率:** 100% (18/18)
 - **P2 功能完成率:** 100% (4/4)
-- **总体完成率:** 97.1% (42/43)
+- **总体完成率:** 100% (43/43)
 
 ### 文件统计
 
@@ -76,6 +76,8 @@
 | v0.6.0 | 2026-04-05 | 小红书排版出图：预览组件/导出对话框/分页引擎/三种模板；移除 PretextService 改用浏览器 DOM 渲染 |
 | v0.7.0 | 2026-04-05 | 大纲视图：滚动自动高亮/点击跳转定位/编辑器光标联动 |
 | v0.7.1 | 2026-04-06 | XHS 导出宽度可调/隐藏页码时自动释放 footer 空间/面板布局自动保存持久化 |
+| v0.8.0 | 2026-04-06 | 编辑器-预览区滚动同步（双向）/编辑器滚动-大纲同步选中 |
+| v0.8.1 | 2026-04-06 | 侧边栏标签页选中状态持久化/语言切换即时更新生效 |
 
 ---
 
@@ -101,7 +103,7 @@
 | 2.2 | UX-002 富文本粘贴 (HTML→Markdown) | ⏳ | 2h | 新建 `utils/paste.ts` |
 | 2.3 | X-002/X-003 导出 HTML/PDF | ⏳ | 3h | 新建 `utils/export.ts` |
 | 2.4 | X-004 导入本地文件 | ⏳ | 1h | `FileExplorer.tsx` |
-| 2.5 | FIX-001 同步滚动精确映射 | 🔄 | 3h | `MonacoEditor.tsx`, `OutlineView.tsx` — 大纲联动已实现，编辑器-预览滚动映射待完善 |
+| 2.5 | FIX-001 同步滚动精确映射 | ✅ | 3h | `MonacoEditor.tsx`, `OutlineView.tsx`, `PreviewPanel.tsx` — 编辑器-预览双向同步 + 大纲滚动联动 |
 | 2.6 | PERF-001 大文档虚拟渲染 | ⏳ | 4h | `MarkdownPreview.tsx` |
 | 2.7 | SEC-002 CSP 安全策略 | ⏳ | 1h | `index.html`, `vite.config.ts` |
 | 2.8 | FIX-005 浏览器兼容性测试 | ⏳ | 2h | — |
@@ -166,3 +168,7 @@
 | 5.4 | MarkdownPreview 移除 Pretext 依赖 | ✅ | 1h | `pretext.ts` 最小化保留，仅 XHS 分页使用 |
 | 5.5 | PretextService 删除 | ✅ | 0.5h | 改用 ResizeObserver 获取真实 DOM 尺寸 |
 | 5.6 | 面板布局自动保存持久化 | ✅ | 0.5h | `AppLayout.tsx` — react-resizable-panels `autoSaveId` 保留分隔线位置 |
+| 5.7 | 编辑器-预览区滚动同步 | ✅ | 2h | `MonacoEditor.tsx`, `PreviewPanel.tsx`, `previewSlice.ts` — 双向滚动同步，🔗 按钮切换 |
+| 5.8 | 编辑器滚动-大纲同步选中 | ✅ | 1h | `MonacoEditor.tsx`, `OutlineView.tsx`, `previewSlice.ts` — 滚动时自动高亮对应标题 |
+| 5.9 | 侧边栏标签页选中状态持久化 | ✅ | 0.5h | `useBoundStore.ts` — `activeSidebarTab` 添加到 persist partialize |
+| 5.10 | 语言切换即时更新 | ✅ | 0.5h | `useTranslation.ts` — 语言包缓存时调用 setMessages 更新状态 |
