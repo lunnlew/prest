@@ -8,6 +8,19 @@ import { PreviewPanel } from './PreviewPanel'
 import { ResizeHandle } from './ResizeHandle'
 
 export function AppLayout() {
+  const {
+    panelLayout,
+    sidebarVisible,
+    previewVisible,
+    editorOnLeft,
+    editorPanelSize,
+    previewPanelSize,
+    focusMode,
+    setPanelLayout,
+    setEditorPanelSize,
+    setPreviewPanelSize,
+  } = useBoundStore()
+
   // Handle Escape key to exit focus mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -21,18 +34,9 @@ export function AppLayout() {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
-  const {
-    panelLayout,
-    sidebarVisible,
-    previewVisible,
-    editorOnLeft,
-    editorPanelSize,
-    previewPanelSize,
-    focusMode,
-    setPanelLayout,
-    setEditorPanelSize,
-    setPreviewPanelSize,
-  } = useBoundStore()
+
+  // Focus mode: only show editor, hide everything else
+  const showEditorOnly = focusMode
 
   const handleLayoutChange = (sizes: number[]) => {
     setPanelLayout(sizes)
@@ -50,13 +54,6 @@ export function AppLayout() {
       }
     }
   }
-
-  // Focus mode: only show editor, hide everything else
-  const showEditorOnly = focusMode
-
-  // Safeguard: if not in focus mode, ensure sidebar and preview are visible for editor to show
-  const effectivePreviewVisible = previewVisible
-  const effectiveSidebarVisible = sidebarVisible
 
   // Determine panel order based on editorOnLeft
   const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
@@ -92,11 +89,10 @@ export function AppLayout() {
         className="h-full"
       >
         {/* Left Sidebar Content - 可隐藏 */}
-        {effectiveSidebarVisible && !showEditorOnly && (
+        {sidebarVisible && !showEditorOnly && (
           <Panel
             id="sidebar"
-            order={1}
-            defaultSize={Math.min(panelLayout[0], 35)}
+            defaultSize={panelLayout[0]}
             minSize={15}
             maxSize={35}
             className="bg-[var(--bg-secondary)]"
@@ -106,61 +102,58 @@ export function AppLayout() {
         )}
 
         {/* Resize Handle between Sidebar and Editor */}
-        {effectiveSidebarVisible && !showEditorOnly && (
+        {sidebarVisible && !showEditorOnly && (
           <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 transition-all group">
             <ResizeHandle direction="vertical" />
           </PanelResizeHandle>
         )}
 
         {/* Center Editor + Right Preview */}
-        <Panel id="main" defaultSize={effectiveSidebarVisible && !showEditorOnly ? Math.max(panelLayout[1], 30) : 100} minSize={showEditorOnly ? 100 : 30}>
+        <Panel id="main" defaultSize={sidebarVisible && !showEditorOnly ? panelLayout[1] : 100} minSize={showEditorOnly ? 100 : 30}>
           {showEditorOnly ? (
             // Focus mode: show only editor
             <EditorPanel />
           ) : (
-            // Normal mode: show editor and preview
             <PanelGroup
-              key={`editor-preview-${editorOnLeft}`}
-              direction="horizontal"
-              autoSaveId={`editor-preview-layout-${editorOnLeft}`}
-              className="h-full"
-              onLayout={handleEditorPreviewLayoutChange}
-            >
-              {/* Left Panel (Editor or Preview) */}
-              {effectivePreviewVisible && (
-                <Panel
-                  id={leftPanelId}
-                  order={1}
-                  defaultSize={leftPanelSize}
-                  minSize={leftPanelMinSize}
-                  maxSize={leftPanelMaxSize}
-                  className={leftPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
-                >
-                  {leftPanel}
-                </Panel>
-              )}
+            key={`editor-preview-${editorOnLeft}`}
+            direction="horizontal"
+            autoSaveId={`editor-preview-layout-${editorOnLeft}`}
+            className="h-full"
+            onLayout={handleEditorPreviewLayoutChange}
+          >
+            {/* Left Panel (Editor or Preview) */}
+            {previewVisible && (
+              <Panel
+                id={leftPanelId}
+                defaultSize={leftPanelSize}
+                minSize={leftPanelMinSize}
+                maxSize={leftPanelMaxSize}
+                className={leftPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
+              >
+                {leftPanel}
+              </Panel>
+            )}
 
-              {/* Resize Handle between Editor and Preview */}
-              {effectivePreviewVisible && (
-                <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 transition-all group">
-                  <ResizeHandle direction="vertical" />
-                </PanelResizeHandle>
-              )}
+            {/* Resize Handle between Editor and Preview */}
+            {previewVisible && (
+              <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 transition-all group">
+                <ResizeHandle direction="vertical" />
+              </PanelResizeHandle>
+            )}
 
-              {/* Right Panel (Preview or Editor) */}
-              {effectivePreviewVisible && (
-                <Panel
-                  id={rightPanelId}
-                  order={2}
-                  defaultSize={rightPanelSize}
-                  minSize={rightPanelMinSize}
-                  maxSize={rightPanelMaxSize}
-                  className={rightPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
-                >
-                  {rightPanel}
-                </Panel>
-              )}
-            </PanelGroup>
+            {/* Right Panel (Preview or Editor) */}
+            {previewVisible && (
+              <Panel
+                id={rightPanelId}
+                defaultSize={rightPanelSize}
+                minSize={rightPanelMinSize}
+                maxSize={rightPanelMaxSize}
+                className={rightPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
+              >
+                {rightPanel}
+              </Panel>
+            )}
+          </PanelGroup>
           )}
         </Panel>
       </PanelGroup>
