@@ -55,8 +55,8 @@ export function AppLayout() {
   const showEditorOnly = focusMode
 
   // Safeguard: if not in focus mode, ensure sidebar and preview are visible for editor to show
-  const effectivePreviewVisible = focusMode ? previewVisible : true
-  const effectiveSidebarVisible = focusMode ? sidebarVisible : true
+  const effectivePreviewVisible = previewVisible
+  const effectiveSidebarVisible = sidebarVisible
 
   // Determine panel order based on editorOnLeft
   const leftPanel = editorOnLeft ? <EditorPanel /> : <PreviewPanel />
