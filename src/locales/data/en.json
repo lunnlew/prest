@@ -78,7 +78,11 @@
     "copyWeibo": "Copy for Weibo",
     "focusMode": "Focus Mode",
     "typewriterMode": "Typewriter Mode",
-    "fullscreen": "Fullscreen"
+    "fullscreen": "Fullscreen",
+    "enableFocusMode": "Enable Focus Mode",
+    "disableFocusMode": "Disable Focus Mode",
+    "enableTypewriterMode": "Enable Typewriter Mode",
+    "disableTypewriterMode": "Disable Typewriter Mode"
   },
   "toolbar": {
     "basic": "Basic",

@@ -77,7 +77,11 @@
     "copyWeibo": "复制微博格式",
     "focusMode": "专注模式",
     "typewriterMode": "打字机模式",
-    "fullscreen": "全屏"
+    "fullscreen": "全屏",
+    "enableFocusMode": "专注模式",
+    "disableFocusMode": "关闭专注",
+    "enableTypewriterMode": "打字机模式",
+    "disableTypewriterMode": "关闭打字机"
   },
   "toolbar": {
     "basic": "基础",

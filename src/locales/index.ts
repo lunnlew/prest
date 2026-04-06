@@ -67,6 +67,10 @@ export interface LocaleMessages {
     focusMode: string
     typewriterMode: string
     fullscreen: string
+    enableFocusMode: string
+    disableFocusMode: string
+    enableTypewriterMode: string
+    disableTypewriterMode: string
   }
   // Toolbar
   toolbar: {

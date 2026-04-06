@@ -327,15 +327,14 @@ export function EditorToolbar() {
 
               // Special handling for view mode buttons (these use custom actions, not format)
               if (buttonId === 'focusMode' || buttonId === 'typewriterMode' || buttonId === 'fullscreen') {
-                // Show ON/OFF state for these buttons
-                let isActive = false
-                let stateLabel = ''
+                // Show enable/disable text based on state
+                let displayText = ''
                 if (buttonId === 'typewriterMode') {
-                  isActive = typewriterMode
-                  stateLabel = isActive ? ' ON' : ' OFF'
+                  displayText = typewriterMode ? t.editor.disableTypewriterMode : t.editor.enableTypewriterMode
                 } else if (buttonId === 'focusMode') {
-                  isActive = focusMode
-                  stateLabel = isActive ? ' ON' : ' OFF'
+                  displayText = focusMode ? t.editor.disableFocusMode : t.editor.enableFocusMode
+                } else {
+                  displayText = config.getDisplayName(t)
                 }
                 return (
                   <DropdownItem
@@ -345,7 +344,7 @@ export function EditorToolbar() {
                       setOpenDropdown(null)
                     }}
                     icon={config.icon}
-                    displayName={config.getDisplayName(t) + stateLabel}
+                    displayName={displayText}
                   />
                 )
               }
