@@ -25,6 +25,8 @@ export function MonacoEditor() {
     insertText,
   } = useBoundStore()
   const { t } = useTranslation()
+  if (!t) return null
+
   const isInternalChange = useRef(false)
   const monacoRef = useRef<typeof Monaco | null>(null)
   const editorWrapperRef = useRef<HTMLDivElement>(null)
@@ -68,8 +70,6 @@ export function MonacoEditor() {
     if (!editor || !monacoRef.current) return
     monacoRef.current.editor.setTheme(themeMap[settings.theme] || 'prest-dark')
   }, [settings.theme])
-
-  if (!t) return null
 
   // Register Markdown completion provider
   const registerCompletionProvider = (monaco: typeof Monaco) => {
