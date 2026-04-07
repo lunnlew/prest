@@ -137,22 +137,43 @@ export function AIChatPanel() {
   useEffect(() => {
     if (!isResizing) return
 
+    let rafId: number
+    let pendingHeight: number | null = null
+
     const handleMouseMove = (e: MouseEvent) => {
       const delta = resizeStartYRef.current - e.clientY
-      const newHeight = Math.min(Math.max(200, resizeStartHeightRef.current + delta), 600) // Min 200px, Max 600px
-      setChatHeight(newHeight)
+      pendingHeight = Math.min(Math.max(200, resizeStartHeightRef.current + delta), 600) // Min 200px, Max 600px
     }
 
-    const handleMouseUp = () => {
-      setIsResizing(false)
+    const flushHeight = () => {
+      if (pendingHeight !== null) {
+        setChatHeight(pendingHeight)
+        pendingHeight = null
+      }
+    }
+
+    const scheduleFlush = () => {
+      rafId = requestAnimationFrame(flushHeight)
     }
 
     document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mousemove', scheduleFlush)
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+      // Flush final height
+      if (pendingHeight !== null) {
+        setChatHeight(pendingHeight)
+      }
+    }
+
     document.addEventListener('mouseup', handleMouseUp)
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mousemove', scheduleFlush)
       document.removeEventListener('mouseup', handleMouseUp)
+      cancelAnimationFrame(rafId)
     }
   }, [isResizing])
 

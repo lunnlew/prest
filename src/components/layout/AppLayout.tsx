@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { PanelGroup, Panel, PanelResizeHandle } from 'react-resizable-panels'
 import type { ImperativePanelHandle } from 'react-resizable-panels'
 import { useBoundStore } from '../../stores'
@@ -7,6 +7,26 @@ import { SidebarPanel } from './SidebarPanel'
 import { EditorPanel } from './EditorPanel'
 import { PreviewPanel } from './PreviewPanel'
 import { ResizeHandle } from './ResizeHandle'
+
+// Debounce helper to reduce store update frequency during resize drag
+function useDebouncedCallback<T extends (...args: never[]) => void>(callback: T, delay: number): T {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const callbackRef = useRef(callback)
+
+  // Keep callback ref updated
+  useEffect(() => {
+    callbackRef.current = callback
+  }, [callback])
+
+  return useCallback((...args: Parameters<T>) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
+      callbackRef.current(...args)
+    }, delay)
+  }, [delay]) as T
+}
 
 export function AppLayout() {
   const {
@@ -97,11 +117,16 @@ export function AppLayout() {
   const leftPanelSize = editorOnLeft ? editorPanelSize : previewPanelSize
   const rightPanelSize = editorOnLeft ? previewPanelSize : editorPanelSize
 
+  // Debounce store updates to avoid performance issues during drag
+  const debouncedSetPanelLayout = useDebouncedCallback(setPanelLayout, 100)
+  const debouncedSetEditorPanelSize = useDebouncedCallback(setEditorPanelSize, 100)
+  const debouncedSetPreviewPanelSize = useDebouncedCallback(setPreviewPanelSize, 100)
+
   const handleLayoutChange = (sizes: number[]) => {
     // Only save layout when sidebar is visible and has reasonable size
     // When sidebar is collapsed, sizes would be [0, 100] which corrupts panelLayout
     if (sidebarVisible && sizes.length >= 2 && sizes[0] > 5) {
-      setPanelLayout(sizes)
+      debouncedSetPanelLayout(sizes)
     }
   }
 
@@ -111,11 +136,11 @@ export function AppLayout() {
     // Skip if sizes are too small (panel being collapsed/hidden)
     if (previewVisible && sizes.length >= 2 && sizes[0] > 5 && sizes[1] > 5) {
       if (editorOnLeft) {
-        setEditorPanelSize(sizes[0])
-        setPreviewPanelSize(sizes[1])
+        debouncedSetEditorPanelSize(sizes[0])
+        debouncedSetPreviewPanelSize(sizes[1])
       } else {
-        setPreviewPanelSize(sizes[0])
-        setEditorPanelSize(sizes[1])
+        debouncedSetPreviewPanelSize(sizes[0])
+        debouncedSetEditorPanelSize(sizes[1])
       }
     }
   }
