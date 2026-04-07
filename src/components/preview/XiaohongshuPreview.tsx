@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, memo } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -427,7 +427,7 @@ function createRenderersByType(type: RendererType, fontConfig: FontConfig, count
   return createRenderersByType('card', fontConfig, counter)
 }
 
-export function XiaohongshuPreview({
+export const XiaohongshuPreview = memo(function XiaohongshuPreview({
   content, html: htmlContent, template,
   watermark = '', watermarkPosition = 'bottom-right', watermarkOpacity = 0.5, watermarkSize = 'medium',
   showPageNumber = false, currentPage = 1, totalPages = 1,
@@ -524,4 +524,4 @@ export function XiaohongshuPreview({
       )}
     </div>
   )
-}
+})

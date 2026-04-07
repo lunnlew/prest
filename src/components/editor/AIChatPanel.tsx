@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { streamChat, ChatMessage } from '../../services/AIService'
@@ -89,7 +90,17 @@ function loadPersistedHeight(): number {
 }
 
 export function AIChatPanel() {
-  const { config, isChatOpen, setChatOpen, insertText, replaceSelection, editorInstance, settings } = useBoundStore()
+  const { config, isChatOpen, settings } = useBoundStore(
+    useShallow((state) => ({
+      config: state.config,
+      isChatOpen: state.isChatOpen,
+      settings: state.settings,
+    }))
+  )
+  const setChatOpen = useBoundStore(state => state.setChatOpen)
+  const insertText = useBoundStore(state => state.insertText)
+  const replaceSelection = useBoundStore(state => state.replaceSelection)
+  const editorInstance = useBoundStore(state => state.editorInstance)
   const { t } = useTranslation()
   const [messages, setMessages] = useState<UIChatMessage[]>(loadPersistedMessages)
   const [input, setInput] = useState('')

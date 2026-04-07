@@ -1,8 +1,18 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 
 export function EditorStatusBar() {
-  const { content, cursorPosition, isDirty, settings, typewriterMode, focusMode } = useBoundStore()
+  const { content, cursorPosition, isDirty, typewriterMode, focusMode } = useBoundStore(
+    useShallow((state) => ({
+      content: state.content,
+      cursorPosition: state.cursorPosition,
+      isDirty: state.isDirty,
+      typewriterMode: state.typewriterMode,
+      focusMode: state.focusMode,
+    }))
+  )
+  const settings = useBoundStore(state => state.settings)
   const { t } = useTranslation()
 
   if (!t) return null

@@ -8,44 +8,38 @@ import { EditorPanel } from './EditorPanel'
 import { PreviewPanel } from './PreviewPanel'
 import { ResizeHandle } from './ResizeHandle'
 
-// Debounce helper to reduce store update frequency during resize drag
-function useDebouncedCallback<T extends (...args: never[]) => void>(callback: T, delay: number): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const callbackRef = useRef(callback)
-
-  // Keep callback ref updated
-  useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
-
-  return useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-    timeoutRef.current = setTimeout(() => {
-      callbackRef.current(...args)
-    }, delay)
-  }, [delay]) as T
-}
+// Individual selectors to avoid re-renders from object destructuring
+const usePanelLayout = () => useBoundStore(state => state.panelLayout)
+const useSidebarVisible = () => useBoundStore(state => state.sidebarVisible)
+const usePreviewVisible = () => useBoundStore(state => state.previewVisible)
+const useEditorOnLeft = () => useBoundStore(state => state.editorOnLeft)
+const useEditorPanelSize = () => useBoundStore(state => state.editorPanelSize)
+const usePreviewPanelSize = () => useBoundStore(state => state.previewPanelSize)
+const useFocusMode = () => useBoundStore(state => state.focusMode)
+const useSetPanelLayout = () => useBoundStore(state => state.setPanelLayout)
+const useSetEditorPanelSize = () => useBoundStore(state => state.setEditorPanelSize)
+const useSetPreviewPanelSize = () => useBoundStore(state => state.setPreviewPanelSize)
 
 export function AppLayout() {
-  const {
-    panelLayout,
-    sidebarVisible,
-    previewVisible,
-    editorOnLeft,
-    editorPanelSize,
-    previewPanelSize,
-    focusMode,
-    setPanelLayout,
-    setEditorPanelSize,
-    setPreviewPanelSize,
-  } = useBoundStore()
+  const panelLayout = usePanelLayout()
+  const sidebarVisible = useSidebarVisible()
+  const previewVisible = usePreviewVisible()
+  const editorOnLeft = useEditorOnLeft()
+  const editorPanelSize = useEditorPanelSize()
+  const previewPanelSize = usePreviewPanelSize()
+  const focusMode = useFocusMode()
+  const setPanelLayout = useSetPanelLayout()
+  const setEditorPanelSize = useSetEditorPanelSize()
+  const setPreviewPanelSize = useSetPreviewPanelSize()
 
   // Refs for imperative panel control
   const sidebarRef = useRef<ImperativePanelHandle>(null)
   const leftPanelRef = useRef<ImperativePanelHandle>(null)
   const rightPanelRef = useRef<ImperativePanelHandle>(null)
+
+  // Drag state tracking - only update store when drag ends, not during
+  // This prevents React re-renders during drag for smooth performance
+  const dragCountRef = useRef(0)
 
   // Handle Escape key to exit focus mode
   useEffect(() => {
@@ -117,36 +111,58 @@ export function AppLayout() {
   const leftPanelSize = editorOnLeft ? editorPanelSize : previewPanelSize
   const rightPanelSize = editorOnLeft ? previewPanelSize : editorPanelSize
 
-  // Debounce store updates to avoid performance issues during drag
-  const debouncedSetPanelLayout = useDebouncedCallback(setPanelLayout, 100)
-  const debouncedSetEditorPanelSize = useDebouncedCallback(setEditorPanelSize, 100)
-  const debouncedSetPreviewPanelSize = useDebouncedCallback(setPreviewPanelSize, 100)
+  // Track drag start/end for outer PanelGroup (sidebar)
+  const handleSidebarDragStart = useCallback(() => {
+    dragCountRef.current += 1
+    document.dispatchEvent(new CustomEvent('panelresizestart'))
+  }, [])
 
-  const handleLayoutChange = (sizes: number[]) => {
-    // Only save layout when sidebar is visible and has reasonable size
-    // When sidebar is collapsed, sizes would be [0, 100] which corrupts panelLayout
-    if (sidebarVisible && sizes.length >= 2 && sizes[0] > 5) {
-      debouncedSetPanelLayout(sizes)
-    }
-  }
-
-  // Handle editor-preview split size changes
-  const handleEditorPreviewLayoutChange = (sizes: number[]) => {
-    // Only save sizes when preview is visible and panels have reasonable sizes
-    // Skip if sizes are too small (panel being collapsed/hidden)
-    if (previewVisible && sizes.length >= 2 && sizes[0] > 5 && sizes[1] > 5) {
-      if (editorOnLeft) {
-        debouncedSetEditorPanelSize(sizes[0])
-        debouncedSetPreviewPanelSize(sizes[1])
-      } else {
-        debouncedSetPreviewPanelSize(sizes[0])
-        debouncedSetEditorPanelSize(sizes[1])
+  const handleSidebarDragEnd = useCallback(() => {
+    dragCountRef.current = Math.max(0, dragCountRef.current - 1)
+    document.dispatchEvent(new CustomEvent('panelresizeend'))
+    if (dragCountRef.current === 0) {
+      // Commit final sizes to store only when drag ends
+      const sidebarSize = sidebarRef.current?.getSize()
+      const mainSize = leftPanelRef.current?.getSize()
+      if (sidebarSize !== undefined && mainSize !== undefined && sidebarVisible && sidebarSize > 5) {
+        setPanelLayout([sidebarSize, mainSize])
       }
     }
-  }
+  }, [sidebarVisible, setPanelLayout])
+
+  // Track drag start/end for inner PanelGroup (editor-preview)
+  const handleEditorPreviewDragStart = useCallback(() => {
+    dragCountRef.current += 1
+    document.dispatchEvent(new CustomEvent('panelresizestart'))
+  }, [])
+
+  const handleEditorPreviewDragEnd = useCallback(() => {
+    dragCountRef.current = Math.max(0, dragCountRef.current - 1)
+    document.dispatchEvent(new CustomEvent('panelresizeend'))
+    if (dragCountRef.current === 0) {
+      // Trigger Monaco editor layout after drag ends
+      const editorInstance = useBoundStore.getState().editorInstance
+      if (editorInstance) {
+        editorInstance.layout()
+      }
+
+      // Commit final sizes to store
+      const leftSize = leftPanelRef.current?.getSize()
+      const rightSize = rightPanelRef.current?.getSize()
+      if (leftSize !== undefined && rightSize !== undefined && previewVisible && leftSize > 5 && rightSize > 5) {
+        if (editorOnLeft) {
+          setEditorPanelSize(leftSize)
+          setPreviewPanelSize(rightSize)
+        } else {
+          setPreviewPanelSize(leftSize)
+          setEditorPanelSize(rightSize)
+        }
+      }
+    }
+  }, [previewVisible, editorOnLeft, setEditorPanelSize, setPreviewPanelSize])
 
   return (
-    <div className="h-full w-full bg-[var(--bg-primary)] flex">
+    <div className="h-full w-full bg-[var(--bg-primary)] flex select-none">
       {/* 专注模式退出按钮 */}
       {showEditorOnly && (
         <button
@@ -162,7 +178,6 @@ export function AppLayout() {
 
       <PanelGroup
         direction="horizontal"
-        onLayout={handleLayoutChange}
         className="h-full"
       >
         {/* Left Sidebar - collapsible */}
@@ -173,13 +188,15 @@ export function AppLayout() {
           minSize={15}
           maxSize={35}
           collapsible
+          onDragStart={handleSidebarDragStart}
+          onDragEnd={handleSidebarDragEnd}
           className="bg-[var(--bg-secondary)]"
         >
           <SidebarPanel />
         </Panel>
 
         {/* Resize Handle between Sidebar and Editor */}
-        <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 transition-all group">
+        <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 group">
           <ResizeHandle direction="vertical" />
         </PanelResizeHandle>
 
@@ -193,7 +210,6 @@ export function AppLayout() {
             key={`editor-preview-${editorOnLeft}`}
             direction="horizontal"
             className="h-full"
-            onLayout={handleEditorPreviewLayoutChange}
           >
             {/* Left Panel (Editor or Preview) */}
             <Panel
@@ -203,13 +219,15 @@ export function AppLayout() {
               minSize={leftPanelMinSize}
               maxSize={leftPanelMaxSize}
               collapsible
+              onDragStart={handleEditorPreviewDragStart}
+              onDragEnd={handleEditorPreviewDragEnd}
               className={leftPanelId === 'editor' ? 'bg-[var(--bg-primary)]' : 'bg-[var(--bg-secondary)]'}
             >
               {leftPanel}
             </Panel>
 
             {/* Resize Handle between Editor and Preview */}
-            <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 transition-all group">
+            <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 group">
               <ResizeHandle direction="vertical" />
             </PanelResizeHandle>
 

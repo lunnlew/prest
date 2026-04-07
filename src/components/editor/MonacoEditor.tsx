@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import Editor, { OnMount } from '@monaco-editor/react'
 import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
@@ -17,14 +18,24 @@ const themeMap: Record<string, string> = {
 export function MonacoEditor() {
   const {
     content,
-    setContent,
-    setCursorPosition,
-    setEditorInstance,
     settings,
     cursorPosition,
-    insertText,
-  } = useBoundStore()
+  } = useBoundStore(
+    useShallow((state) => ({
+      content: state.content,
+      settings: state.settings,
+      cursorPosition: state.cursorPosition,
+    }))
+  )
+  const setContent = useBoundStore(state => state.setContent)
+  const setCursorPosition = useBoundStore(state => state.setCursorPosition)
+  const setEditorInstance = useBoundStore(state => state.setEditorInstance)
+  const insertText = useBoundStore(state => state.insertText)
   const { t } = useTranslation()
+
+  // Refs for drag state and scroll debounce
+  const isDraggingRef = useRef(false)
+  const scrollUpdateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInternalChange = useRef(false)
   const monacoRef = useRef<typeof Monaco | null>(null)
   const editorWrapperRef = useRef<HTMLDivElement>(null)
@@ -481,24 +492,51 @@ export function MonacoEditor() {
     })
 
     // Track editor scroll for sync scroll feature
+    // Skip updates during drag to avoid performance issues
     editor.onDidScrollChange((e) => {
+      // Skip scroll ratio updates during drag - they cause preview re-renders
+      if (isDraggingRef.current) return
+
       const layoutInfo = editor.getLayoutInfo()
       const scrollTop = e.scrollTop
       const scrollHeight = editor.getScrollHeight()
       const clientHeight = layoutInfo.height
 
-      // Calculate scroll ratio
+      // Debounce scroll ratio updates to avoid excessive store updates
+      if (scrollUpdateTimeoutRef.current) {
+        clearTimeout(scrollUpdateTimeoutRef.current)
+      }
+      scrollUpdateTimeoutRef.current = setTimeout(() => {
+        const maxScroll = scrollHeight - clientHeight
+        if (maxScroll > 0) {
+          const ratio = Math.min(1, Math.max(0, scrollTop / maxScroll))
+          useBoundStore.getState().setEditorScrollRatio(ratio)
+
+          // Calculate visible top line for outline sync
+          const totalLines = editor.getModel()?.getLineCount() || 1
+          const visibleTopLine = Math.max(1, Math.min(totalLines, Math.ceil(ratio * totalLines)))
+          useBoundStore.getState().setEditorVisibleTopLine(visibleTopLine)
+        }
+      }, 50)
+    })
+
+    // Track global drag state to skip scroll updates during panel resize
+    const handleDragStart = () => { isDraggingRef.current = true }
+    const handleDragEnd = () => {
+      isDraggingRef.current = false
+      // Update scroll ratio once after drag ends
+      const layoutInfo = editor.getLayoutInfo()
+      const scrollTop = editor.getScrollTop()
+      const scrollHeight = editor.getScrollHeight()
+      const clientHeight = layoutInfo.height
       const maxScroll = scrollHeight - clientHeight
       if (maxScroll > 0) {
         const ratio = Math.min(1, Math.max(0, scrollTop / maxScroll))
         useBoundStore.getState().setEditorScrollRatio(ratio)
-
-        // Calculate visible top line for outline sync
-        const totalLines = editor.getModel()?.getLineCount() || 1
-        const visibleTopLine = Math.max(1, Math.min(totalLines, Math.ceil(ratio * totalLines)))
-        useBoundStore.getState().setEditorVisibleTopLine(visibleTopLine)
       }
-    })
+    }
+    document.addEventListener('panelresizestart', handleDragStart)
+    document.addEventListener('panelresizeend', handleDragEnd)
 
     // Register keyboard shortcuts
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, () => {
@@ -739,6 +777,11 @@ export function MonacoEditor() {
         }
       },
     })
+
+    // No ResizeObserver needed - Monaco handles its own layout
+    // CSS flexbox will naturally resize the container, and Monaco will
+    // use CSS to determine its size. The editor will be slightly blurry
+    // during drag but will be smooth.
   }
 
   // Handle image drag & drop
@@ -856,7 +899,6 @@ export function MonacoEditor() {
           renderLineHighlight: 'all',
           folding: true,
           tabSize: 2,
-          automaticLayout: true,
           padding: { top: 16, bottom: 16 },
           scrollbar: {
             vertical: 'auto',

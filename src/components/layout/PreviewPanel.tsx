@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { MarkdownPreview } from '../preview/MarkdownPreview'
@@ -6,7 +7,16 @@ import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
 import type { PlatformPreviewId } from '../../types'
 
 export function PreviewPanel() {
-  const { content, platformPreview, settings, setPlatformPreview, setSyncScroll, editorScrollRatio } = useBoundStore()
+  const { content, platformPreview, settings, setPlatformPreview, setSyncScroll, editorScrollRatio } = useBoundStore(
+    useShallow((state) => ({
+      content: state.content,
+      platformPreview: state.platformPreview,
+      settings: state.settings,
+      setPlatformPreview: state.setPlatformPreview,
+      setSyncScroll: state.setSyncScroll,
+      editorScrollRatio: state.editorScrollRatio,
+    }))
+  )
   const { t } = useTranslation()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isScrollingRef = useRef(false)

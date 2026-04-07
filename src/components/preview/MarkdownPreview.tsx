@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, memo } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -30,26 +30,11 @@ const CALLOUT_TYPES: Record<string, { icon: string; className: string }> = {
   default: { icon: '📌', className: 'callout-default' },
 }
 
-export function MarkdownPreview({ content }: MarkdownPreviewProps) {
+export const MarkdownPreview = memo(function MarkdownPreview({ content }: MarkdownPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null)
   const { settings } = useBoundStore()
 
-  // Monitor preview dimensions with ResizeObserver
-  const handleResize = useCallback((entries: ResizeObserverEntry[]) => {
-    const rect = entries[0]?.contentRect
-    if (rect) {
-      useBoundStore.getState().setPreviewWidth(rect.width)
-    }
-  }, [])
-
-  useEffect(() => {
-    const el = previewRef.current
-    if (!el) return
-
-    const observer = new ResizeObserver(handleResize)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [handleResize])
+  // Note: ResizeObserver removed - previewWidth in store was unused and caused performance issues during drag
 
   return (
     <div
@@ -242,4 +227,4 @@ export function MarkdownPreview({ content }: MarkdownPreviewProps) {
       </Markdown>
     </div>
   )
-}
+})
