@@ -1,8 +1,8 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
-import { MarkdownPreview } from '../preview/MarkdownPreview'
+import { VirtualMarkdown } from '../preview/VirtualMarkdown'
 import { XiaohongshuPreview } from '../preview/XiaohongshuPreview'
 import type { PlatformPreviewId } from '../../types'
 
@@ -18,28 +18,10 @@ export function PreviewPanel() {
     }))
   )
   const { t } = useTranslation()
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const isScrollingRef = useRef(false)
-  const isDraggingRef = useRef(false)
   const xhs = settings.xhsExport
   const syncScroll = settings.syncScroll
 
-  // Sync scroll from editor to preview
-  useEffect(() => {
-    if (!t || !syncScroll || isScrollingRef.current || isDraggingRef.current) return
-
-    const container = scrollContainerRef.current
-    if (!container) return
-
-    const scrollHeight = container.scrollHeight
-    const clientHeight = container.clientHeight
-    const maxScroll = scrollHeight - clientHeight
-
-    if (maxScroll > 0) {
-      const targetScrollTop = editorScrollRatio * maxScroll
-      container.scrollTop = targetScrollTop
-    }
-  }, [syncScroll, editorScrollRatio, t])
+  const isDraggingRef = useRef(false)
 
   // Track global drag state to skip scroll updates during panel resize
   useEffect(() => {
@@ -57,24 +39,11 @@ export function PreviewPanel() {
     }
   }, [])
 
-  // Handle preview scroll - update editor scroll ratio when user scrolls preview
-  const handlePreviewScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  // Handle scroll ratio changes from VirtualMarkdown (preview scroll → editor sync)
+  const handleScrollRatioChange = useCallback((ratio: number) => {
     if (!syncScroll) return
-
-    const container = e.currentTarget
-    const scrollHeight = container.scrollHeight
-    const clientHeight = container.clientHeight
-    const maxScroll = scrollHeight - clientHeight
-
-    if (maxScroll > 0) {
-      isScrollingRef.current = true
-      useBoundStore.getState().setEditorScrollRatio(container.scrollTop / maxScroll)
-      // Reset flag after a short delay to re-enable sync from editor
-      setTimeout(() => {
-        isScrollingRef.current = false
-      }, 50)
-    }
-  }
+    useBoundStore.getState().setEditorScrollRatio(ratio)
+  }, [syncScroll])
 
   if (!t) return null
 
@@ -107,29 +76,27 @@ export function PreviewPanel() {
         </div>
       </div>
 
-      <div
-        ref={scrollContainerRef}
-        onScroll={handlePreviewScroll}
-        className="flex-1 overflow-auto"
-      >
-        {platformPreview === 'xiaohongshu' ? (
-          <div className="bg-[var(--bg-primary)] py-6 px-4 min-h-full flex justify-center">
-            <div className="w-full max-w-[480px]">
-              <XiaohongshuPreview
-                content={content}
-                template={xhs.template}
-                watermark={xhs.watermark}
-                watermarkPosition={xhs.watermarkPosition}
-                watermarkOpacity={xhs.watermarkOpacity}
-                watermarkSize={xhs.watermarkSize}
-                showPageNumber={xhs.showPageNumber}
-              />
-            </div>
+      {platformPreview === 'xiaohongshu' ? (
+        <div className="flex-1 overflow-auto bg-[var(--bg-primary)] py-6 px-4">
+          <div className="w-full max-w-[480px] mx-auto">
+            <XiaohongshuPreview
+              content={content}
+              template={xhs.template}
+              watermark={xhs.watermark}
+              watermarkPosition={xhs.watermarkPosition}
+              watermarkOpacity={xhs.watermarkOpacity}
+              watermarkSize={xhs.watermarkSize}
+              showPageNumber={xhs.showPageNumber}
+            />
           </div>
-        ) : (
-          <MarkdownPreview content={content} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <VirtualMarkdown
+          content={content}
+          scrollRatio={syncScroll ? editorScrollRatio : undefined}
+          onScrollRatioChange={handleScrollRatioChange}
+        />
+      )}
     </div>
   )
 }
