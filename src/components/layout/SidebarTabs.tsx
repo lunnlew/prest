@@ -31,7 +31,16 @@ export function SidebarTabs() {
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          onClick={() => setActiveSidebarTab(tab.id)}
+          onClick={() => {
+            if (activeSidebarTab === tab.id) {
+              // Clicking active tab toggles sidebar visibility
+              toggleSidebar()
+            } else {
+              // Clicking different tab - show sidebar and switch tab
+              setActiveSidebarTab(tab.id)
+              if (!sidebarVisible) toggleSidebar()
+            }
+          }}
           className={clsx(
             'w-10 h-10 flex items-center justify-center rounded-md mb-1 transition-colors',
             activeSidebarTab === tab.id
