@@ -3,7 +3,6 @@ import { useShallow } from 'zustand/react/shallow'
 import Editor, { OnMount } from '@monaco-editor/react'
 import { useTranslation } from '../../hooks/useTranslation'
 import { useBoundStore } from '../../stores'
-import { htmlToMarkdown } from '../../utils/clipboard'
 import type * as Monaco from 'monaco-editor'
 
 // Map app theme to Monaco editor theme
@@ -784,73 +783,92 @@ export function MonacoEditor() {
     const files = e.dataTransfer?.files
     if (!files || files.length === 0) return
 
+    // Collect all image files
+    const imageFiles: File[] = []
     for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-          const base64 = event.target?.result as string
-          const markdown = `![${file.name}](${base64})\n`
-          insertText(markdown)
-        }
-        reader.readAsDataURL(file)
-        break // Only handle first image
+      if (files[i].type.startsWith('image/')) {
+        imageFiles.push(files[i])
       }
+    }
+
+    // Insert all images
+    for (let i = 0; i < imageFiles.length; i++) {
+      const file = imageFiles[i]
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (event) => resolve(event.target?.result as string)
+        reader.readAsDataURL(file)
+      })
+
+      // Use filename without extension, or generate timestamp name
+      const fileName = file.name && !file.name.startsWith('image')
+        ? file.name.replace(/\.[^.]+$/, '')
+        : `dropped-image-${i + 1}`
+      const markdown = `![${fileName}](${base64})\n`
+      insertText(markdown)
     }
   }, [insertText])
 
   // Handle paste event for images and HTML
   useEffect(() => {
-    const handlePaste = (e: Event) => {
+    // Listen on the editor container to catch paste before Monaco intercepts it
+    const editorElement = editorWrapperRef.current
+    if (!editorElement) return
+
+    const handlePaste = async (e: Event) => {
+      // Give Monaco a chance to handle text paste, but intercept image paste
       const clipboardEvent = e as ClipboardEvent
       const items = clipboardEvent.clipboardData?.items
       if (!items) return
 
-      let imageHandled = false
-      let htmlHandled = false
-
+      // Check if there are any images in the clipboard
+      let hasImages = false
       for (const item of items) {
-        // Handle image paste
-        if (!imageHandled && item.type.startsWith('image/')) {
-          e.preventDefault()
+        if (item.type.startsWith('image/')) {
+          hasImages = true
+          break
+        }
+      }
+
+      // If no images, let Monaco handle the paste normally
+      if (!hasImages) return
+
+      // For image paste, prevent Monaco and handle ourselves
+      e.preventDefault()
+      e.stopPropagation()
+
+      // Collect all image files
+      const imageFiles: File[] = []
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
           const file = item.getAsFile()
           if (file) {
-            const reader = new FileReader()
-            reader.onload = (event) => {
-              const base64 = event.target?.result as string
-              const timestamp = new Date().toISOString().slice(0, 10)
-              const markdown = `![pasted-image-${timestamp}](${base64})\n`
-              insertText(markdown)
-            }
-            reader.readAsDataURL(file)
-            imageHandled = true
-            break
-          }
-        }
-
-        // Handle HTML paste (rich text)
-        if (!htmlHandled && (item.type === 'text/html' || item.type === 'text/plain')) {
-          // Only handle HTML if it's not just plain text
-          if (item.type === 'text/html') {
-            e.preventDefault()
-            const reader = new FileReader()
-            reader.onload = (event) => {
-              const html = event.target?.result as string
-              const markdown = htmlToMarkdown(html)
-              if (markdown) {
-                insertText(markdown)
-              }
-            }
-            reader.readAsText(item.getAsFile()!)
-            htmlHandled = true
-            break
+            imageFiles.push(file)
           }
         }
       }
+
+      // Insert all images
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i]
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (event) => resolve(event.target?.result as string)
+          reader.readAsDataURL(file)
+        })
+
+        // Generate a friendly name
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+        const fileName = file.name && !file.name.startsWith('image')
+          ? file.name.replace(/\.[^.]+$/, '')
+          : `pasted-image-${timestamp}`
+        const markdown = `![${fileName}](${base64})\n`
+        insertText(markdown)
+      }
     }
 
-    document.addEventListener('paste', handlePaste)
-    return () => document.removeEventListener('paste', handlePaste)
+    editorElement.addEventListener('paste', handlePaste, true) // Use capture phase
+    return () => editorElement.removeEventListener('paste', handlePaste, true)
   }, [insertText])
 
   const handleChange = (value: string | undefined) => {
