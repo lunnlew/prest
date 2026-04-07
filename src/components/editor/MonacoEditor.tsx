@@ -33,9 +33,8 @@ export function MonacoEditor() {
   const insertText = useBoundStore(state => state.insertText)
   const { t } = useTranslation()
 
-  // Refs for drag state and scroll debounce
+  // Ref for drag state tracking
   const isDraggingRef = useRef(false)
-  const scrollUpdateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isInternalChange = useRef(false)
   const monacoRef = useRef<typeof Monaco | null>(null)
   const editorWrapperRef = useRef<HTMLDivElement>(null)
@@ -492,48 +491,34 @@ export function MonacoEditor() {
     })
 
     // Track editor scroll for sync scroll feature
-    // Skip updates during drag to avoid performance issues
+    // Completely skip updates during drag to avoid any performance issues
     editor.onDidScrollChange((e) => {
-      // Skip scroll ratio updates during drag - they cause preview re-renders
+      // Skip all scroll ratio updates during drag
       if (isDraggingRef.current) return
 
       const layoutInfo = editor.getLayoutInfo()
       const scrollTop = e.scrollTop
       const scrollHeight = editor.getScrollHeight()
       const clientHeight = layoutInfo.height
-
-      // Debounce scroll ratio updates to avoid excessive store updates
-      if (scrollUpdateTimeoutRef.current) {
-        clearTimeout(scrollUpdateTimeoutRef.current)
-      }
-      scrollUpdateTimeoutRef.current = setTimeout(() => {
-        const maxScroll = scrollHeight - clientHeight
-        if (maxScroll > 0) {
-          const ratio = Math.min(1, Math.max(0, scrollTop / maxScroll))
-          useBoundStore.getState().setEditorScrollRatio(ratio)
-
-          // Calculate visible top line for outline sync
-          const totalLines = editor.getModel()?.getLineCount() || 1
-          const visibleTopLine = Math.max(1, Math.min(totalLines, Math.ceil(ratio * totalLines)))
-          useBoundStore.getState().setEditorVisibleTopLine(visibleTopLine)
-        }
-      }, 50)
-    })
-
-    // Track global drag state to skip scroll updates during panel resize
-    const handleDragStart = () => { isDraggingRef.current = true }
-    const handleDragEnd = () => {
-      isDraggingRef.current = false
-      // Update scroll ratio once after drag ends
-      const layoutInfo = editor.getLayoutInfo()
-      const scrollTop = editor.getScrollTop()
-      const scrollHeight = editor.getScrollHeight()
-      const clientHeight = layoutInfo.height
       const maxScroll = scrollHeight - clientHeight
+
       if (maxScroll > 0) {
         const ratio = Math.min(1, Math.max(0, scrollTop / maxScroll))
         useBoundStore.getState().setEditorScrollRatio(ratio)
+
+        // Calculate visible top line for outline sync
+        const totalLines = editor.getModel()?.getLineCount() || 1
+        const visibleTopLine = Math.max(1, Math.min(totalLines, Math.ceil(ratio * totalLines)))
+        useBoundStore.getState().setEditorVisibleTopLine(visibleTopLine)
       }
+    })
+
+    // Track global drag state to skip scroll updates during panel resize
+    const handleDragStart = () => {
+      isDraggingRef.current = true
+    }
+    const handleDragEnd = () => {
+      isDraggingRef.current = false
     }
     document.addEventListener('panelresizestart', handleDragStart)
     document.addEventListener('panelresizeend', handleDragEnd)
