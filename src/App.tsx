@@ -1,6 +1,7 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import { AppLayout } from './components/layout/AppLayout'
 import { useBoundStore } from './stores/useBoundStore'
+import { KeyboardShortcutsDialog } from './components/editor/KeyboardShortcutsDialog'
 
 function App() {
   const theme = useBoundStore((state) => state.settings.theme)
@@ -10,6 +11,7 @@ function App() {
   const currentFile = useBoundStore((state) => state.currentFile)
   const saveFileContent = useBoundStore((state) => state.saveFileContent)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [showShortcuts, setShowShortcuts] = useState(false)
 
   // Load files from IndexedDB on mount
   const loadFilesFromDB = useBoundStore((state) => state.loadFilesFromDB)
@@ -79,14 +81,31 @@ function App() {
         e.preventDefault()
         handleSave()
       }
+      // F1 - Open keyboard shortcuts dialog
+      if (e.key === 'F1') {
+        e.preventDefault()
+        setShowShortcuts(true)
+      }
     }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
+    // Use capture phase to intercept before Monaco editor
+    document.addEventListener('keydown', handler, true)
+    return () => document.removeEventListener('keydown', handler, true)
   }, [handleSave])
+
+  // Listen for custom event to open shortcuts dialog (from SettingsPanel)
+  useEffect(() => {
+    const handleOpenShortcuts = () => setShowShortcuts(true)
+    window.addEventListener('open-shortcuts-dialog', handleOpenShortcuts)
+    return () => window.removeEventListener('open-shortcuts-dialog', handleOpenShortcuts)
+  }, [])
 
   return (
     <div className="h-screen w-screen overflow-hidden">
       <AppLayout />
+      <KeyboardShortcutsDialog
+        isOpen={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+      />
     </div>
   )
 }

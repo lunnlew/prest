@@ -131,6 +131,19 @@
     "enableTypewriterMode": "打字机模式",
     "disableTypewriterMode": "关闭打字机"
   },
+  "shortcuts": {
+    "title": "键盘快捷键",
+    "formatting": "格式化",
+    "headings": "标题",
+    "ai": "AI",
+    "navigation": "导航",
+    "nextElement": "下一个元素",
+    "prevElement": "上一个元素",
+    "activate": "激活",
+    "close": "关闭弹窗",
+    "macHint": "⌘ 是 Mac 上的 Command 键",
+    "winHint": "Ctrl 是 Windows/Linux 上的 Control 键"
+  },
   "toolbar": {
     "basic": "基础",
     "headings": "标题",

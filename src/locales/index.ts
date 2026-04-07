@@ -233,6 +233,20 @@ export interface LocaleMessages {
     explain: string
     continue: string
   }
+  // Shortcuts
+  shortcuts: {
+    title: string
+    formatting: string
+    headings: string
+    ai: string
+    navigation: string
+    nextElement: string
+    prevElement: string
+    activate: string
+    close: string
+    macHint: string
+    winHint: string
+  }
 }
 
 export const defaultLocale: Locale = 'zh-CN'

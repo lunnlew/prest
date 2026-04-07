@@ -16,6 +16,11 @@ export function SettingsPanel() {
   } = useBoundStore()
   const { t, locale, setLocale: changeLocale } = useTranslation()
 
+  // Dispatch custom event to open shortcuts dialog
+  const openShortcuts = () => {
+    window.dispatchEvent(new CustomEvent('open-shortcuts-dialog'))
+  }
+
   if (!t) return null
 
   return (
@@ -242,6 +247,17 @@ export function SettingsPanel() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Keyboard Shortcuts */}
+      <div className="px-4 py-3">
+        <button
+          onClick={openShortcuts}
+          className="w-full px-3 py-2 text-sm bg-[var(--bg-tertiary)] hover:bg-[var(--border-color)] rounded text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+        >
+          <span>⌨️</span>
+          <span>{t?.shortcuts?.title || 'Keyboard Shortcuts'}</span>
+        </button>
       </div>
     </div>
   )

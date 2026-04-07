@@ -132,6 +132,19 @@
     "enableTypewriterMode": "Typewriter Mode",
     "disableTypewriterMode": "Disable Typewriter"
   },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "formatting": "Formatting",
+    "headings": "Headings",
+    "ai": "AI",
+    "navigation": "Navigation",
+    "nextElement": "Next element",
+    "prevElement": "Previous element",
+    "activate": "Activate",
+    "close": "Close dialog",
+    "macHint": "⌘ is the Command key on Mac",
+    "winHint": "Ctrl is the Control key on Windows/Linux"
+  },
   "toolbar": {
     "basic": "Basic",
     "headings": "Headings",
