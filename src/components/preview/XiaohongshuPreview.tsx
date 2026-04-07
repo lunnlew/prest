@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, memo } from 'react'
+import { useEffect, useRef, useMemo, memo, useState, useCallback } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -14,6 +14,31 @@ import { TEMPLATE_RENDERERS, type RendererType } from '../../styles/rendererFact
 /** 预加载所有模板 CSS（供 vite 打包） */
 const _loaded = import.meta.glob('../../styles/templates/*.css')
 void Object.values(_loaded).map((m) => m())
+
+// Code block copy button component for XHS
+function XHSCodeBlockCopyButton({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }, [code])
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="xhs-code-block-copy-btn"
+      title="复制代码"
+    >
+      {copied ? '✓' : '📋'}
+    </button>
+  )
+}
 
 interface XiaohongshuPreviewProps {
   content?: string
@@ -52,6 +77,7 @@ function createBaseRenderers(counter: { current: number }) {
           <SyntaxHighlighter style={oneDark} language={language} PreTag="div">
             {code}
           </SyntaxHighlighter>
+          <XHSCodeBlockCopyButton code={code} />
         </BlockWrap>
       )
     },

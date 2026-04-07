@@ -1,4 +1,4 @@
-import { useRef, memo } from 'react'
+import { useRef, memo, useState, useCallback } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -13,6 +13,31 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
 import './MarkdownPreview.css'
+
+// Code block copy button component
+function CodeBlockCopyButton({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }, [code])
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="code-block-copy-btn"
+      title="Copy code"
+    >
+      {copied ? '✓' : '📋'}
+    </button>
+  )
+}
 
 interface MarkdownPreviewProps {
   content: string
@@ -89,15 +114,20 @@ export const MarkdownPreview = memo(function MarkdownPreview({ content }: Markdo
               )
             }
 
+            const codeString = String(children).replace(/\n$/, '')
+
             return (
-              <SyntaxHighlighter
-                style={settings.theme === 'light' ? oneLight : oneDark}
-                language={match[1]}
-                PreTag="div"
-                className="code-block"
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
+              <div className="code-block-wrapper">
+                <SyntaxHighlighter
+                  style={settings.theme === 'light' ? oneLight : oneDark}
+                  language={match[1]}
+                  PreTag="div"
+                  className="code-block"
+                >
+                  {codeString}
+                </SyntaxHighlighter>
+                <CodeBlockCopyButton code={codeString} />
+              </div>
             )
           },
 
