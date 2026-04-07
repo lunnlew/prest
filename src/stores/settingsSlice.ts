@@ -166,7 +166,7 @@ export const defaultToolbarItems: ToolbarItem[] = [
 ]
 
 export const defaultXHSExport: XHSExportSettings = {
-  aspectRatio: '3:4',
+  aspectRatio: '3:5',
   template: 'cream',
   watermark: '',
   watermarkPosition: 'bottom-right',
