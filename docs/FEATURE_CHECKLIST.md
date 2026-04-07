@@ -90,7 +90,7 @@
 | v0.8.7 | 2026-04-06 | 专注模式/切换预览区修复：面板折叠时保存尺寸、展开时恢复；统一 syncScroll 状态到 settings；修复 Monaco 搜索框文字透明问题 |
 | v0.9.0 | 2026-04-06 | AI 功能集成：AI 对话浮动面板（编辑器下方）、自定义 API 配置（兼容 OpenAI 格式）、AI 配置面板（设置页面） |
 | v0.9.1 | 2026-04-07 | AI 增强：开关控制、高度可调、消息持久化、快捷命令、编辑器右键菜单、Insert/Replace 功能、流式响应 |
-| v0.10.0 | 2026-04-07 | 功能完善：自动保存逻辑完整实现、beforeunload保存、图片拖拽粘贴上传、富文本HTML粘贴转换、HTML/PDF导出、本地文件导入 |
+| v0.10.1 | 2026-04-07 | 性能优化：布局拖动卡顿优化（Zustand useShallow、拖动状态追踪、Monaco scroll sync debounce、组件 memo） |
 
 ---
 
@@ -134,7 +134,7 @@
 | 3.5 | EX-004 Admonition/Callout 块 | ✅ | 2h | `MarkdownPreview.tsx` — remark-directive, 8种样式 |
 | 3.6 | E-019 Front Matter / YAML 元数据 | ⏳ | 2h | 新建 `utils/frontmatter.ts` |
 | 3.7 | EX-006 自动目录生成 | ⏳ | 2h | `MarkdownPreview.tsx` |
-| 3.8 | PERF-002/003/004 性能优化 | ⏳ | 4h | 多处 |
+| 3.8 | PERF-002/003/004 性能优化 | 🔄 | 4h | 多处 — Zustand useShallow/Monaco scroll debounce/组件 memo/PanelResizeHandle优化 |
 | 3.9 | X-005/X-006 批量导出 & 配置导出 | ⏳ | 2h | 新建 `utils/configExport.ts` |
 | 3.10 | I18N-002/A11Y 更多语言包 & 无障碍 | ✅ | 2h | `locales/` — zh-CN/en 双语 + 翻译键体系 |
 
