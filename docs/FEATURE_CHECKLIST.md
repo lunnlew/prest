@@ -91,6 +91,7 @@
 | v0.9.0 | 2026-04-06 | AI 功能集成：AI 对话浮动面板（编辑器下方）、自定义 API 配置（兼容 OpenAI 格式）、AI 配置面板（设置页面） |
 | v0.9.1 | 2026-04-07 | AI 增强：开关控制、高度可调、消息持久化、快捷命令、编辑器右键菜单、Insert/Replace 功能、流式响应 |
 | v0.10.1 | 2026-04-07 | 性能优化：布局拖动卡顿优化（Zustand useShallow、拖动状态追踪、Monaco scroll sync debounce、组件 memo） |
+| v0.10.2 | 2026-04-07 | 粘贴图片修复：data URL 图片在预览中正常显示（customUrlTransform + rehype-sanitize data 协议支持） |
 
 ---
 

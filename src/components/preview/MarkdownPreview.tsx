@@ -30,6 +30,10 @@ const CALLOUT_TYPES: Record<string, { icon: string; className: string }> = {
   default: { icon: '📌', className: 'callout-default' },
 }
 
+// Custom urlTransform to allow data: URLs for images
+// urlTransform runs BEFORE sanitize, so this preserves data URLs before sanitize can remove them
+const customUrlTransform = (url: string) => url
+
 export const MarkdownPreview = memo(function MarkdownPreview({ content }: MarkdownPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null)
   const { settings } = useBoundStore()
@@ -62,9 +66,15 @@ export const MarkdownPreview = memo(function MarkdownPreview({ content }: Markdo
             attributes: {
               ...defaultSchema.attributes,
               div: [['align']],
+              img: ['src', 'alt', ...(defaultSchema.attributes?.img || [])],
+            },
+            protocols: {
+              ...defaultSchema.protocols,
+              src: [...(defaultSchema.protocols?.src || []), 'data'],
             },
           }],
         ]}
+        urlTransform={customUrlTransform}
         components={{
           // Custom code block with syntax highlighting
           code({ className, children, ...props }) {
@@ -124,9 +134,9 @@ export const MarkdownPreview = memo(function MarkdownPreview({ content }: Markdo
           ),
 
           // Custom image
-          img: ({ src, alt }) => (
-            <img src={src} alt={alt} className="preview-image" loading="lazy" />
-          ),
+          img: ({ src, alt, ...props }: any) => {
+            return <img src={src} alt={alt || 'image'} className="preview-image" loading="lazy" {...props} />
+          },
 
           // Custom blockquote - handles callouts
           blockquote: ({ children }) => {

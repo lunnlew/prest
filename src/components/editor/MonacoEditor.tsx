@@ -309,11 +309,11 @@ export function MonacoEditor() {
           // Inline code
           [/`[^`]+`/, 'constant'],
 
-          // Links
-          [/\[[^\]]+\]\([^)]+\)/, 'link'],
+          // Links - simplified to be more permissive
+          [/\[.+?\]\(.+?\)/, 'link'],
 
-          // Images
-          [/!\[[^\]]*\]\([^)]+\)/, 'constant'],
+          // Images - simplified to be more permissive
+          [/!\[[^\]]*\]\(.+?\)/, 'constant'],
 
           // Blockquotes
           [/^>\s+.*$/, 'comment'],
@@ -800,11 +800,8 @@ export function MonacoEditor() {
         reader.readAsDataURL(file)
       })
 
-      // Use filename without extension, or generate timestamp name
-      const fileName = file.name && !file.name.startsWith('image')
-        ? file.name.replace(/\.[^.]+$/, '')
-        : `dropped-image-${i + 1}`
-      const markdown = `![${fileName}](${base64})\n`
+      const imageIndex = imageFiles.length > 1 ? `-${i + 1}` : ''
+      const markdown = `![dropped-image${imageIndex}](${base64})\n`
       insertText(markdown)
     }
   }, [insertText])
@@ -857,12 +854,9 @@ export function MonacoEditor() {
           reader.readAsDataURL(file)
         })
 
-        // Generate a friendly name
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-        const fileName = file.name && !file.name.startsWith('image')
-          ? file.name.replace(/\.[^.]+$/, '')
-          : `pasted-image-${timestamp}`
-        const markdown = `![${fileName}](${base64})\n`
+        // Generate a simple filename without special characters
+        const imageIndex = imageFiles.length > 1 ? `-${i + 1}` : ''
+        const markdown = `![pasted-image${imageIndex}](${base64})\n`
         insertText(markdown)
       }
     }

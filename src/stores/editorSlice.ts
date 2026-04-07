@@ -185,6 +185,7 @@ console.log(greeting)
     if (editor) {
       const position = editor.getPosition()
       if (position) {
+        // Execute edit - it's synchronous
         editor.executeEdits('', [{
           range: {
             startLineNumber: position.lineNumber,
@@ -194,6 +195,10 @@ console.log(greeting)
           },
           text,
         }])
+
+        // Update store content after edit is applied
+        const newContent = editor.getValue()
+        set({ content: newContent, isDirty: true })
         editor.focus()
       }
     } else {
