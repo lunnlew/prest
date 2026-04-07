@@ -37,14 +37,14 @@
 | 优先级 | 总数 | 完成 | 部分完成 | 待开始 |
 |--------|------|------|----------|--------|
 | P0 | 7 | 6 | 1 | 0 |
-| P1 | 10 | 7 | 0 | 3 |
-| P2 | 10 | 3 | 0 | 7 |
+| P1 | 10 | 8 | 0 | 2 |
+| P2 | 10 | 4 | 0 | 6 |
 | P3 (AI) | 19 | 19 | 0 | 0 |
 | **总计** | **46** | **35** | **1** | **10** |
 
 - **P0 功能完成率:** 86% (6/7)
-- **P1 功能完成率:** 70% (7/10)
-- **P2 功能完成率:** 30% (3/10)
+- **P1 功能完成率:** 80% (8/10)
+- **P2 功能完成率:** 40% (4/10)
 - **P3 (AI) 功能完成率:** 100% (19/19)
 - **总体完成率:** 76% (35/46 + 1部分完成)
 
@@ -92,6 +92,7 @@
 | v0.9.1 | 2026-04-07 | AI 增强：开关控制、高度可调、消息持久化、快捷命令、编辑器右键菜单、Insert/Replace 功能、流式响应 |
 | v0.10.1 | 2026-04-07 | 性能优化：布局拖动卡顿优化（Zustand useShallow、拖动状态追踪、Monaco scroll sync debounce、组件 memo） |
 | v0.10.2 | 2026-04-07 | 粘贴图片修复：data URL 图片在预览中正常显示（customUrlTransform + rehype-sanitize data 协议支持） |
+| v0.10.3 | 2026-04-07 | 大文档虚拟渲染：@tanstack/react-virtual 实现预览区虚拟列表；代码块复制按钮；双向滚动同步偏移修复 |
 
 ---
 
@@ -117,8 +118,8 @@
 | 2.2 | UX-002 富文本粘贴 (HTML→Markdown) | ✅ | 2h | `utils/clipboard.ts` — htmlToMarkdown函数, 支持headers/bold/italic/code/links/images |
 | 2.3 | X-002/X-003 导出 HTML/PDF | ✅ | 3h | `utils/export.ts` — exportHtml/exportPdf函数, 工具栏按钮 |
 | 2.4 | X-004 导入本地文件 | ✅ | 1h | `utils/importFile.ts` — importFile函数, 工具栏按钮 |
-| 2.5 | FIX-001 同步滚动精确映射 | ✅ | 3h | `MonacoEditor.tsx`, `OutlineView.tsx`, `PreviewPanel.tsx` — 编辑器-预览双向同步 + 大纲滚动联动 |
-| 2.6 | PERF-001 大文档虚拟渲染 | ⏳ | 4h | `MarkdownPreview.tsx` |
+| 2.5 | FIX-001 同步滚动精确映射 | 🔄 | 3h | `MonacoEditor.tsx`, `OutlineView.tsx`, `PreviewPanel.tsx` — 编辑器-预览双向同步 + 大纲滚动联动（虚拟渲染后需优化映射算法） |
+| 2.6 | PERF-001 大文档虚拟渲染 | ✅ | 4h | `VirtualMarkdown.tsx`, `markdownBlocks.ts` — @tanstack/react-virtual 实现虚拟列表 |
 | 2.7 | SEC-002 CSP 安全策略 | ✅ | 1h | `index.html` 第8-22行 |
 | 2.8 | FIX-005 浏览器兼容性测试 | ⏳ | 2h | — |
 | 2.9 | FIX-006 响应式布局完善 | ⏳ | 3h | `AppLayout.tsx`, `globals.css` |
@@ -130,7 +131,7 @@
 |------|------|------|-----------|----------|
 | 3.1 | UX-004 Emoji 选择器 | ✅ | 2h | `components/editor/EmojiPicker.tsx` |
 | 3.2 | EX-002 Mermaid 图表 | ⏳ | 3h | `MarkdownPreview.tsx` |
-| 3.3 | E-016/E-017 代码块行号 & 复制 | ⏳ | 2h | `MarkdownPreview.tsx` |
+| 3.3 | E-016/E-017 代码块行号 & 复制 | ✅ | 2h | `VirtualMarkdown.tsx` — CodeBlockCopyButton 组件，复制图标按钮 |
 | 3.4 | M-003 图片点击放大/灯箱 | ⏳ | 2h | `MarkdownPreview.tsx` |
 | 3.5 | EX-004 Admonition/Callout 块 | ✅ | 2h | `MarkdownPreview.tsx` — remark-directive, 8种样式 |
 | 3.6 | E-019 Front Matter / YAML 元数据 | ⏳ | 2h | 新建 `utils/frontmatter.ts` |
