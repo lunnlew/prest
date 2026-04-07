@@ -19,11 +19,13 @@ export function MonacoEditor() {
     content,
     settings,
     cursorPosition,
+    editorScrollRatio,
   } = useBoundStore(
     useShallow((state) => ({
       content: state.content,
       settings: state.settings,
       cursorPosition: state.cursorPosition,
+      editorScrollRatio: state.editorScrollRatio,
     }))
   )
   const setContent = useBoundStore(state => state.setContent)
@@ -35,6 +37,7 @@ export function MonacoEditor() {
   // Ref for drag state tracking
   const isDraggingRef = useRef(false)
   const isInternalChange = useRef(false)
+  const isScrollingRef = useRef(false)
   const monacoRef = useRef<typeof Monaco | null>(null)
   const editorWrapperRef = useRef<HTMLDivElement>(null)
 
@@ -72,6 +75,28 @@ export function MonacoEditor() {
       isInternalChange.current = false
     }, 0)
   }, [cursorPosition])
+
+  // Sync scroll from preview to editor when editorScrollRatio changes
+  useEffect(() => {
+    if (!t || !settings.syncScroll || isScrollingRef.current || isDraggingRef.current) return
+
+    const editor = useBoundStore.getState().editorInstance
+    if (!editor) return
+
+    const layoutInfo = editor.getLayoutInfo()
+    const scrollHeight = editor.getScrollHeight()
+    const clientHeight = layoutInfo.height
+    const maxScroll = scrollHeight - clientHeight
+
+    if (maxScroll > 0) {
+      isScrollingRef.current = true
+      const targetScrollTop = editorScrollRatio * maxScroll
+      editor.setScrollTop(targetScrollTop)
+      setTimeout(() => {
+        isScrollingRef.current = false
+      }, 50)
+    }
+  }, [editorScrollRatio, settings.syncScroll, t])
 
   // Update Monaco editor theme when app theme changes
   useEffect(() => {

@@ -20,12 +20,13 @@ export function PreviewPanel() {
   const { t } = useTranslation()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isScrollingRef = useRef(false)
+  const isDraggingRef = useRef(false)
   const xhs = settings.xhsExport
   const syncScroll = settings.syncScroll
 
   // Sync scroll from editor to preview
   useEffect(() => {
-    if (!t || !syncScroll || isScrollingRef.current) return
+    if (!t || !syncScroll || isScrollingRef.current || isDraggingRef.current) return
 
     const container = scrollContainerRef.current
     if (!container) return
@@ -39,6 +40,22 @@ export function PreviewPanel() {
       container.scrollTop = targetScrollTop
     }
   }, [syncScroll, editorScrollRatio, t])
+
+  // Track global drag state to skip scroll updates during panel resize
+  useEffect(() => {
+    const handleDragStart = () => {
+      isDraggingRef.current = true
+    }
+    const handleDragEnd = () => {
+      isDraggingRef.current = false
+    }
+    document.addEventListener('panelresizestart', handleDragStart)
+    document.addEventListener('panelresizeend', handleDragEnd)
+    return () => {
+      document.removeEventListener('panelresizestart', handleDragStart)
+      document.removeEventListener('panelresizeend', handleDragEnd)
+    }
+  }, [])
 
   // Handle preview scroll - update editor scroll ratio when user scrolls preview
   const handlePreviewScroll = (e: React.UIEvent<HTMLDivElement>) => {
