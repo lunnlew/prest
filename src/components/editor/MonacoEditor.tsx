@@ -25,14 +25,14 @@ export function MonacoEditor() {
     insertText,
   } = useBoundStore()
   const { t } = useTranslation()
-  if (!t) return null
-
   const isInternalChange = useRef(false)
   const monacoRef = useRef<typeof Monaco | null>(null)
   const editorWrapperRef = useRef<HTMLDivElement>(null)
 
   // Sync external cursor position changes (e.g. outline click) to Monaco editor
   useEffect(() => {
+    if (!t) return // Guard against null t during initial load
+
     const editor = useBoundStore.getState().editorInstance
     if (!editor) return
 
@@ -867,7 +867,7 @@ export function MonacoEditor() {
         }}
         loading={
           <div className="flex items-center justify-center h-full text-[var(--text-muted)]">
-            {t.editor.loadingEditor}
+            {t?.editor.loadingEditor ?? 'Loading editor...'}
           </div>
         }
       />
