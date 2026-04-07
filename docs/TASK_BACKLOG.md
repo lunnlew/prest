@@ -1,7 +1,7 @@
 # Prest 任务清单
 
 > 基于代码审查整理，记录所有已实现功能与待开发任务。
-> 最后更新：2026-04-05
+> 最后更新：2026-04-07（根据代码核实）
 
 ---
 
@@ -132,21 +132,15 @@
 
 | # | ID | 任务 | 相关文件 | 备注 |
 |---|-----|------|----------|------|
-| 1 | FIX-001 | 同步滚动精确映射 | `MonacoEditor.tsx`, `MarkdownPreview.tsx` | 开关存在，映射逻辑未实现 |
-| 2 | FIX-005 | 浏览器兼容性测试 | — | Firefox/Safari/Edge 验证 |
+| 1 | FIX-005 | 浏览器兼容性测试 | — | Firefox/Safari/Edge 验证 |
+| 2 | ARC-001 | File System Access API 集成 | `FileExplorer.tsx` | IndexedDB 兜底，主用浏览器文件系统 API |
 
 ### P1 — 高优先级
 
 | # | ID | 任务 | 相关文件 | 备注 |
 |---|-----|------|----------|------|
-| 1 | M-001 | 拖拽图片插入编辑器 | `MonacoEditor.tsx` | 拖放转 base64 引用 |
-| 2 | M-002 | 剪贴板图片粘贴上传 | `MonacoEditor.tsx` | Ctrl+V 图片自动处理 |
-| 3 | X-002 | 导出 HTML | 新建 `utils/export.ts` | 将预览结果导出 HTML |
-| 4 | X-003 | 导出 PDF | 新建 `utils/export.ts` | 将预览结果导出 PDF |
-| 5 | X-004 | 导入本地 .md 文件 | `FileExplorer.tsx` | 文件选择器导入 |
-| 6 | UX-002 | 富文本粘贴 (HTML→Markdown) | 新建 `utils/paste.ts` | Word/网页粘贴自动转换 |
-| 7 | PERF-001 | 大文档虚拟渲染 | `MarkdownPreview.tsx` | 长文档预览性能 |
-| 8 | A11Y-001 | 键盘导航/快捷键提示 | `EditorToolbar.tsx`, `SettingsPanel.tsx` | 工具栏/面板 |
+| 1 | PERF-001 | 大文档虚拟渲染 | `MarkdownPreview.tsx` | 长文档预览性能优化 |
+| 2 | A11Y-001 | 键盘导航/快捷键提示 | `EditorToolbar.tsx`, `SettingsPanel.tsx` | 工具栏/面板无障碍 |
 
 ### P2 — 功能增强
 
@@ -157,23 +151,18 @@
 | 3 | E-016 | 代码块行号显示 | `MarkdownPreview.tsx` | SyntaxHighlighter 行号 |
 | 4 | E-017 | 代码块复制按钮 | `MarkdownPreview.tsx` | 一键复制代码块 |
 | 5 | EX-002 | Mermaid 图表语法 | `MarkdownPreview.tsx` | \`\`\`mermaid 渲染 |
-| 6 | EX-003 | 脚注支持 | — | remark-gfm 已支持，待验证 |
-| 7 | EX-004 | Admonition/Callout 块 | 自定义 remark 插件 | 警告/提示区块 |
-| 8 | EX-006 | 自动目录生成 | `MarkdownPreview.tsx` | 文档内 TOC 链接 |
-| 9 | E-019 | Front Matter / YAML | 新建 `utils/frontmatter.ts` | Markdown 元数据 |
-| 10 | UX-004 | Emoji 选择器 | 新建 `EmojiPicker.tsx` | 工具栏按钮 |
-| 11 | UX-005 | 打字机模式 | `MonacoEditor.tsx` | 光标视口居中 |
-| 12 | UX-006 | 焦点模式 | — | 只显示当前段落 |
-| 13 | UX-007 | 全屏/专注编辑 | `App.tsx` | 隐藏多余 UI |
-| 14 | PERF-002 | 预览区域防抖渲染 | `MarkdownPreview.tsx` | 减少过度刷新 |
-| 15 | PERF-003 | Monaco 懒加载 | `MonacoEditor.tsx` | 按需加载 |
-| 16 | X-005 | 批量导出多文件 | — | 批量下载 |
-| 17 | X-006 | 导入/导出编辑器配置 | — | 主题/工具栏配置文件 |
-| 18 | A11Y-002 | ARIA 标签完善 | 多处 | 屏幕阅读器支持 |
-| 19 | A11Y-003 | 高对比度主题 | 主题系统 | 无障碍对比度 |
-| 20 | I18N-002 | 更多语言包 | `locales/` | 日语/法语/西语 |
-| 21 | FIX-003 | 多标签页编辑 | 新建 `TabBar.tsx` | 同时打开多文件 |
-| 22 | E-018 | 拼写检查 | `MonacoEditor.tsx` | Monaco 拼写纠错 |
+| 6 | EX-003 | 脚注支持 | — | remark-footnote 待集成 |
+| 7 | EX-006 | 自动目录生成 | `MarkdownPreview.tsx` | 文档内 TOC 链接 |
+| 8 | E-019 | Front Matter / YAML | 新建 `utils/frontmatter.ts` | Markdown 元数据 |
+| 9 | PERF-002 | 预览区域防抖渲染 | `MarkdownPreview.tsx` | 减少过度刷新 |
+| 10 | PERF-003 | Monaco 懒加载 | `MonacoEditor.tsx` | 按需加载 |
+| 11 | X-005 | 批量导出多文件 | — | 批量下载 |
+| 12 | X-006 | 导入/导出编辑器配置 | — | 主题/工具栏配置文件 |
+| 13 | A11Y-002 | ARIA 标签完善 | 多处 | 屏幕阅读器支持 |
+| 14 | A11Y-003 | 高对比度主题 | 主题系统 | 无障碍对比度 |
+| 15 | I18N-002 | 更多语言包 | `locales/` | 日语/法语/西语 |
+| 16 | FIX-003 | 多标签页编辑 | 新建 `TabBar.tsx` | 同时打开多文件 |
+| 17 | E-018 | 拼写检查 | `MonacoEditor.tsx` | Monaco 拼写纠错 |
 
 ### P3 — 远期规划
 
@@ -189,7 +178,7 @@
 | 8 | UX-008 | 编辑历史面板 | 可视浏览 undo/redo |
 | 9 | UX-009 | 阅读时间显示 | 状态栏估算 |
 | 10 | M-005 | 视频/音频嵌入 | HTML5 媒体标签 |
-| 11 | EX-005 | 定义列表 | DL/DT/DD 语法 |
+| 11 | EX-005 | 定义列表 | DL/DT/DD 语法（remark-deflist 已装但未激活）|
 
 ---
 
@@ -197,9 +186,9 @@
 
 | 类别 | 数量 |
 |------|------|
-| 已实现功能 | 64 |
+| 已实现功能 | 64+ |
 | P0 待开发 | 2 |
-| P1 待开发 | 8 |
-| P2 待开发 | 22 |
+| P1 待开发 | 2 |
+| P2 待开发 | 17 |
 | P3 长期规划 | 11 |
-| **总计待开发** | **43** |
+| **总计待开发** | **32** |

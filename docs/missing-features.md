@@ -4,8 +4,8 @@
 
 | ID | 功能 | 优先级 | 状态 | 备注 |
 |----|------|--------|------|------|
-| M-001 | 拖拽图片插入编辑器 | P1 | ❌ | 拖放图片到编辑器区域 |
-| M-002 | 剪贴板图片粘贴上传 | P1 | ❌ | Ctrl+V 粘贴图片自动转 base64 或上传 |
+| M-001 | 拖拽图片插入编辑器 | P1 | ✅ | 拖放图片到编辑器区域 | `MonacoEditor.tsx` |
+| M-002 | 剪贴板图片粘贴上传 | P1 | ✅ | Ctrl+V 粘贴图片自动转 base64 | `MonacoEditor.tsx` |
 | M-003 | 图片点击放大/灯箱预览 | P2 | ❌ | 预览区图片点击可放大查看 |
 | M-004 | Mermaid 图表渲染 | P2 | ❌ | 流程图/时序图/饼图支持 |
 | M-005 | 视频/音频嵌入 | P2 | ❌ | 支持 HTML5 音视频标签 |
@@ -26,12 +26,12 @@
 | ID | 功能 | 优先级 | 状态 | 备注 |
 |----|------|--------|------|------|
 | UX-001 | WYSIWYG 所见即所得模式 | P2 | ❌ | Typora 式即时渲染编辑 |
-| UX-002 | 富文本粘贴 (HTML→Markdown) | P1 | ❌ | 从 Word/网页粘贴自动转换 |
+| UX-002 | 富文本粘贴 (HTML→Markdown) | P1 | ✅ | 从 Word/网页粘贴自动转换 | `utils/clipboard.ts` |
 | UX-003 | 多光标编辑 | P2 | ❌ | Monaco 原生支持但未暴露 |
-| UX-004 | Emoji 选择器 | P2 | ❌ | Emoji picker 按钮 |
-| UX-005 | 打字机模式 | P2 | ❌ | 光标保持在视口中心 |
-| UX-006 | 焦点模式 | P2 | ❌ | 只显示当前编辑段落 |
-| UX-007 | 全屏/专注编辑 | P2 | ❌ | 全屏模式，隐藏多余 UI |
+| UX-004 | Emoji 选择器 | P2 | ✅ | Emoji picker 按钮 | `components/editor/EmojiPicker.tsx` |
+| UX-005 | 打字机模式 | P2 | ✅ | 光标保持在视口中心 |
+| UX-006 | 焦点模式 | P2 | ✅ | 只显示当前编辑段落 |
+| UX-007 | 全屏/专注编辑 | P2 | ✅ | 全屏模式，隐藏多余 UI |
 | UX-008 | 编辑历史面板 | P2 | ❌ | 可视浏览 undo/redo 历史 |
 | UX-009 | 预计阅读时间显示 | P3 | ❌ | 状态栏增加阅读时间估算 |
 
@@ -42,7 +42,7 @@
 | EX-001 | 数学公式 (KaTeX) | P0 | ✅ | 支持 `$..$` 行内和 `$$..$$` 块级公式 | `MarkdownPreview.tsx`, `remark-math`, `rehype-katex` |
 | EX-002 | Mermaid 图表语法 | P1 | ❌ | \`\`\`mermaid 代码块渲染 |
 | EX-003 | 脚注支持 | P2 | ❌ | remark-gfm 已支持，待验证 |
-| EX-004 | Admonition/Callout 块 | P2 | ❌ | 警告/提示/注意等特殊块 |
+| EX-004 | Admonition/Callout 块 | P2 | ✅ | 警告/提示/注意等特殊块 | `MarkdownPreview.tsx` remark-directive |
 | EX-005 | 定义列表 | P2 | ❌ | DL/DT/DD 语法 |
 | EX-006 | 自动目录生成 | P2 | ❌ | 文档内自动生成 TOC 链接 |
 
@@ -51,7 +51,7 @@
 | ID | 功能 | 优先级 | 状态 | 备注 |
 |----|------|--------|------|------|
 | SEC-001 | XSS sanitize | P0 | ✅ | rehype-sanitize 配置自定义 safe schema | `MarkdownPreview.tsx` |
-| SEC-002 | CSP 安全策略 | P1 | ✅ | index.html CSP meta 标签配置 | `index.html` |
+| SEC-002 | CSP 安全策略 | P1 | ✅ | index.html CSP meta 标签配置 | `index.html` 第8-22行 |
 | PERF-001 | 大文档虚拟渲染 | P1 | ❌ | 长文档预览性能优化 |
 | PERF-002 | 预览区域防抖渲染 | P2 | ❌ | 编辑时减少过于频繁的预览刷新 |
 | PERF-003 | Monaco 懒加载 | P2 | ❌ | 按需加载 Monaco 编辑器 |
@@ -61,7 +61,7 @@
 
 | ID | 功能 | 优先级 | 状态 | 备注 |
 |----|------|--------|------|------|
-| ARC-001 | 真实文件系统对接 | P0 | ✅ | IndexedDB 存储文件树，启动自动加载 |
+| ARC-001 | 真实文件系统对接 | P0 | 🔄 | File System Access API 为主，IndexedDB 兜底 | `storage/indexedDB.ts` |
 | ARC-002 | 自动保存逻辑完整实现 | P0 | ✅ | 防抖 500ms 持久化，内容变更 isDirty 标记 |
 | ARC-003 | 插件系统架构 | P2 | ❌ | 可扩展的插件机制 |
 | ARC-004 | Git 集成 | P3 | ❌ | 版本控制支持 |
@@ -85,7 +85,7 @@
 | FIX-001 | 同步滚动精确映射 | P1 | 🔄 | 开关存在，映射逻辑待实现 |
 | FIX-002 | 高亮文本预览渲染 | P0 | ✅ | `==text==` 语法预览转为 `<mark>` 标签 | `MarkdownPreview.tsx`, CSS |
 | FIX-003 | 多标签页编辑 | P2 | ❌ | 同时打开多个文件标签 |
-| FIX-004 | 未保存状态指示器 | P1 | ❌ | isDirty 存在但未在 UI 显示 |
+| FIX-004 | 未保存状态指示器 | P1 | ✅ | isDirty 存在但未在 UI 显示 | `EditorStatusBar.tsx` |
 | FIX-005 | 浏览器兼容性测试 | P1 | ⏳ | Firefox/Safari/Edge 待测试 |
 | FIX-006 | 响应式布局完善 | P1 | 🔄 | 移动端/小屏适配 |
 | E-016 | 代码块行号显示 | P2 | ❌ | SyntaxHighlighter 未启用行号 |

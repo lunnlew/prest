@@ -36,17 +36,17 @@
 
 | 优先级 | 总数 | 完成 | 部分完成 | 待开始 |
 |--------|------|------|----------|--------|
-| P0 | 7 | 6 | 0 | 1 |
-| P1 | 10 | 6 | 0 | 4 |
-| P2 | 10 | 2 | 0 | 8 |
+| P0 | 7 | 6 | 1 | 0 |
+| P1 | 10 | 7 | 0 | 3 |
+| P2 | 10 | 3 | 0 | 7 |
 | P3 (AI) | 19 | 19 | 0 | 0 |
-| **总计** | **46** | **33** | **0** | **13** |
+| **总计** | **46** | **35** | **1** | **10** |
 
 - **P0 功能完成率:** 86% (6/7)
-- **P1 功能完成率:** 60% (6/10)
-- **P2 功能完成率:** 20% (2/10)
+- **P1 功能完成率:** 70% (7/10)
+- **P2 功能完成率:** 30% (3/10)
 - **P3 (AI) 功能完成率:** 100% (19/19)
-- **总体完成率:** 72% (33/46)
+- **总体完成率:** 76% (35/46 + 1部分完成)
 
 ### 文件统计
 
@@ -106,7 +106,7 @@
 | 1.3 | X-001 下载当前 .md 文件 | ✅ | 1h | `EditorToolbar.tsx`, `tools.tsx` |
 | 1.4 | ARC-002 自动保存逻辑完整实现 | ✅ | 2h | `settingsSlice.ts`, `MonacoEditor.tsx` — beforeunload/loadContent/自动保存debounce |
 | 1.5 | FIX-004 未保存状态指示器 | ✅ | 0.5h | `EditorStatusBar.tsx` — 黄色圆点显示unsaved状态 |
-| 1.6 | ARC-001 真实文件系统对接 (IndexedDB) | ⏳ | 4h | `FileExplorer.tsx`, 新建 `storage/` |
+| 1.6 | ARC-001 真实文件系统对接 (File System API + IndexedDB 兜底) | 🔄 | 4h | `FileExplorer.tsx`, `storage/indexedDB.ts` |
 | 1.7 | EX-001 数学公式 (KaTeX) | ✅ | 3h | `package.json`, `MarkdownPreview.tsx` |
 
 ### Phase 2: 核心体验提升（P1）
@@ -119,7 +119,7 @@
 | 2.4 | X-004 导入本地文件 | ✅ | 1h | `utils/importFile.ts` — importFile函数, 工具栏按钮 |
 | 2.5 | FIX-001 同步滚动精确映射 | ✅ | 3h | `MonacoEditor.tsx`, `OutlineView.tsx`, `PreviewPanel.tsx` — 编辑器-预览双向同步 + 大纲滚动联动 |
 | 2.6 | PERF-001 大文档虚拟渲染 | ⏳ | 4h | `MarkdownPreview.tsx` |
-| 2.7 | SEC-002 CSP 安全策略 | ⏳ | 1h | `index.html`, `vite.config.ts` |
+| 2.7 | SEC-002 CSP 安全策略 | ✅ | 1h | `index.html` 第8-22行 |
 | 2.8 | FIX-005 浏览器兼容性测试 | ⏳ | 2h | — |
 | 2.9 | FIX-006 响应式布局完善 | ⏳ | 3h | `AppLayout.tsx`, `globals.css` |
 | 2.10 | A11Y-001 键盘导航/快捷键提示 | ⏳ | 2h | `EditorToolbar.tsx`, `SettingsPanel.tsx` |
@@ -128,7 +128,7 @@
 
 | 序号 | 任务 | 状态 | 预估工作量 | 相关文件 |
 |------|------|------|-----------|----------|
-| 3.1 | UX-004 Emoji 选择器 | ⏳ | 2h | 新建 `EmojiPicker.tsx`, `tools.tsx` |
+| 3.1 | UX-004 Emoji 选择器 | ✅ | 2h | `components/editor/EmojiPicker.tsx` |
 | 3.2 | EX-002 Mermaid 图表 | ⏳ | 3h | `MarkdownPreview.tsx` |
 | 3.3 | E-016/E-017 代码块行号 & 复制 | ⏳ | 2h | `MarkdownPreview.tsx` |
 | 3.4 | M-003 图片点击放大/灯箱 | ⏳ | 2h | `MarkdownPreview.tsx` |
