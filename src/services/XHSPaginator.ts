@@ -37,7 +37,21 @@ export function paginate(
   frameWidth?: number,
 ): PaginationResult {
   const dims = ASPECT_DIMENSIONS[aspectRatio]
-  const blockEls = Array.from(previewEl.querySelectorAll('[data-xhs-block]')) as HTMLElement[]
+
+  // 只选择顶层的 block 元素，排除嵌套在其他 block 内部的元素
+  // 这样可以避免 blockquote 内部的元素被重复提取
+  const allBlocks = Array.from(previewEl.querySelectorAll('[data-xhs-block]')) as HTMLElement[]
+  const blockEls = allBlocks.filter(el => {
+    // 检查这个元素是否嵌套在其他 block 内部
+    let parent = el.parentElement
+    while (parent) {
+      if (parent.hasAttribute('data-xhs-block')) {
+        return false // 嵌套在另一个 block 内部，跳过
+      }
+      parent = parent.parentElement
+    }
+    return true
+  })
 
   if (blockEls.length === 0) return { pages: [], totalPages: 0 }
 
