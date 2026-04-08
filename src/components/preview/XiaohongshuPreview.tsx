@@ -10,6 +10,8 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import type { XHSTemplate, XHSWatermarkPosition, XHSWatermarkSize } from '../../types'
 import { XHS_TEMPLATE_META, loadTemplateFullCSS } from '../../config/xhsTemplates'
 import { TEMPLATE_RENDERERS, type RendererType } from '../../styles/rendererFactory'
+import { parseSkillDoc } from '../../utils/frontmatter'
+import { SkillMetaPanel } from './SkillMetaPanel'
 
 /** 预加载所有模板 CSS（供 vite 打包） */
 const _loaded = import.meta.glob('../../styles/templates/*.css')
@@ -476,6 +478,16 @@ export const XiaohongshuPreview = memo(function XiaohongshuPreview({
   const counter = useMemo(() => ({ current: 0 }), [content])
   const renderers = useMemo(() => createRenderersByType(rendererType, fontConfig, counter), [rendererType, fontConfig, counter])
 
+  // Parse frontmatter for skill documents
+  const { meta: skillMeta, content: markdownContent } = useMemo(() => {
+    return parseSkillDoc(content || '')
+  }, [content])
+
+  // Determine if this looks like a skill document
+  const isSkillDoc = useMemo(() => {
+    return !!(skillMeta.name || skillMeta.description)
+  }, [skillMeta])
+
   const renderBody = () => {
     if (htmlContent) return <div className="xhs-html-content" dangerouslySetInnerHTML={{ __html: htmlContent }} />
     return (
@@ -491,7 +503,7 @@ export const XiaohongshuPreview = memo(function XiaohongshuPreview({
         ]}
         components={renderers}
       >
-        {content ?? ''}
+        {markdownContent}
       </Markdown>
     )
   }
@@ -522,6 +534,9 @@ export const XiaohongshuPreview = memo(function XiaohongshuPreview({
 
   return (
     <div className={`xhs-preview xhs-template-${template}`}>
+      {/* Render skill metadata panel if this is a skill document */}
+      {isSkillDoc && <SkillMetaPanel meta={skillMeta} />}
+
       {renderBody()}
 
       {/* 斜铺水印 */}
