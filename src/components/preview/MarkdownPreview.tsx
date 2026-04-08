@@ -1,4 +1,4 @@
-import { useRef, memo, useState, useCallback } from 'react'
+import { useRef, memo, useState, useCallback, useMemo } from 'react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -12,6 +12,8 @@ import remarkEmoji from 'remark-emoji'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useBoundStore } from '../../stores'
+import { parseSkillDoc, hasFrontmatter, SkillMeta } from '../../utils/frontmatter'
+import { SkillMetaPanel } from './SkillMetaPanel'
 import './MarkdownPreview.css'
 
 // Code block copy button component
@@ -63,13 +65,27 @@ export const MarkdownPreview = memo(function MarkdownPreview({ content }: Markdo
   const previewRef = useRef<HTMLDivElement>(null)
   const { settings } = useBoundStore()
 
-  // Note: ResizeObserver removed - previewWidth in store was unused and caused performance issues during drag
+  // Parse frontmatter for skill documents
+  const { meta, content: markdownContent } = useMemo(() => {
+    if (hasFrontmatter(content)) {
+      return parseSkillDoc(content)
+    }
+    return { meta: {} as SkillMeta, content }
+  }, [content])
+
+  // Determine if this looks like a skill document (has frontmatter with name/description)
+  const isSkillDoc = useMemo(() => {
+    return hasFrontmatter(content) && (meta.name || meta.description)
+  }, [content, meta])
 
   return (
     <div
       ref={previewRef}
       className="markdown-preview-container"
     >
+      {/* Render skill metadata panel if this is a skill document */}
+      {isSkillDoc && <SkillMetaPanel meta={meta} />}
+
       <Markdown
         remarkPlugins={[
           remarkGfm,
@@ -263,7 +279,7 @@ export const MarkdownPreview = memo(function MarkdownPreview({ content }: Markdo
           },
         }}
       >
-        {content}
+        {markdownContent}
       </Markdown>
     </div>
   )

@@ -120,7 +120,7 @@
 | 2.2 | UX-002 富文本粘贴 (HTML→Markdown) | ✅ | 2h | `utils/clipboard.ts` — htmlToMarkdown函数, 支持headers/bold/italic/code/links/images |
 | 2.3 | X-002/X-003 导出 HTML/PDF | ✅ | 3h | `utils/export.ts` — exportHtml/exportPdf函数, 工具栏按钮 |
 | 2.4 | X-004 导入本地文件 | ✅ | 1h | `utils/importFile.ts` — importFile函数, 工具栏按钮 |
-| 2.5 | FIX-001 同步滚动精确映射 | 🔄 | 3h | `MonacoEditor.tsx`, `OutlineView.tsx`, `PreviewPanel.tsx` — 编辑器-预览双向同步 + 大纲滚动联动（虚拟渲染后需优化映射算法） |
+| 2.5 | FIX-001 同步滚动精确映射 | ✅ | 3h | `VirtualMarkdown.tsx` — 使用 scrollHeight 实际高度同步，移除虚拟列表估计高度依赖 |
 | 2.6 | PERF-001 大文档虚拟渲染 | ✅ | 4h | `VirtualMarkdown.tsx`, `markdownBlocks.ts` — @tanstack/react-virtual 实现虚拟列表 |
 | 2.7 | SEC-002 CSP 安全策略 | ✅ | 1h | `index.html` 第8-22行 |
 | 2.8 | FIX-005 浏览器兼容性测试 | ⏳ | 2h | — |
@@ -136,7 +136,7 @@
 | 3.3 | E-016/E-017 代码块行号 & 复制 | ✅ | 2h | `VirtualMarkdown.tsx` — CodeBlockCopyButton 组件，复制图标按钮 |
 | 3.4 | M-003 图片点击放大/灯箱 | ⏳ | 2h | `MarkdownPreview.tsx` |
 | 3.5 | EX-004 Admonition/Callout 块 | ✅ | 2h | `MarkdownPreview.tsx` — remark-directive, 8种样式 |
-| 3.6 | E-019 Front Matter / YAML 元数据 | ⏳ | 2h | 新建 `utils/frontmatter.ts` |
+| 3.6 | E-019 Front Matter / YAML 元数据 | ✅ | 2h | `utils/frontmatter.ts`, `components/preview/SkillMetaPanel.tsx`, `components/preview/SkillMetaPanel.css`, `markdownBlocks.ts` — js-yaml 解析，SkillMetaPanel 渲染面板，滚动同步修复 |
 | 3.7 | EX-006 自动目录生成 | ⏳ | 2h | `MarkdownPreview.tsx` |
 | 3.8 | PERF-002/003/004 性能优化 | 🔄 | 4h | 多处 — Zustand useShallow/Monaco scroll debounce/组件 memo/PanelResizeHandle优化 |
 | 3.9 | X-005/X-006 批量导出 & 配置导出 | ✅ | 2h | `utils/configExport.ts`, `SettingsPanel.tsx` — 配置导入/导出，设置面板入口 |

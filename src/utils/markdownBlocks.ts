@@ -21,8 +21,18 @@ export interface MarkdownBlock {
 export function splitMarkdownToBlocks(markdown: string): MarkdownBlock[] {
   if (!markdown.trim()) return []
 
+  // Handle frontmatter - check if content starts with ---
+  // If so, skip the frontmatter section (everything between the opening and closing ---)
+  let processedMarkdown = markdown
+  if (markdown.trim().startsWith('---')) {
+    const endFrontmatter = markdown.indexOf('---', 3)
+    if (endFrontmatter !== -1) {
+      processedMarkdown = markdown.slice(endFrontmatter + 1).trim()
+    }
+  }
+
   const blocks: MarkdownBlock[] = []
-  const lines = markdown.split('\n')
+  const lines = processedMarkdown.split('\n')
   let currentBlock: string[] = []
   let currentType: BlockType = 'paragraph'
   let currentLevel = 1
@@ -148,7 +158,7 @@ export function splitMarkdownToBlocks(markdown: string): MarkdownBlock[] {
 
 // Estimate block height based on type and content
 export function estimateBlockHeight(block: MarkdownBlock): number {
-  const LINE_HEIGHT = 24 // pixels per line
+  const LINE_HEIGHT = 28 // pixels per line (increased for better accuracy)
 
   switch (block.type) {
     case 'heading':

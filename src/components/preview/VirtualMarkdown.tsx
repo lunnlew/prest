@@ -15,6 +15,8 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/pris
 import { splitMarkdownToBlocks, estimateBlockHeight } from '../../utils/markdownBlocks'
 import type { MarkdownBlock as IMarkdownBlock } from '../../utils/markdownBlocks'
 import { useBoundStore } from '../../stores'
+import { parseSkillDoc } from '../../utils/frontmatter'
+import { SkillMetaPanel } from './SkillMetaPanel'
 import './MarkdownPreview.css'
 
 // Code block copy button component
@@ -87,19 +89,6 @@ const MarkdownBlockRenderer = memo(function MarkdownBlockRenderer({
   block: IMarkdownBlock
   theme: string
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  // Measure element height after mount (for virtualizer)
-  useEffect(() => {
-    if (ref.current) {
-      const observer = new ResizeObserver(() => {
-        // Height measurement handled by virtualizer via ref
-      })
-      observer.observe(ref.current)
-      return () => observer.disconnect()
-    }
-  }, [])
-
   const commonProps = {
     remarkPlugins: [
       remarkGfm,
@@ -216,7 +205,7 @@ const MarkdownBlockRenderer = memo(function MarkdownBlockRenderer({
   }
 
   return (
-    <div ref={ref} data-block-id={block.id} className="markdown-block">
+    <div data-block-id={block.id} className="markdown-block">
       {block.type === 'callout' ? (
         <div className={`preview-callout callout-${block.raw.split('\n')[0].replace(':::', '').trim() || 'default'}`}>
           <Markdown {...commonProps}>{block.raw}</Markdown>
@@ -248,8 +237,20 @@ export const VirtualMarkdown = memo(function VirtualMarkdown({
   const isScrollingRef = useRef(false)
   const lastScrollRatioRef = useRef(0)
 
-  // Parse content into blocks
-  const blocks = useMemo(() => splitMarkdownToBlocks(content), [content])
+  // Parse frontmatter for skill documents
+  const { meta, content: markdownContent } = useMemo(() => {
+    return parseSkillDoc(content)
+  }, [content])
+
+  // Determine if this looks like a skill document
+  const isSkillDoc = useMemo(() => {
+    return !!(meta.name || meta.description)
+  }, [meta])
+
+  // Parse content into blocks (after removing frontmatter)
+  const blocks = useMemo(() => {
+    return splitMarkdownToBlocks(markdownContent)
+  }, [markdownContent])
 
   // Initialize virtualizer
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -258,7 +259,12 @@ export const VirtualMarkdown = memo(function VirtualMarkdown({
     getScrollElement: () => parentRef.current,
     estimateSize: (index) => estimateBlockHeight(blocks[index]),
     overscan,
-    measureElement: (element) => element.getBoundingClientRect().height,
+    measureElement: (element) => {
+      const rect = element.getBoundingClientRect()
+      const index = (element as HTMLElement).dataset?.index
+      const fallbackHeight = index !== undefined ? estimateBlockHeight(blocks[Number(index)]) : estimateBlockHeight(blocks[0])
+      return rect.height || fallbackHeight
+    },
   })
 
   const virtualItems = virtualizer.getVirtualItems()
@@ -267,14 +273,6 @@ export const VirtualMarkdown = memo(function VirtualMarkdown({
   const BOTTOM_BUFFER = 48
   const totalSize = virtualizer.getTotalSize() + BOTTOM_BUFFER
 
-  // Force remeasurement when blocks change to ensure accurate totalSize
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      virtualizer.measure()
-    }, 100)
-    return () => clearTimeout(timeoutId)
-  }, [blocks, virtualizer])
-
   // Sync scroll position from external source (editor)
   useEffect(() => {
     if (scrollRatio === undefined || isScrollingRef.current) return
@@ -282,26 +280,23 @@ export const VirtualMarkdown = memo(function VirtualMarkdown({
     const container = parentRef.current
     if (!container) return
 
-    // Directly calculate and set scrollTop based on ratio
-    // This is more reliable than scrollToIndex for accurate positioning
-    const totalSize = virtualizer.getTotalSize() + BOTTOM_BUFFER
-    const maxScroll = Math.max(1, totalSize - container.clientHeight)
-    const targetOffset = scrollRatio * maxScroll
+    // Use actual scrollHeight for accurate sync with Monaco
+    const scrollableHeight = container.scrollHeight - container.clientHeight
+    const targetOffset = scrollRatio * Math.max(1, scrollableHeight)
     container.scrollTop = targetOffset
-  }, [scrollRatio, virtualizer])
+  }, [scrollRatio])
 
   // Handle scroll - report ratio to parent
   const handleScroll = useCallback(() => {
     if (!parentRef.current || !onScrollRatioChange) return
 
     const container = parentRef.current
-    // Use virtualizer's totalSize directly for accurate ratio calculation
-    const actualTotalSize = virtualizer.getTotalSize() + BOTTOM_BUFFER
-    const maxScroll = actualTotalSize - container.clientHeight
-    if (maxScroll <= 0) return
+    // Use actual scrollHeight for ratio calculation
+    const scrollableHeight = container.scrollHeight - container.clientHeight
+    if (scrollableHeight <= 0) return
 
-    // Calculate ratio based on scroll position relative to total content
-    const ratio = Math.min(1, Math.max(0, container.scrollTop / maxScroll))
+    // Calculate ratio based on actual scroll position
+    const ratio = Math.min(1, Math.max(0, container.scrollTop / scrollableHeight))
 
     // Only report if ratio changed significantly
     if (Math.abs(lastScrollRatioRef.current - ratio) > 0.001) {
@@ -312,7 +307,7 @@ export const VirtualMarkdown = memo(function VirtualMarkdown({
         isScrollingRef.current = false
       }, 50)
     }
-  }, [onScrollRatioChange, virtualizer])
+  }, [onScrollRatioChange])
 
   return (
     <div
@@ -320,6 +315,9 @@ export const VirtualMarkdown = memo(function VirtualMarkdown({
       className="markdown-preview-container"
       onScroll={handleScroll}
     >
+      {/* Render skill metadata panel if this is a skill document */}
+      {isSkillDoc && <SkillMetaPanel meta={meta} />}
+
       <div
         style={{
           height: `${totalSize}px`,
