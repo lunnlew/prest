@@ -196,7 +196,7 @@ export function AppLayout() {
         </Panel>
 
         {/* Resize Handle between Sidebar and Editor */}
-        <PanelResizeHandle id="sidebar-resize" className="w-1 hover:w-2 group">
+        <PanelResizeHandle id="sidebar-resize" className="w-1 group">
           <ResizeHandle direction="vertical" />
         </PanelResizeHandle>
 
@@ -227,7 +227,7 @@ export function AppLayout() {
             </Panel>
 
             {/* Resize Handle between Editor and Preview */}
-            <PanelResizeHandle id="preview-resize" className="w-1 hover:w-2 group">
+            <PanelResizeHandle id="preview-resize" className="w-1 group">
               <ResizeHandle direction="vertical" />
             </PanelResizeHandle>
 
