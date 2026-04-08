@@ -2,6 +2,7 @@ import { useBoundStore } from '../../stores'
 import { useTranslation } from '../../hooks/useTranslation'
 import { availableLocales } from '../../locales'
 import { themes } from '../../types'
+import { exportConfig, importConfigFromFile } from '../../utils/configExport'
 
 export function SettingsPanel() {
   const {
@@ -258,6 +259,27 @@ export function SettingsPanel() {
           <span>⌨️</span>
           <span>{t?.shortcuts?.title || 'Keyboard Shortcuts'}</span>
         </button>
+      </div>
+
+      {/* Config Import/Export */}
+      <div className="px-4 py-3 border-t border-[var(--border-color)]">
+        <div className="text-xs text-[var(--text-muted)] mb-2">{t?.settings?.configManagement || 'Config Management'}</div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportConfig()}
+            className="flex-1 px-3 py-2 text-sm bg-[var(--bg-tertiary)] hover:bg-[var(--border-color)] rounded text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+          >
+            <span>📤</span>
+            <span>{t?.settings?.exportConfig || 'Export'}</span>
+          </button>
+          <button
+            onClick={() => importConfigFromFile()}
+            className="flex-1 px-3 py-2 text-sm bg-[var(--bg-tertiary)] hover:bg-[var(--border-color)] rounded text-[var(--text-primary)] transition-colors flex items-center justify-center gap-2"
+          >
+            <span>📥</span>
+            <span>{t?.settings?.importConfig || 'Import'}</span>
+          </button>
+        </div>
       </div>
     </div>
   )

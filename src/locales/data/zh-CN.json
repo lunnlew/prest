@@ -217,7 +217,10 @@
     "apiKeyPlaceholder": "sk-...",
     "model": "模型",
     "temperature": "温度",
-    "maxTokens": "最大 Token"
+    "maxTokens": "最大 Token",
+    "configManagement": "配置管理",
+    "exportConfig": "导出设置",
+    "importConfig": "导入设置"
   },
   "ai": {
     "chat": "AI 对话",

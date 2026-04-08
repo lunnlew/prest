@@ -217,7 +217,10 @@
     "apiKeyPlaceholder": "sk-...",
     "model": "Model",
     "temperature": "Temperature",
-    "maxTokens": "Max Tokens"
+    "maxTokens": "Max Tokens",
+    "configManagement": "Config Management",
+    "exportConfig": "Export Settings",
+    "importConfig": "Import Settings"
   },
   "ai": {
     "chat": "AI Chat",

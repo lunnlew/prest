@@ -209,6 +209,9 @@ export interface LocaleMessages {
     model: string
     temperature: string
     maxTokens: string
+    configManagement: string
+    exportConfig: string
+    importConfig: string
   }
   // AI
   ai: {
