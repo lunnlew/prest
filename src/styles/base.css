@@ -226,8 +226,35 @@
   margin: 16px 0;
   font-size: 0.85em;
   line-height: 1.5;
-  white-space: pre;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xhs-preview .xhs-code-block > div {
+  background: transparent !important;
+  padding: 14px 16px !important;
+  margin: 0 !important;
+  overflow-x: visible !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+.xhs-preview .xhs-code-block pre {
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+.xhs-preview .xhs-code-block code {
+  background: transparent !important;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+.xhs-preview .xhs-code-block span {
+  word-break: break-all !important;
 }
 
 .xhs-preview .xhs-code-block > div {
@@ -241,6 +268,14 @@
   background: transparent !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+/* 覆盖 oneDark 主题中 language-text/plain 的背景色 */
+.xhs-preview .xhs-code-block code[class*="language-"],
+.xhs-preview .xhs-code-block pre[class*="language-"],
+.xhs-preview .xhs-code-block .language-text,
+.xhs-preview .xhs-code-block .plain-text {
+  background: transparent !important;
 }
 
 /* XHS code block copy button */
